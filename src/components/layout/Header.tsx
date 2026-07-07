@@ -62,23 +62,25 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
   return (
-    <header className="sticky top-0 z-40 flex items-center gap-3 px-6 py-3 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60">
-      {/* Logo */}
-      <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+    <header className="sticky top-0 z-40 flex items-center gap-2 px-6 h-12 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60">
+      {/* Logo (matches 'select' width: w-24) */}
+      <div className="w-24 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
         <FileText className="w-4 h-4 text-white" />
       </div>
       
-      {/* Title */}
-      <span className="font-semibold text-white text-sm hidden sm:block mx-3">Open PDF Form Creator</span>
+      {/* Title (matches 'text' width + gap + 'dropdown' width: w-28 + 8px + w-32 = 112 + 8 + 128 = 248px) */}
+      <div className="w-[248px] flex items-center justify-center shrink-0">
+        <span className="font-semibold text-white text-sm hidden sm:block">Open PDF Form Creator</span>
+      </div>
 
-      {/* Upload button */}
+      {/* Upload button (matches 'checkbox' width: w-32) */}
       <button
         id="header-upload-btn"
         onClick={() => {
           if (!isLoaded && !isImporting) fileInputRef.current?.click();
         }}
         disabled={isLoaded || isImporting}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors border ${
+        className={`w-32 flex items-center justify-center gap-2 h-8 rounded-lg text-sm transition-colors border ${
           isLoaded || isImporting
             ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed font-medium'
             : 'bg-[#059669] hover:bg-[#059669]/90 text-white border-[#059669]/50'
