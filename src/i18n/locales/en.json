@@ -1,0 +1,84 @@
+{
+  "app": {
+    "title": "OpenFormPDF",
+    "tagline": "Client-Side PDF Form Editor"
+  },
+  "header": {
+    "upload": "Upload PDF",
+    "uploadNew": "Upload New PDF",
+    "download": "Download",
+    "downloadEditable": "Download Editable PDF",
+    "downloadFinalized": "Download Finalized PDF",
+    "undo": "Undo",
+    "redo": "Redo",
+    "close": "Close"
+  },
+  "tools": {
+    "select": "Select",
+    "text": "Text Field",
+    "dropdown": "Dropdown",
+    "checkbox": "Checkbox",
+    "radio": "Radio Button"
+  },
+  "sidebar": {
+    "noSelection": "Select or add a field",
+    "noSelectionHint": "Click a tool, then click on the PDF to place a field.",
+    "fieldProperties": "Field Properties",
+    "name": "Field Name",
+    "namePlaceholder": "unique_field_name",
+    "nameError": "Name already in use",
+    "label": "Label",
+    "labelPlaceholder": "Display label",
+    "fontSize": "Font Size",
+    "fontWeight": "Font Weight",
+    "regular": "Regular",
+    "bold": "Bold",
+    "options": "Options",
+    "addOption": "Add option…",
+    "presets": "Presets",
+    "salutations": "Salutations",
+    "titles": "Titles",
+    "defaultChecked": "Checked by default",
+    "groupName": "Radio Group Name",
+    "groupNamePlaceholder": "e.g. gender",
+    "radioValue": "Export Value",
+    "radioValuePlaceholder": "e.g. male",
+    "deleteField": "Delete Field"
+  },
+  "editor": {
+    "uploadPrompt": "Upload a PDF to get started",
+    "uploadPromptSub": "Your file never leaves your device",
+    "dropHere": "Drop your PDF here",
+    "clickToUpload": "or click to upload",
+    "page": "Page",
+    "of": "of",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out"
+  },
+  "export": {
+    "confirmFlatten": "Download Finalized PDF",
+    "confirmFlattenMessage": "The finalized PDF will have all fields converted to static text. This cannot be undone. Are you sure?",
+    "confirm": "Yes, Finalize",
+    "cancel": "Cancel",
+    "generating": "Generating PDF…",
+    "noFonts": "Font files not found. Please add Inter-Regular.ttf and Inter-Bold.ttf to /public/fonts/."
+  },
+  "consent": {
+    "title": "Your Privacy Matters",
+    "body": "OpenFormPDF processes everything locally in your browser. Your PDF and form data are never uploaded to any server, and no analytics or telemetry are collected.",
+    "subtext": "This app is open-source under the MIT License.",
+    "agree": "I Understand — Get Started",
+    "privacyLink": "View Source on GitHub"
+  },
+  "errors": {
+    "passwordProtected": "This PDF is password-protected. Please remove the password first.",
+    "corrupted": "This file appears to be corrupted or is not a valid PDF.",
+    "unknown": "Failed to load PDF. Please try another file.",
+    "fontMissing": "Inter font files missing from /public/fonts/. See README."
+  },
+  "footer": {
+    "license": "MIT License",
+    "privacy": "Data stays on your device. Always.",
+    "github": "View on GitHub"
+  }
+}

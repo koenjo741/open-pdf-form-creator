@@ -1,0 +1,83 @@
+{
+  "app": {
+    "title": "OpenFormPDF",
+    "tagline": "Éditeur de formulaires PDF côté client"
+  },
+  "header": {
+    "upload": "Télécharger un PDF",
+    "uploadNew": "Télécharger un nouveau PDF",
+    "download": "Télécharger",
+    "downloadEditable": "Télécharger le PDF modifiable",
+    "downloadFinalized": "Télécharger le PDF finalisé",
+    "undo": "Annuler",
+    "redo": "Rétablir"
+  },
+  "tools": {
+    "select": "Sélectionner",
+    "text": "Champ texte",
+    "dropdown": "Liste déroulante",
+    "checkbox": "Case à cocher",
+    "radio": "Bouton radio"
+  },
+  "sidebar": {
+    "noSelection": "Sélectionnez ou ajoutez un champ",
+    "noSelectionHint": "Choisissez un outil, puis cliquez sur le PDF.",
+    "fieldProperties": "Propriétés du champ",
+    "name": "Nom du champ",
+    "namePlaceholder": "nom_champ_unique",
+    "nameError": "Nom déjà utilisé",
+    "label": "Libellé",
+    "labelPlaceholder": "Libellé affiché",
+    "fontSize": "Taille de police",
+    "fontWeight": "Graisse",
+    "regular": "Normal",
+    "bold": "Gras",
+    "options": "Options",
+    "addOption": "Ajouter une option…",
+    "presets": "Préréglages",
+    "salutations": "Civilités",
+    "titles": "Titres",
+    "defaultChecked": "Coché par défaut",
+    "groupName": "Groupe de boutons radio",
+    "groupNamePlaceholder": "ex. genre",
+    "radioValue": "Valeur exportée",
+    "radioValuePlaceholder": "ex. masculin",
+    "deleteField": "Supprimer le champ"
+  },
+  "editor": {
+    "uploadPrompt": "Téléchargez un PDF pour commencer",
+    "uploadPromptSub": "Votre fichier ne quitte jamais votre appareil",
+    "dropHere": "Déposez votre PDF ici",
+    "clickToUpload": "ou cliquez pour télécharger",
+    "page": "Page",
+    "of": "sur",
+    "zoomIn": "Agrandir",
+    "zoomOut": "Réduire"
+  },
+  "export": {
+    "confirmFlatten": "Télécharger le PDF finalisé",
+    "confirmFlattenMessage": "Le PDF finalisé convertira tous les champs en texte statique. Cette action est irréversible. Continuer?",
+    "confirm": "Oui, finaliser",
+    "cancel": "Annuler",
+    "generating": "Génération du PDF…",
+    "noFonts": "Fichiers de police introuvables. Veuillez ajouter Inter-Regular.ttf et Inter-Bold.ttf dans /public/fonts/."
+  },
+  "consent": {
+    "title": "Votre vie privée compte",
+    "body": "OpenFormPDF traite tout localement dans votre navigateur. Votre PDF et vos données de formulaire ne sont jamais envoyés sur un serveur, et aucune analytique ni télémétrie n'est collectée.",
+    "subtext": "Cette application est open-source sous licence MIT.",
+    "agree": "Compris — Commencer",
+    "privacyLink": "Voir le code source sur GitHub"
+  },
+  "errors": {
+    "passwordProtected": "Ce PDF est protégé par un mot de passe. Veuillez d'abord supprimer le mot de passe.",
+    "corrupted": "Ce fichier semble être corrompu ou n'est pas un PDF valide.",
+    "unknown": "Échec du chargement du PDF. Veuillez essayer un autre fichier.",
+    "fontMissing": "Fichiers de police Inter manquants dans /public/fonts/. Voir le README."
+  },
+  "footer": {
+    "license": "Licence MIT",
+    "privacy": "Les données restent sur votre appareil. Toujours.",
+    "github": "Voir sur GitHub"
+  }
+}

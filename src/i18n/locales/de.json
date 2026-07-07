@@ -1,0 +1,84 @@
+{
+  "app": {
+    "title": "OpenFormPDF",
+    "tagline": "Client-seitiger PDF-Formular-Editor"
+  },
+  "header": {
+    "upload": "PDF hochladen",
+    "uploadNew": "Neues PDF hochladen",
+    "download": "Herunterladen",
+    "downloadEditable": "Bearbeitbares PDF herunterladen",
+    "downloadFinalized": "Finales PDF herunterladen",
+    "undo": "Rückgängig",
+    "redo": "Wiederholen",
+    "close": "Schließen"
+  },
+  "tools": {
+    "select": "Auswählen",
+    "text": "Textfeld",
+    "dropdown": "Dropdown",
+    "checkbox": "Kontrollkästchen",
+    "radio": "Optionsfeld"
+  },
+  "sidebar": {
+    "noSelection": "Feld auswählen oder hinzufügen",
+    "noSelectionHint": "Werkzeug wählen, dann auf das PDF klicken.",
+    "fieldProperties": "Feldeigenschaften",
+    "name": "Feldname",
+    "namePlaceholder": "eindeutiger_feldname",
+    "nameError": "Name bereits vergeben",
+    "label": "Beschriftung",
+    "labelPlaceholder": "Anzeigebeschriftung",
+    "fontSize": "Schriftgröße",
+    "fontWeight": "Schriftstärke",
+    "regular": "Normal",
+    "bold": "Fett",
+    "options": "Optionen",
+    "addOption": "Option hinzufügen…",
+    "presets": "Vorlagen",
+    "salutations": "Anreden",
+    "titles": "Titel",
+    "defaultChecked": "Standardmäßig aktiviert",
+    "groupName": "Optionsfeldgruppe",
+    "groupNamePlaceholder": "z.B. geschlecht",
+    "radioValue": "Exportwert",
+    "radioValuePlaceholder": "z.B. maennlich",
+    "deleteField": "Feld löschen"
+  },
+  "editor": {
+    "uploadPrompt": "PDF hochladen um zu beginnen",
+    "uploadPromptSub": "Ihre Datei verlässt nie Ihr Gerät",
+    "dropHere": "PDF hier ablegen",
+    "clickToUpload": "oder zum Hochladen klicken",
+    "page": "Seite",
+    "of": "von",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern"
+  },
+  "export": {
+    "confirmFlatten": "Finales PDF herunterladen",
+    "confirmFlattenMessage": "Das finale PDF wird alle Felder in statischen Text umwandeln. Dies kann nicht rückgängig gemacht werden. Fortfahren?",
+    "confirm": "Ja, finalisieren",
+    "cancel": "Abbrechen",
+    "generating": "PDF wird erstellt…",
+    "noFonts": "Schriftdateien nicht gefunden. Bitte Inter-Regular.ttf und Inter-Bold.ttf in /public/fonts/ ablegen."
+  },
+  "consent": {
+    "title": "Ihre Privatsphäre ist wichtig",
+    "body": "OpenFormPDF verarbeitet alles lokal in Ihrem Browser. Ihr PDF und Ihre Formulardaten werden niemals auf einen Server hochgeladen, und es werden keine Analysen oder Telemetriedaten erfasst.",
+    "subtext": "Diese App ist Open-Source unter der MIT-Lizenz.",
+    "agree": "Verstanden — Los geht's",
+    "privacyLink": "Quellcode auf GitHub ansehen"
+  },
+  "errors": {
+    "passwordProtected": "Dieses PDF ist passwortgeschützt. Bitte entfernen Sie zuerst das Passwort.",
+    "corrupted": "Diese Datei scheint beschädigt oder kein gültiges PDF zu sein.",
+    "unknown": "PDF konnte nicht geladen werden. Bitte eine andere Datei versuchen.",
+    "fontMissing": "Inter-Schriftdateien fehlen in /public/fonts/. Siehe README."
+  },
+  "footer": {
+    "license": "MIT-Lizenz",
+    "privacy": "Daten bleiben auf Ihrem Gerät. Immer.",
+    "github": "Auf GitHub ansehen"
+  }
+}

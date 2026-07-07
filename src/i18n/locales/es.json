@@ -1,0 +1,83 @@
+{
+  "app": {
+    "title": "OpenFormPDF",
+    "tagline": "Editor de formularios PDF del lado del cliente"
+  },
+  "header": {
+    "upload": "Subir PDF",
+    "uploadNew": "Subir nuevo PDF",
+    "download": "Descargar",
+    "downloadEditable": "Descargar PDF editable",
+    "downloadFinalized": "Descargar PDF finalizado",
+    "undo": "Deshacer",
+    "redo": "Rehacer"
+  },
+  "tools": {
+    "select": "Seleccionar",
+    "text": "Campo de texto",
+    "dropdown": "Lista desplegable",
+    "checkbox": "Casilla de verificación",
+    "radio": "Botón de opción"
+  },
+  "sidebar": {
+    "noSelection": "Seleccione o agregue un campo",
+    "noSelectionHint": "Elija una herramienta y haga clic en el PDF.",
+    "fieldProperties": "Propiedades del campo",
+    "name": "Nombre del campo",
+    "namePlaceholder": "nombre_campo_unico",
+    "nameError": "Nombre ya en uso",
+    "label": "Etiqueta",
+    "labelPlaceholder": "Etiqueta visible",
+    "fontSize": "Tamaño de fuente",
+    "fontWeight": "Peso de fuente",
+    "regular": "Normal",
+    "bold": "Negrita",
+    "options": "Opciones",
+    "addOption": "Agregar opción…",
+    "presets": "Preajustes",
+    "salutations": "Saludos",
+    "titles": "Títulos",
+    "defaultChecked": "Marcado por defecto",
+    "groupName": "Grupo de botones de opción",
+    "groupNamePlaceholder": "ej. genero",
+    "radioValue": "Valor exportado",
+    "radioValuePlaceholder": "ej. masculino",
+    "deleteField": "Eliminar campo"
+  },
+  "editor": {
+    "uploadPrompt": "Suba un PDF para comenzar",
+    "uploadPromptSub": "Su archivo nunca sale de su dispositivo",
+    "dropHere": "Suelte su PDF aquí",
+    "clickToUpload": "o haga clic para subir",
+    "page": "Página",
+    "of": "de",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar"
+  },
+  "export": {
+    "confirmFlatten": "Descargar PDF finalizado",
+    "confirmFlattenMessage": "El PDF finalizado convertirá todos los campos en texto estático. Esta acción es irreversible. ¿Continuar?",
+    "confirm": "Sí, finalizar",
+    "cancel": "Cancelar",
+    "generating": "Generando PDF…",
+    "noFonts": "Archivos de fuente no encontrados. Por favor añada Inter-Regular.ttf e Inter-Bold.ttf en /public/fonts/."
+  },
+  "consent": {
+    "title": "Su privacidad importa",
+    "body": "OpenFormPDF procesa todo localmente en su navegador. Su PDF y los datos del formulario nunca se suben a ningún servidor, y no se recopilan análisis ni telemetría.",
+    "subtext": "Esta aplicación es de código abierto bajo la licencia MIT.",
+    "agree": "Entendido — Comenzar",
+    "privacyLink": "Ver código fuente en GitHub"
+  },
+  "errors": {
+    "passwordProtected": "Este PDF está protegido con contraseña. Por favor elimine la contraseña primero.",
+    "corrupted": "Este archivo parece estar dañado o no es un PDF válido.",
+    "unknown": "Error al cargar el PDF. Por favor intente con otro archivo.",
+    "fontMissing": "Archivos de fuente Inter no encontrados en /public/fonts/. Ver README."
+  },
+  "footer": {
+    "license": "Licencia MIT",
+    "privacy": "Los datos permanecen en su dispositivo. Siempre.",
+    "github": "Ver en GitHub"
+  }
+}
