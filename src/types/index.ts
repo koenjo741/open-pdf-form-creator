@@ -68,3 +68,7 @@ export type ExportMode = 'editable' | 'flattened';
 // ─── Tool Mode ───────────────────────────────────────────────────────────────
 
 export type ToolMode = FieldType | 'select';
+
+// ─── App Mode ────────────────────────────────────────────────────────────────
+
+export type AppMode = 'edit' | 'preview';

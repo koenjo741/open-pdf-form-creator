@@ -8,9 +8,11 @@ import { FlattenConfirmModal } from './components/modals/FlattenConfirmModal';
 import { ToastContainer } from './components/common/Toast';
 import { usePdfExport } from './hooks/usePdfExport';
 import { useAutoSave } from './hooks/useAutoSave';
+import { useEditorStore } from './store/useEditorStore';
 
 export default function App() {
   const { exportPdf, isExporting } = usePdfExport();
+  const appMode = useEditorStore((s) => s.appMode);
   const [flattenModalOpen, setFlattenModalOpen] = useState(false);
 
   useAutoSave();
@@ -33,7 +35,7 @@ export default function App() {
       {/* Main editor area */}
       <main className="flex-1 flex overflow-hidden min-h-0">
         <EditorCanvas />
-        <Sidebar />
+        {appMode === 'edit' && <Sidebar />}
       </main>
 
       <Footer />

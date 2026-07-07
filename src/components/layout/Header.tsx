@@ -22,7 +22,7 @@ interface HeaderProps {
 export function Header({ onExportEditable, onExportFlattened, isExporting }: HeaderProps) {
   const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName } = useEditorStore();
+  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, appMode, setAppMode } = useEditorStore();
   const temporalStore = useTemporalStore();
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -80,15 +80,15 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
           if (!isLoaded && !isImporting) fileInputRef.current?.click();
         }}
         disabled={isLoaded || isImporting}
-        className={`w-32 flex items-center justify-center gap-2 h-8 rounded-lg text-sm transition-colors border ${
+        className={`w-32 flex items-center justify-center gap-2 h-9 rounded-lg text-sm transition-colors border ${
           isLoaded || isImporting
             ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed font-medium'
             : 'bg-[#059669] hover:bg-[#059669]/90 text-white border-[#059669]/50'
         }`}
       >
         <Upload className="w-4 h-4" />
-        <span className="hidden sm:block">
-          {isImporting ? 'Importing...' : isLoaded ? t('header.uploadNew') : t('header.upload')}
+        <span className="hidden sm:block whitespace-nowrap">
+          {isImporting ? 'Importing...' : t('header.upload')}
         </span>
       </button>
       <input
@@ -104,7 +104,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       {isLoaded && (
         <button
           onClick={clearPdf}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40"
+          className="flex items-center gap-1.5 px-3 h-9 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40"
           title={t('header.close')}
         >
           <X className="w-4 h-4" />
@@ -112,18 +112,37 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
         </button>
       )}
 
-      {/* Loaded file name */}
-      {pdfFileName && (
-        <span className="text-zinc-500 text-xs truncate max-w-[120px] hidden md:block">
-          {pdfFileName}
-        </span>
+      {/* Spacer & Loaded file name */}
+      <div className="flex-1 min-w-0 px-2 flex items-center">
+        {pdfFileName && (
+          <span className="text-zinc-500 text-xs truncate hidden md:block" title={pdfFileName}>
+            {pdfFileName}
+          </span>
+        )}
+      </div>
+
+      {/* Mode Toggle Switch */}
+      {isLoaded && (
+        <div className="flex items-center mr-2 border border-zinc-700/60 rounded-lg p-1 bg-[#0f172a] h-9">
+          <button
+            onClick={() => setAppMode('edit')}
+            style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
+            className="px-3 h-full flex items-center text-xs font-semibold rounded-md transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => setAppMode('preview')}
+            style={{ backgroundColor: appMode === 'preview' ? '#155dfc' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
+            className="px-3 h-full flex items-center text-xs font-semibold rounded-md transition-colors"
+          >
+            Preview
+          </button>
+        </div>
       )}
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
       {/* Undo / Redo */}
-      {isLoaded && (
+      {isLoaded && appMode === 'edit' && (
         <>
           <button
             id="header-undo-btn"

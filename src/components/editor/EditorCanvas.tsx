@@ -16,6 +16,7 @@ export function EditorCanvas() {
   // Read pdfBuffer as a stable reference — we only re-load when the buffer identity changes
   const pdfBuffer = useEditorStore((s) => s.pdfBuffer);
   const isLoaded = useEditorStore((s) => s.isLoaded);
+  const appMode = useEditorStore((s) => s.appMode);
   const setPageMetas = useEditorStore((s) => s.setPageMetas);
   const setPdfBuffer = useEditorStore((s) => s.setPdfBuffer);
 
@@ -145,7 +146,7 @@ export function EditorCanvas() {
   if (!isLoaded) {
     return (
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AddFieldToolbar />
+        {appMode === 'edit' && <AddFieldToolbar />}
         {/* Empty state / drop zone */}
         <div
           ref={containerRef}
@@ -183,7 +184,7 @@ export function EditorCanvas() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <AddFieldToolbar />
+      {appMode === 'edit' && <AddFieldToolbar />}
       <div ref={containerRef} className="flex-1 overflow-y-scroll px-6 py-6">
         {/* Loading spinner while PDF is being parsed */}
         {isLoadingPdf && (

@@ -26,7 +26,7 @@ interface FieldOverlayProps {
  *  - Renders draggable/resizable FieldBox components for fields on this page
  */
 export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverlayProps) {
-  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, clearSelection } = useEditorStore();
+  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, clearSelection, appMode } = useEditorStore();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
@@ -40,8 +40,8 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't nudge if typing in an input
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) return;
-      if (selectedFieldIds.length === 0 || activeTool !== 'select') return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) return;
+      if (selectedFieldIds.length === 0 || activeTool !== 'select' || appMode !== 'edit') return;
 
       const selectedFieldsOnPage = fields.filter((f) => selectedFieldIds.includes(f.id) && f.pageIndex === pageMeta.pageIndex);
       if (selectedFieldsOnPage.length === 0) return;
@@ -78,7 +78,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField]);
+  }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField, appMode]);
 
   // Click outside to close context menu
   useEffect(() => {
@@ -106,7 +106,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (activeTool !== 'select') return;
+      if (activeTool !== 'select' || appMode !== 'edit') return;
       // Only start marquee if clicking directly on the overlay, not on a field
       if (e.target !== overlayRef.current) return;
       
@@ -117,20 +117,21 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       setMarquee({ startX: x, startY: x, currentX: x, currentY: y });
       setMarquee({ startX: x, startY: y, currentX: x, currentY: y });
     },
-    [activeTool]
+    [activeTool, appMode]
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!marquee || activeTool !== 'select') return;
+      if (!marquee || activeTool !== 'select' || appMode !== 'edit') return;
       const rect = overlayRef.current!.getBoundingClientRect();
       setMarquee((prev) => prev ? { ...prev, currentX: e.clientX - rect.left, currentY: e.clientY - rect.top } : null);
     },
-    [marquee, activeTool]
+    [marquee, activeTool, appMode]
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      if (appMode !== 'edit') return;
       if (activeTool !== 'select') {
         clearSelection();
         return;
@@ -192,12 +193,12 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         // ... (this logic is moved to onClick instead)
       }
     },
-    [activeTool, marquee, pageFields, pageMeta, canvasWidth, canvasHeight, clearSelection, selectedFieldIds, selectField]
+    [activeTool, marquee, pageFields, pageMeta, canvasWidth, canvasHeight, clearSelection, selectedFieldIds, selectField, appMode]
   );
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (activeTool === 'select') return;
+      if (activeTool === 'select' || appMode !== 'edit') return;
       
       const rect = overlayRef.current!.getBoundingClientRect();
       const webX = e.clientX - rect.left;
@@ -235,22 +236,22 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       selectField(id);
       setActiveTool('select');
     },
-    [activeTool, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool],
+    [activeTool, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, appMode],
   );
 
   return (
     <div
       ref={overlayRef}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-      onClick={handleClick}
+      onPointerDown={appMode === 'edit' ? handlePointerDown : undefined}
+      onPointerMove={appMode === 'edit' ? handlePointerMove : undefined}
+      onPointerUp={appMode === 'edit' ? handlePointerUp : undefined}
+      onPointerLeave={appMode === 'edit' ? handlePointerUp : undefined}
+      onClick={appMode === 'edit' ? handleClick : undefined}
       className="absolute inset-0"
-      style={{ cursor: isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
+      style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
     >
       {/* Marquee Box */}
-      {marquee && (
+      {marquee && appMode === 'edit' && (
         <div
           className="absolute border border-blue-500 bg-blue-500/20 z-40 pointer-events-none"
           style={{
@@ -275,29 +276,39 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       ))}
 
       {pageFields.map((field) => (
-        <FieldBoxInner
-          key={field.id}
-          field={field}
-          pageMeta={pageMeta}
-          canvasWidth={canvasWidth}
-          canvasHeight={canvasHeight}
-          otherFields={pageFields.filter((f) => f.id !== field.id)}
-          onGuidesChange={setActiveGuides}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const rect = overlayRef.current!.getBoundingClientRect();
-            setContextMenu({
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top,
-              fieldId: field.id,
-            });
-          }}
-        />
+        appMode === 'preview' ? (
+          <PreviewFieldBox
+            key={field.id}
+            field={field}
+            pageMeta={pageMeta}
+            canvasWidth={canvasWidth}
+            canvasHeight={canvasHeight}
+          />
+        ) : (
+          <FieldBoxInner
+            key={field.id}
+            field={field}
+            pageMeta={pageMeta}
+            canvasWidth={canvasWidth}
+            canvasHeight={canvasHeight}
+            otherFields={pageFields.filter((f) => f.id !== field.id)}
+            onGuidesChange={setActiveGuides}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const rect = overlayRef.current!.getBoundingClientRect();
+              setContextMenu({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top,
+                fieldId: field.id,
+              });
+            }}
+          />
+        )
       ))}
 
       {/* Context Menu */}
-      {contextMenu && (
+      {contextMenu && appMode === 'edit' && (
         <div
           className="absolute z-50 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl py-1 min-w-[120px]"
           style={{ left: contextMenu.x, top: contextMenu.y }}
@@ -495,4 +506,113 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       )}
     </motion.div>
   );
+}
+
+// ─── Preview Field Box ───────────────────────────────────────────────────────
+
+interface PreviewFieldBoxProps {
+  field: FieldDef;
+  pageMeta: PageMeta;
+  canvasWidth: number;
+  canvasHeight: number;
+}
+
+function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
+  const { updateField } = useEditorStore();
+
+  const { webX, webY } = pdfToWeb(
+    field.pdfX, field.pdfY + field.pdfHeight,
+    pageMeta.widthPt, pageMeta.heightPt,
+    canvasWidth, canvasHeight,
+  );
+  const webW = (field.pdfWidth / pageMeta.widthPt) * canvasWidth;
+  const webH = (field.pdfHeight / pageMeta.heightPt) * canvasHeight;
+
+  const baseStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: webX,
+    top: webY,
+    width: webW,
+    height: webH,
+    zIndex: 10,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    border: '1px solid rgba(59, 130, 246, 0.5)',
+    borderRadius: '2px',
+    color: '#111827',
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (field.type === 'checkbox') {
+      const target = e.target as HTMLInputElement;
+      updateField(field.id, { checked: target.checked });
+    } else if (field.type === 'radio') {
+      const target = e.target as HTMLInputElement;
+      // When a radio is checked, it gets this value
+      updateField(field.id, { checked: target.checked });
+      // In a real radio group, checking one unchecks others, but since they are individual fields in our store
+      // we might need to uncheck others with the same groupName.
+      // For simplicity and immediate visual feedback, updating its own checked state is a good start.
+      // If we need cross-field updates, we can do it via a store action, but for now this works.
+    } else {
+      updateField(field.id, { value: e.target.value });
+    }
+  };
+
+  if (field.type === 'text') {
+    return (
+      <input
+        type="text"
+        style={baseStyle}
+        value={field.value || ''}
+        onChange={handleChange}
+        className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+      />
+    );
+  }
+
+  if (field.type === 'dropdown') {
+    return (
+      <select
+        style={baseStyle}
+        value={field.value || field.defaultOption || ''}
+        onChange={handleChange}
+        className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+      >
+        <option value=""></option>
+        {field.options?.map((opt, i) => (
+          <option key={i} value={opt}>{opt}</option>
+        ))}
+      </select>
+    );
+  }
+
+  if (field.type === 'checkbox') {
+    return (
+      <div style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}>
+        <input
+          type="checkbox"
+          checked={field.checked ?? field.checkedByDefault ?? false}
+          onChange={handleChange}
+          className="w-full h-full cursor-pointer accent-blue-600"
+        />
+      </div>
+    );
+  }
+
+  if (field.type === 'radio') {
+    return (
+      <div style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}>
+        <input
+          type="radio"
+          name={field.groupName}
+          value={field.radioValue}
+          checked={field.checked ?? false}
+          onChange={handleChange}
+          className="w-full h-full cursor-pointer accent-blue-600"
+        />
+      </div>
+    );
+  }
+
+  return null;
 }

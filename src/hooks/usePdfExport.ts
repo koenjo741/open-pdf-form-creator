@@ -1,28 +1,21 @@
 import { useState } from 'react';
 import { PDFDocument, PDFName, PDFBool, PDFString } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
+import { saveAs } from 'file-saver';
 import { useEditorStore } from '../store/useEditorStore';
 import { loadInterRegular, loadInterBold } from '../utils/fontLoader';
 import { toast } from '../components/common/Toast';
 import type { ExportMode } from '../types';
 
 function triggerDownload(bytes: Uint8Array, filename: string) {
-  const blob = new Blob([bytes.buffer as ArrayBuffer], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  const blob = new Blob([bytes], { type: 'application/pdf' });
+  saveAs(blob, filename);
 }
 
 /** Generate a safe output filename */
 function buildFilename(original: string | null, mode: ExportMode): string {
   const base = original?.replace(/\.pdf$/i, '') ?? 'document';
-  return mode === 'editable' ? `${base}_form.pdf` : `${base}_finalized.pdf`;
+  return mode === 'editable' ? `${base}__editable.pdf` : `${base}__finalized.pdf`;
 }
 
 export function usePdfExport() {

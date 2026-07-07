@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { temporal } from 'zundo';
 import { get, set, del } from 'idb-keyval';
-import type { FieldDef, PageMeta, ToolMode } from '../types';
+import type { FieldDef, PageMeta, ToolMode, AppMode } from '../types';
 
 // ─── IDB Storage Adapter ──────────────────────────────────────────────────────
 
@@ -36,9 +36,12 @@ export interface EditorState {
   activeTool: ToolMode;
   /** Whether any page is currently rendered */
   isLoaded: boolean;
+  /** Current app mode */
+  appMode: AppMode;
 }
 
 export interface EditorActions {
+  setAppMode: (mode: AppMode) => void;
   setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
@@ -74,8 +77,11 @@ export const useEditorStore = create<EditorStore>()(
         pageMetas: [],
         activeTool: 'select' as ToolMode,
         isLoaded: false,
+        appMode: 'edit',
 
         // ── Actions ───────────────────────────────────────────────────────
+        setAppMode: (mode) => set({ appMode: mode }),
+        
         setPdfBuffer: (buffer, fileName, initialFields) =>
           set((state) => ({ 
             pdfBuffer: buffer, 
