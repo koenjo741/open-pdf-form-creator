@@ -22,7 +22,7 @@ interface HeaderProps {
 export function Header({ onExportEditable, onExportFlattened, isExporting }: HeaderProps) {
   const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, fields } = useEditorStore();
+  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName } = useEditorStore();
   const temporalStore = useTemporalStore();
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -62,14 +62,14 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
   return (
-    <header className="sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/60">
+    <header className="sticky top-0 z-40 flex items-center gap-3 px-6 py-3 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60">
       {/* Logo */}
-      <div className="flex items-center gap-2 mr-2">
-        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-          <FileText className="w-4 h-4 text-white" />
-        </div>
-        <span className="font-semibold text-white text-sm hidden sm:block">OpenFormPDF</span>
+      <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+        <FileText className="w-4 h-4 text-white" />
       </div>
+      
+      {/* Title */}
+      <span className="font-semibold text-white text-sm hidden sm:block mx-3">Open PDF Form Creator</span>
 
       {/* Upload button */}
       <button
@@ -78,10 +78,10 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
           if (!isLoaded && !isImporting) fileInputRef.current?.click();
         }}
         disabled={isLoaded || isImporting}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors border ${
           isLoaded || isImporting
-            ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed'
-            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700/50'
+            ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed font-medium'
+            : 'bg-[#059669] hover:bg-[#059669]/90 text-white border-[#059669]/50'
         }`}
       >
         <Upload className="w-4 h-4" />

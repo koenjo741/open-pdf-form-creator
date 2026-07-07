@@ -26,7 +26,7 @@ interface FieldOverlayProps {
  *  - Renders draggable/resizable FieldBox components for fields on this page
  */
 export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverlayProps) {
-  const { fields, addField, selectField, activeTool, selectedFieldIds, updateField, clearSelection } = useEditorStore();
+  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, clearSelection } = useEditorStore();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
@@ -233,8 +233,9 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
 
       addField(newField);
       selectField(id);
+      setActiveTool('select');
     },
-    [activeTool, pageMeta, canvasWidth, canvasHeight, addField, selectField],
+    [activeTool, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool],
   );
 
   return (

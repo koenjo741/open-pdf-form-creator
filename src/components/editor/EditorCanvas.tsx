@@ -3,6 +3,7 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import * as pdfjs from 'pdfjs-dist';
 import { initialisePdfJs } from '../../utils/pdfLoader';
 import { useEditorStore } from '../../store/useEditorStore';
+import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { PageRenderer } from './PageRenderer';
 import { AddFieldToolbar } from './AddFieldToolbar';
 import { useTranslation } from 'react-i18next';
@@ -127,9 +128,19 @@ export function EditorCanvas() {
     setIsDraggingOver(false);
     const file = e.dataTransfer.files[0];
     if (!file || file.type !== 'application/pdf') return;
-    const buffer = await file.arrayBuffer();
-    setPdfBuffer(new Uint8Array(buffer), file.name);
-  }, [setPdfBuffer]);
+    
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      const { buffer: strippedBuffer, extractedFields } = await extractAndStripFormFields(buffer);
+      setPdfBuffer(strippedBuffer, file.name, extractedFields);
+      if (extractedFields.length > 0) {
+        toast.success(`Imported ${extractedFields.length} existing fields.`);
+      }
+    } catch (err) {
+      console.error('Failed to import PDF via drag and drop:', err);
+      toast.error(t('errors.unknown'));
+    }
+  }, [setPdfBuffer, t]);
 
   if (!isLoaded) {
     return (

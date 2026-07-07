@@ -5,7 +5,7 @@ export function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="border-t border-zinc-800/60 bg-zinc-950/80 px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+    <footer className="border-t border-zinc-800/60 bg-[#020617]/80 px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2 text-zinc-500 text-xs">
         <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
         <span className="font-medium text-emerald-500/80">{t('footer.privacy')}</span>

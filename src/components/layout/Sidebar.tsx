@@ -26,10 +26,10 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-72 shrink-0 flex flex-col bg-zinc-950 border-l border-zinc-800/60 overflow-y-auto">
-      <div className="px-4 py-3 border-b border-zinc-800/60">
+    <aside className="w-72 shrink-0 flex flex-col bg-[#0f172a] border-l border-zinc-800/60 overflow-y-auto">
+      <div className="px-4 h-12 flex items-center border-b border-zinc-800/60">
         <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-          {isMultiSelect ? 'Alignment & Distribution' : (selected ? t('sidebar.fieldProperties') : t('sidebar.noSelection'))}
+          INFO
         </h2>
       </div>
 

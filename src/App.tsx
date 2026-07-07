@@ -23,7 +23,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-zinc-950 text-zinc-100 overflow-hidden">
+    <div className="h-screen flex flex-col bg-[#020617] text-zinc-100 overflow-hidden">
       <Header
         onExportEditable={handleExportEditable}
         onExportFlattened={handleExportFlattened}

@@ -5,12 +5,40 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
   const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: false });
   const form = pdfDoc.getForm();
   const fields = form.getFields();
-  const extractedFields: FieldDef[] = [];
+  let extractedFields: FieldDef[] = [];
   const pages = pdfDoc.getPages();
   let debugLog = `AcroForm Fields: ${fields.length} | `;
+  let stateRecovered = false;
 
-  for (const f of fields) {
+  // 1. Try to load embedded custom state for lossless re-import
+  const stateNode = pdfDoc.catalog.get(PDFName.of('OpenPdfFormCreatorState'));
+  if (stateNode) {
+    try {
+      let b64State = '';
+      if (typeof (stateNode as any).decodeText === 'function') {
+        b64State = (stateNode as any).decodeText();
+      } else if ((stateNode as any).value) {
+        b64State = (stateNode as any).value;
+      }
+      if (b64State) {
+        const statePayload = JSON.parse(decodeURIComponent(atob(b64State)));
+        if (statePayload && Array.isArray(statePayload.fields)) {
+          extractedFields = statePayload.fields;
+          stateRecovered = true;
+          debugLog += `Embedded State: OK (v${statePayload.version}, ${extractedFields.length} fields) | `;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to parse embedded state:", err);
+      debugLog += `Embedded State: FAILED | `;
+    }
+  }
+
+  // 2. If no embedded state, fallback to parsing AcroForm fields
+  if (!stateRecovered) {
+    for (const f of fields) {
     let type: FieldType | null = null;
+    const name = f.getName();
     
     // Combine all methods to detect field type because bundlers can break any single method
     if (f instanceof PDFTextField || f.constructor?.name === 'PDFTextField' || typeof (f as any).getText === 'function') {
@@ -74,6 +102,7 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
       extractedFields.push(baseField as FieldDef);
     }
   }
+  }
 
   // Strip fields from the PDF (using AcroForm API)
   for (const f of fields) {
@@ -81,7 +110,7 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
   }
 
   // --- FALLBACK: If pdf-lib failed to find AcroForm fields (e.g. Foxit PDF issues), scan annotations manually ---
-  if (extractedFields.length === 0) {
+  if (extractedFields.length === 0 && !stateRecovered) {
     debugLog += `Fallback activated. Pages: ${pages.length}. `;
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
       const page = pages[pageIndex];
@@ -96,13 +125,13 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
         let annot = pdfDoc.context.lookup(annotRef);
         
         // Ensure it's a Dictionary
-        if (!annot || typeof annot.get !== 'function') {
-          newAnnots.push(annotRef);
+        if (!annot || typeof (annot as any).get !== 'function') {
+          newAnnots.push(annotRef as any);
           continue;
         }
 
         // Use context.lookup to resolve references
-        let subtype = annot.get(PDFName.of('Subtype'));
+        let subtype = (annot as any).get(PDFName.of('Subtype'));
         if (subtype && typeof subtype.lookup === 'function') subtype = pdfDoc.context.lookup(subtype);
 
         if (subtype && typeof subtype.decodeText === 'function') {
@@ -111,18 +140,18 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
         
         // If it's a Widget (form field), extract it and do NOT add it to newAnnots (strip it)
         if (subtype && typeof subtype.decodeText === 'function' && subtype.decodeText() === 'Widget') {
-          let rect = annot.get(PDFName.of('Rect'));
+          let rect = (annot as any).get(PDFName.of('Rect'));
           if (rect && typeof rect.lookup === 'function') rect = pdfDoc.context.lookup(rect);
 
           if (rect && typeof rect.lookup === 'function') {
-            const x = pdfDoc.context.lookup(rect.lookup(0)).asNumber();
-            const y = pdfDoc.context.lookup(rect.lookup(1)).asNumber();
-            const w = pdfDoc.context.lookup(rect.lookup(2)).asNumber() - x;
-            const h = pdfDoc.context.lookup(rect.lookup(3)).asNumber() - y;
+            const x = (pdfDoc.context.lookup(rect.lookup(0)) as any).asNumber();
+            const y = (pdfDoc.context.lookup(rect.lookup(1)) as any).asNumber();
+            const w = (pdfDoc.context.lookup(rect.lookup(2)) as any).asNumber() - x;
+            const h = (pdfDoc.context.lookup(rect.lookup(3)) as any).asNumber() - y;
             
             // Try to find the field name (T)
             let fieldName = `RecoveredField_${crypto.randomUUID().slice(0, 5)}`;
-            let tEntry = annot.get(PDFName.of('T'));
+            let tEntry = (annot as any).get(PDFName.of('T'));
             if (tEntry && typeof tEntry.lookup === 'function') tEntry = pdfDoc.context.lookup(tEntry);
             if (tEntry && typeof tEntry.decodeText === 'function') {
               fieldName = tEntry.decodeText();
@@ -146,7 +175,7 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
         }
         
         // Keep non-widget annotations
-        newAnnots.push(annotRef);
+        newAnnots.push(annotRef as any);
       }
       
       // Update page annotations

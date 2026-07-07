@@ -16,8 +16,7 @@ export function AddFieldToolbar() {
   const { activeTool, setActiveTool } = useEditorStore();
 
   return (
-    <div className="flex items-center gap-1 px-3 py-2 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/60">
-      <span className="text-xs text-zinc-600 font-medium mr-2 hidden sm:block">Tool:</span>
+    <div className="flex items-center gap-2 px-6 h-12 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60">
       {TOOLS.map(({ mode, icon, labelKey }) => (
         <button
           key={mode}
@@ -27,11 +26,11 @@ export function AddFieldToolbar() {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
             activeTool === mode
               ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+              : 'text-slate-300 bg-[#1e293b] hover:bg-slate-700'
           }`}
         >
           {icon}
-          <span className="hidden md:block">{t(labelKey as Parameters<typeof t>[0])}</span>
+          <span className="hidden md:block leading-none pt-[2px]">{t(labelKey as Parameters<typeof t>[0])}</span>
         </button>
       ))}
     </div>

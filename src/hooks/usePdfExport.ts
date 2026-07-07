@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PDFDocument, PDFName, PDFBool } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFBool, PDFString } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { useEditorStore } from '../store/useEditorStore';
 import { loadInterRegular, loadInterBold } from '../utils/fontLoader';
@@ -129,9 +129,18 @@ export function usePdfExport() {
         }
       }
 
-      // 7. Flatten if requested
+      // 7. Flatten if requested or embed state if editable
       if (mode === 'flattened') {
         form.flatten();
+      } else {
+        // Embed our custom JSON state for lossless re-import
+        const statePayload = {
+          version: 1,
+          app: 'OpenPdfFormCreator',
+          fields: fields,
+        };
+        const base64State = btoa(encodeURIComponent(JSON.stringify(statePayload)));
+        pdfDoc.catalog.set(PDFName.of('OpenPdfFormCreatorState'), PDFString.of(base64State));
       }
 
       // 8. Save & download
