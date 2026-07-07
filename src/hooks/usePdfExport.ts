@@ -8,7 +8,7 @@ import { toast } from '../components/common/Toast';
 import type { ExportMode } from '../types';
 
 function triggerDownload(bytes: Uint8Array, filename: string) {
-  const blob = new Blob([bytes], { type: 'application/pdf' });
+  const blob = new Blob([bytes as any], { type: 'application/pdf' });
   saveAs(blob, filename);
 }
 
