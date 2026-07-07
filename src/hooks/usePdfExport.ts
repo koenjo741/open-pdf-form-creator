@@ -86,6 +86,9 @@ export function usePdfExport() {
               tf.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
               tf.setFontSize(fontSize);
               tf.disableMultiline();
+              if (field.value) {
+                tf.setText(field.value);
+              }
               try { tf.updateAppearances(font); } catch { /* ignore */ }
               break;
             }
@@ -95,7 +98,9 @@ export function usePdfExport() {
               dd.setFontSize(fontSize);
               if (field.options && field.options.length > 0) {
                 dd.setOptions(field.options);
-                if (field.defaultOption && field.options.includes(field.defaultOption)) {
+                if (field.value && field.options.includes(field.value)) {
+                  dd.select(field.value);
+                } else if (field.defaultOption && field.options.includes(field.defaultOption)) {
                   dd.select(field.defaultOption);
                 }
               }
@@ -105,7 +110,11 @@ export function usePdfExport() {
             case 'checkbox': {
               const cb = form.createCheckBox(field.name);
               cb.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-              if (field.checkedByDefault) cb.check();
+              if (field.checked !== undefined) {
+                if (field.checked) cb.check();
+              } else if (field.checkedByDefault) {
+                cb.check();
+              }
               // checkbox.updateAppearances() signature varies by pdf-lib version
               try { (cb as unknown as { updateAppearances: () => void }).updateAppearances(); } catch { /* ignore */ }
               break;
@@ -120,6 +129,10 @@ export function usePdfExport() {
               const optionValue = field.radioValue ?? field.id.slice(0, 8);
               // Note: radio button borders are drawn differently, but borderWidth: 0 hides the outer box
               radioGroup.addOptionToPage(optionValue, page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
+              
+              if (field.value === optionValue) {
+                radioGroup.select(optionValue);
+              }
               try { radioGroup.updateAppearances(); } catch { /* ignore */ }
               break;
             }

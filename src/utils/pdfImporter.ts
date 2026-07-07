@@ -104,6 +104,43 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
   }
   }
 
+  // Extract values from existing AcroForm fields (if any) before stripping them
+  const extractedValues: Record<string, { value?: string, checked?: boolean }> = {};
+  for (const f of fields) {
+    const name = f.getName();
+    try {
+      if (f instanceof PDFTextField || f.constructor?.name === 'PDFTextField' || typeof (f as any).getText === 'function') {
+        const text = (f as any).getText();
+        if (text) extractedValues[name] = { value: text };
+      } else if (f instanceof PDFDropdown || f.constructor?.name === 'PDFDropdown' || typeof (f as any).getSelected === 'function') {
+        const selected = (f as any).getSelected();
+        if (selected && selected.length > 0) extractedValues[name] = { value: selected[0] };
+      } else if (f instanceof PDFCheckBox || f.constructor?.name === 'PDFCheckBox' || typeof (f as any).isChecked === 'function') {
+        const checked = (f as any).isChecked();
+        extractedValues[name] = { checked };
+      } else if (f instanceof PDFRadioGroup || f.constructor?.name === 'PDFRadioGroup' || typeof (f as any).getSelected === 'function') {
+        const selected = (f as any).getSelected();
+        if (selected) extractedValues[name] = { value: selected };
+      }
+    } catch (e) {
+      console.warn(`Could not extract value for field ${name}`, e);
+    }
+  }
+
+  // Merge extracted values into extractedFields
+  extractedFields = extractedFields.map(field => {
+    const key = field.type === 'radio' && field.groupName ? field.groupName : field.name;
+    const valObj = extractedValues[key];
+    if (valObj) {
+      if (field.type === 'checkbox') {
+        return { ...field, checked: valObj.checked };
+      } else {
+        return { ...field, value: valObj.value };
+      }
+    }
+    return field;
+  });
+
   // Strip fields from the PDF (using AcroForm API)
   for (const f of fields) {
     form.removeField(f);

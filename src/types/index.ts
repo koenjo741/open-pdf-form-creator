@@ -28,11 +28,15 @@ export interface FieldDef {
 
   // ── Checkbox-specific ──
   checkedByDefault?: boolean;
+  checked?: boolean; // user-entered value
 
   // ── Radio-specific ──
   /** All radio fields sharing the same groupName form one AcroForm radio group */
   groupName?: string;
   radioValue?: string; // the export value for this button
+
+  // ── User-entered Value (Text/Dropdown) ──
+  value?: string;
 }
 
 // ─── Page Metadata ───────────────────────────────────────────────────────────
