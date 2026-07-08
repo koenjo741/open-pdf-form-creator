@@ -51,7 +51,18 @@
     "groupNamePlaceholder": "e.g. gender",
     "radioValue": "Export Value",
     "radioValuePlaceholder": "e.g. male",
-    "deleteField": "Delete Field"
+    "deleteField": "Delete Field",
+    "infoTitle": "Info & Notes",
+    "infoFunctionTitle": "Functionality",
+    "infoFunctionText": "Upload static PDFs and add input fields. The result can be downloaded in two ways:",
+    "infoFunctionPoint1": "Editable PDF: Fields remain active and can still be filled out.",
+    "infoFunctionPoint2": "Finalized PDF: Fields are \"burned\" into the document and cannot be modified later.",
+    "infoPrivacyTitle": "Privacy",
+    "infoPrivacyText": "100% local. All data and documents remain exclusively on your device. No upload to any server.",
+    "infoLicenseTitle": "License",
+    "infoLicenseText": "Open-Source (MIT License).",
+    "infoDisclaimerTitle": "Disclaimer",
+    "infoDisclaimerText": "Use at your own risk. No liability for malfunctions or data loss."
   },
   "editor": {
     "uploadPrompt": "Upload a PDF to get started",

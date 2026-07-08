@@ -8,6 +8,19 @@ import es from './locales/es.json';
 
 const STORAGE_KEY = 'openpdfform-lang';
 
+function getInitialLanguage() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) return stored;
+
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith('de')) return 'de';
+    if (browserLang.startsWith('fr')) return 'fr';
+    if (browserLang.startsWith('es')) return 'es';
+  }
+  return 'en';
+}
+
 void i18n.use(initReactI18next).init({
   resources: {
     en: { translation: en },
@@ -15,7 +28,7 @@ void i18n.use(initReactI18next).init({
     fr: { translation: fr },
     es: { translation: es },
   },
-  lng: localStorage.getItem(STORAGE_KEY) ?? 'en',
+  lng: getInitialLanguage(),
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 });

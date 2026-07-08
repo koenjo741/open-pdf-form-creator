@@ -40,12 +40,42 @@ export function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-12 text-center"
+            className="flex-1 px-4 py-6 overflow-y-auto"
           >
-            <div className="w-12 h-12 rounded-2xl bg-zinc-800/60 flex items-center justify-center">
-              <MousePointerClick className="w-6 h-6 text-zinc-600" />
+            <div className="space-y-6">
+              <div className="flex flex-col items-center justify-center gap-3 text-center mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-800/60 flex items-center justify-center">
+                  <MousePointerClick className="w-6 h-6 text-zinc-600" />
+                </div>
+                <p className="text-zinc-500 text-sm leading-relaxed">{t('sidebar.noSelectionHint')}</p>
+              </div>
+
+              <div className="pt-4 border-t border-zinc-800/60">
+                <h3 className="text-xs font-semibold text-zinc-300 mb-4">{t('sidebar.infoTitle')}</h3>
+                <div className="space-y-4 text-xs text-zinc-400 leading-relaxed">
+                  <div>
+                    <strong className="text-zinc-300 block mb-1">{t('sidebar.infoFunctionTitle')}:</strong>
+                    {t('sidebar.infoFunctionText')}
+                    <ul className="list-disc pl-4 mt-2 space-y-1.5">
+                      <li>{t('sidebar.infoFunctionPoint1')}</li>
+                      <li>{t('sidebar.infoFunctionPoint2')}</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong className="text-zinc-300 block mb-1">{t('sidebar.infoPrivacyTitle')}:</strong>
+                    {t('sidebar.infoPrivacyText')}
+                  </div>
+                  <div>
+                    <strong className="text-zinc-300 block mb-1">{t('sidebar.infoLicenseTitle')}:</strong>
+                    {t('sidebar.infoLicenseText')}
+                  </div>
+                  <div>
+                    <strong className="text-zinc-300 block mb-1">{t('sidebar.infoDisclaimerTitle')}:</strong>
+                    {t('sidebar.infoDisclaimerText')}
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-zinc-500 text-sm leading-relaxed">{t('sidebar.noSelectionHint')}</p>
           </motion.div>
         ) : (
           <motion.div

@@ -51,7 +51,18 @@
     "groupNamePlaceholder": "z.B. geschlecht",
     "radioValue": "Exportwert",
     "radioValuePlaceholder": "z.B. maennlich",
-    "deleteField": "Feld löschen"
+    "deleteField": "Feld löschen",
+    "infoTitle": "Info & Hinweise",
+    "infoFunctionTitle": "Funktion",
+    "infoFunctionText": "Statische PDFs hochladen und mit Eingabefeldern versehen. Das Ergebnis kann auf zwei Arten heruntergeladen werden:",
+    "infoFunctionPoint1": "Bearbeitbares PDF: Felder bleiben aktiv und können weiterhin ausgefüllt werden.",
+    "infoFunctionPoint2": "Finales PDF: Felder werden fest in das Dokument \"eingebrannt\" und sind nachträglich nicht mehr veränderbar.",
+    "infoPrivacyTitle": "Datenschutz",
+    "infoPrivacyText": "100% lokal. Alle Daten und Dokumente bleiben ausschließlich auf Ihrem Gerät. Kein Upload auf Server.",
+    "infoLicenseTitle": "Lizenz",
+    "infoLicenseText": "Open-Source (MIT-Lizenz).",
+    "infoDisclaimerTitle": "Haftungsausschluss",
+    "infoDisclaimerText": "Nutzung auf eigene Gefahr. Keine Haftung für Fehlfunktionen oder Datenverlust."
   },
   "editor": {
     "uploadPrompt": "PDF hochladen um zu beginnen",

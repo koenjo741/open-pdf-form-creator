@@ -42,7 +42,18 @@
     "groupNamePlaceholder": "ej. genero",
     "radioValue": "Valor exportado",
     "radioValuePlaceholder": "ej. masculino",
-    "deleteField": "Eliminar campo"
+    "deleteField": "Eliminar campo",
+    "infoTitle": "Info y Notas",
+    "infoFunctionTitle": "Funcionalidad",
+    "infoFunctionText": "Suba PDFs estáticos y añada campos de entrada. El resultado se puede descargar de dos maneras:",
+    "infoFunctionPoint1": "PDF editable: Los campos permanecen activos y todavía se pueden rellenar.",
+    "infoFunctionPoint2": "PDF finalizado: Los campos se integran en el documento y no se pueden modificar posteriormente.",
+    "infoPrivacyTitle": "Privacidad",
+    "infoPrivacyText": "100% local. Todos los datos y documentos permanecen exclusivamente en su dispositivo. Ninguna carga a ningún servidor.",
+    "infoLicenseTitle": "Licencia",
+    "infoLicenseText": "Código abierto (Licencia MIT).",
+    "infoDisclaimerTitle": "Descargo de responsabilidad",
+    "infoDisclaimerText": "Uso bajo su propio riesgo. Sin responsabilidad por fallos de funcionamiento o pérdida de datos."
   },
   "editor": {
     "uploadPrompt": "Suba un PDF para comenzar",

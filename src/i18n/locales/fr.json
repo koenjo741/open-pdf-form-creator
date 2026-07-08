@@ -42,7 +42,18 @@
     "groupNamePlaceholder": "ex. genre",
     "radioValue": "Valeur exportée",
     "radioValuePlaceholder": "ex. masculin",
-    "deleteField": "Supprimer le champ"
+    "deleteField": "Supprimer le champ",
+    "infoTitle": "Infos & Remarques",
+    "infoFunctionTitle": "Fonctionnalité",
+    "infoFunctionText": "Téléchargez des PDF statiques et ajoutez des champs de saisie. Le résultat peut être téléchargé de deux manières :",
+    "infoFunctionPoint1": "PDF modifiable : Les champs restent actifs et peuvent toujours être remplis.",
+    "infoFunctionPoint2": "PDF finalisé : Les champs sont intégrés au document et ne peuvent plus être modifiés ultérieurement.",
+    "infoPrivacyTitle": "Confidentialité",
+    "infoPrivacyText": "100% local. Toutes les données et documents restent exclusivement sur votre appareil. Aucun téléchargement sur un serveur.",
+    "infoLicenseTitle": "Licence",
+    "infoLicenseText": "Open-Source (Licence MIT).",
+    "infoDisclaimerTitle": "Avis de non-responsabilité",
+    "infoDisclaimerText": "Utilisation à vos propres risques. Aucune responsabilité pour les dysfonctionnements ou la perte de données."
   },
   "editor": {
     "uploadPrompt": "Téléchargez un PDF pour commencer",
