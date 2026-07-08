@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useEditorStore } from '../../store/useEditorStore';
 import { FieldCommonInputs } from './FieldCommonInputs';
+import { FieldTextStyling } from './FieldTextStyling';
 import { Plus, X, GripVertical, ChevronDown } from 'lucide-react';
 import type { FieldDef } from '../../types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -38,6 +39,7 @@ export function DropdownFieldPanel({ field }: Props) {
   return (
     <div className="space-y-4">
       <FieldCommonInputs field={field} />
+      <FieldTextStyling field={field} />
 
       {/* Options */}
       <div>
