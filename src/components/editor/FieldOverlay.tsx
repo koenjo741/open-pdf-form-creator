@@ -476,10 +476,15 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       {/* Resize handle (bottom-right) — only when selected & in select mode */}
       {isSelected && activeTool === 'select' && (
         <motion.div
-          onPan={(_e, info) => {
+          onPanStart={(e) => {
+            e.stopPropagation();
+          }}
+          onPan={(e, info) => {
+            e.stopPropagation();
             setResizeOffset({ dwWeb: info.offset.x, dhWeb: info.offset.y });
           }}
-          onPanEnd={() => {
+          onPanEnd={(e) => {
+            e.stopPropagation();
             const dwPdf = scaleToPdf(currentWebW, pageMeta.widthPt, canvasWidth) - field.pdfWidth;
             const dhPdf = scaleToPdf(currentWebH, pageMeta.heightPt, canvasHeight) - field.pdfHeight;
 
