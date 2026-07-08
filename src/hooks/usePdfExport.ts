@@ -138,6 +138,8 @@ export function usePdfExport() {
               
               if (field.value === optionValue) {
                 radioGroup.select(optionValue);
+              } else if (!field.value && field.checkedByDefault) {
+                radioGroup.select(optionValue);
               }
               try { radioGroup.updateAppearances(); } catch { /* ignore */ }
               break;

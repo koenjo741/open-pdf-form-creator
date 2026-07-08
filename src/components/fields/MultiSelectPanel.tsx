@@ -235,6 +235,44 @@ export function MultiSelectPanel() {
         </div>
       )}
 
+      {selectedFields.some(f => f.type === 'checkbox' || f.type === 'radio') && (
+        <div className="space-y-4 pb-4 border-b border-zinc-800/60">
+          <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.fieldProperties')}</h3>
+          <div>
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div
+                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                  selectedFields.filter(f => f.type === 'checkbox' || f.type === 'radio').every(f => f.checkedByDefault)
+                    ? 'bg-blue-600 border-blue-600'
+                    : 'bg-zinc-800 border-zinc-600 group-hover:border-blue-500'
+                }`}
+                onClick={() => {
+                  const checkToggleFields = selectedFields.filter(f => f.type === 'checkbox' || f.type === 'radio');
+                  const allChecked = checkToggleFields.every(f => f.checkedByDefault);
+                  checkToggleFields.forEach(f => {
+                    if (f.type === 'radio' && !allChecked) {
+                      // If checking a radio by default, uncheck others in the same group (excluding ones we are also updating)
+                      const sameGroup = fields.filter(
+                        other => other.type === 'radio' && (other.groupName ?? other.name) === (f.groupName ?? f.name) && !checkToggleFields.find(cf => cf.id === other.id)
+                      );
+                      sameGroup.forEach(other => updateField(other.id, { checkedByDefault: false }));
+                    }
+                    updateField(f.id, { checkedByDefault: !allChecked });
+                  });
+                }}
+              >
+                {selectedFields.filter(f => f.type === 'checkbox' || f.type === 'radio').every(f => f.checkedByDefault) && (
+                  <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <span className="text-[10px] font-medium text-zinc-500">{t('sidebar.defaultChecked')}</span>
+            </label>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.alignObjects')}</h3>
         <div className="grid grid-cols-3 gap-2">

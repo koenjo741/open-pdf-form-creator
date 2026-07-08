@@ -49,6 +49,34 @@ export function RadioFieldPanel({ field }: Props) {
             focus:ring-2 focus:ring-blue-500/50 transition-colors"
         />
       </div>
+
+      {/* Default state */}
+      <div>
+        <label className="flex items-center gap-3 cursor-pointer group">
+          <div
+            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+              field.checkedByDefault
+                ? 'bg-blue-600 border-blue-600'
+                : 'bg-zinc-800 border-zinc-600 group-hover:border-blue-500'
+            }`}
+            onClick={() => {
+              // If we check this radio by default, uncheck others in the same group
+              if (!field.checkedByDefault) {
+                const sameGroup = useEditorStore.getState().fields.filter(
+                  f => f.type === 'radio' && (f.groupName ?? f.name) === (field.groupName ?? field.name) && f.id !== field.id
+                );
+                sameGroup.forEach(f => updateField(f.id, { checkedByDefault: false }));
+              }
+              updateField(field.id, { checkedByDefault: !field.checkedByDefault });
+            }}
+          >
+            {field.checkedByDefault && (
+              <div className="w-2.5 h-2.5 rounded-full bg-white" />
+            )}
+          </div>
+          <span className="text-sm text-zinc-300">{t('sidebar.defaultChecked')}</span>
+        </label>
+      </div>
     </div>
   );
 }
