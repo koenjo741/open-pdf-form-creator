@@ -232,7 +232,7 @@ export function MultiSelectPanel() {
       )}
 
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Align</h3>
+        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.alignObjects')}</h3>
         <div className="grid grid-cols-3 gap-2">
           <button onClick={() => handleAlign('left')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Left">
             <AlignLeft className="w-4 h-4 text-zinc-400" />
