@@ -23,7 +23,7 @@ export function AddFieldToolbar() {
           id={`tool-${mode}-btn`}
           onClick={() => setActiveTool(mode)}
           title={t(labelKey as Parameters<typeof t>[0])}
-          className={`flex items-center justify-center gap-2 h-8 px-4 whitespace-nowrap rounded-lg text-sm transition-colors shrink-0 ${
+          className={`flex items-center justify-center gap-2 h-8 flex-1 min-w-[200px] max-w-[240px] whitespace-nowrap rounded-lg text-sm transition-colors ${
             activeTool === mode
               ? 'bg-blue-600 text-white shadow-sm'
               : 'text-slate-300 bg-[#1e293b] hover:bg-slate-700'
