@@ -343,6 +343,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   const { selectedFieldIds, selectField, updateField, activeTool, fields } = useEditorStore();
   const isSelected = selectedFieldIds.includes(field.id);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const isResizingRef = useRef(false);
   
   // Local state for smooth drag/resize
   const [dragOffset, setDragOffset] = useState({ dxWeb: 0, dyWeb: 0 });
@@ -376,7 +377,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       initial={false}
       onPanStart={(e, info) => {
         if (activeTool !== 'select') return;
-        if ((e.target as HTMLElement).closest('.resize-handle')) return;
+        if (isResizingRef.current || (e.target as HTMLElement).closest('.resize-handle')) return;
         // If they start dragging an unselected field, select it (clear others)
         if (!isSelected) selectField(field.id);
         dragStartRef.current = { x: info.point.x, y: info.point.y };
@@ -486,6 +487,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
           }}
           onPanEnd={(e) => {
             e.stopPropagation();
+            isResizingRef.current = false;
             const dwPdf = scaleToPdf(currentWebW, pageMeta.widthPt, canvasWidth) - field.pdfWidth;
             const dhPdf = scaleToPdf(currentWebH, pageMeta.heightPt, canvasHeight) - field.pdfHeight;
 
@@ -512,7 +514,16 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
             setResizeOffset({ dwWeb: 0, dhWeb: 0 });
           }}
           onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            isResizingRef.current = true;
+          }}
+          onPointerUp={() => {
+            isResizingRef.current = false;
+          }}
+          onPointerLeave={() => {
+            isResizingRef.current = false;
+          }}
           style={{ touchAction: 'none' }}
           className="resize-handle absolute -bottom-1.5 -right-1.5 w-3 h-3 rounded-sm bg-blue-500 border border-white cursor-se-resize z-30"
         />
