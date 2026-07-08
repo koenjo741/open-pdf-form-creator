@@ -89,7 +89,7 @@ export function Sidebar() {
 
                     <div className="opacity-30 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
                       <img 
-                        src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkoenjo741.github.io%2Fopen-pdf-form-creator&count_bg=%233b82f6&title_bg=%2318181b&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=true" 
+                        src="https://api.visitorbadge.io/api/visitors?path=koenjo741.open-pdf-form-creator&label=VISITS&countColor=%233b82f6" 
                         alt="Usage Counter" 
                         className="h-5"
                       />
