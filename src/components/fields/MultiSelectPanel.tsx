@@ -1,8 +1,10 @@
 import { useEditorStore } from '../../store/useEditorStore';
 import { AlignLeft, AlignCenter, AlignRight, ArrowLeftRight, ArrowUpDown, Maximize2 } from 'lucide-react';
 import type { FieldDef } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 export function MultiSelectPanel() {
+  const { t } = useTranslation();
   const { fields, selectedFieldIds, updateField } = useEditorStore();
 
   const selectedFields = selectedFieldIds
@@ -131,8 +133,83 @@ export function MultiSelectPanel() {
     });
   };
 
+  const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'dropdown');
+
+  const handleBulkUpdate = (patch: Partial<FieldDef>) => {
+    textFields.forEach(f => updateField(f.id, patch));
+  };
+
   return (
     <div className="space-y-6">
+      {textFields.length > 0 && (
+        <div className="space-y-4 pb-4 border-b border-zinc-800/60">
+          <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.fieldProperties')}</h3>
+          
+          {/* Font Size */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[10px] font-medium text-zinc-500">{t('sidebar.fontSize')}</label>
+            </div>
+            <input
+              type="range"
+              min={6}
+              max={72}
+              step={1}
+              value={textFields[0]?.fontSize ?? 12}
+              onChange={(e) => handleBulkUpdate({ fontSize: Number(e.target.value) })}
+              className="w-full accent-blue-500"
+            />
+          </div>
+
+          {/* Font Family */}
+          <div>
+            <label className="block text-[10px] font-medium text-zinc-500 mb-1.5">{t('sidebar.fontFamily')}</label>
+            <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
+              {(['proportional', 'monospace'] as const).map((f) => {
+                const isActive = textFields.every(field => (field.fontFamily ?? 'proportional') === f);
+                return (
+                  <button
+                    key={f}
+                    onClick={() => handleBulkUpdate({ fontFamily: f })}
+                    className={`flex-1 py-1.5 text-xs transition-colors ${
+                      isActive ? 'bg-blue-600 text-white font-medium' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    {t(`sidebar.${f}` as const)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Text Align */}
+          <div>
+            <label className="block text-[10px] font-medium text-zinc-500 mb-1.5">{t('sidebar.textAlign')}</label>
+            <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
+              {(['left', 'center', 'right'] as const).map((align) => {
+                let Icon = null;
+                if (align === 'left') Icon = AlignLeft;
+                else if (align === 'center') Icon = AlignCenter;
+                else if (align === 'right') Icon = AlignRight;
+                const isActive = textFields.every(field => (field.textAlign ?? 'left') === align);
+
+                return (
+                  <button
+                    key={align}
+                    onClick={() => handleBulkUpdate({ textAlign: align })}
+                    className={`flex-1 flex justify-center items-center py-1.5 transition-colors ${
+                      isActive ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    {Icon && <Icon className="w-3 h-3" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Align</h3>
         <div className="grid grid-cols-3 gap-2">
