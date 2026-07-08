@@ -86,14 +86,6 @@ export function Sidebar() {
                       </svg>
                       {t('footer.github')}
                     </a>
-
-                    <div className="opacity-30 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                      <img 
-                        src="https://komarev.com/ghpvc/?username=koenjo741-open-pdf-form-creator&label=VISITS&color=3b82f6&style=flat-square" 
-                        alt="Usage Counter" 
-                        className="h-5"
-                      />
-                    </div>
                   </div>
                 </div>
               </div>
