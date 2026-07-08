@@ -149,6 +149,7 @@ export function MultiSelectPanel() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[10px] font-medium text-zinc-500">{t('sidebar.fontSize')}</label>
+              <span className="text-[10px] text-blue-400 font-mono">{textFields[0]?.fontSize ?? 12}pt</span>
             </div>
             <input
               type="range"
@@ -159,6 +160,9 @@ export function MultiSelectPanel() {
               onChange={(e) => handleBulkUpdate({ fontSize: Number(e.target.value) })}
               className="w-full accent-blue-500"
             />
+            <div className="flex justify-between text-zinc-600 text-[10px] mt-1">
+              <span>6</span><span>72</span>
+            </div>
           </div>
 
           {/* Font Family */}
