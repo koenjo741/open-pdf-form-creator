@@ -100,7 +100,27 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
         aria-label={t('header.upload')}
       />
 
-      {/* Close button */}
+      {/* Mode Toggle Switch (matches 'checkbox' button) */}
+      {isLoaded && (
+        <div className="flex-1 min-w-[200px] max-w-[240px] flex items-center shrink-0 border border-zinc-700/60 rounded-lg p-0.5 bg-[#0f172a] h-8">
+          <button
+            onClick={() => setAppMode('edit')}
+            style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
+            className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => setAppMode('preview')}
+            style={{ backgroundColor: appMode === 'preview' ? '#155dfc' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
+            className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+          >
+            Preview
+          </button>
+        </div>
+      )}
+
+      {/* Close button (matches 'radio' button) */}
       {isLoaded && (
         <button
           onClick={clearPdf}
@@ -120,26 +140,6 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
           </span>
         )}
       </div>
-
-      {/* Mode Toggle Switch */}
-      {isLoaded && (
-        <div className="flex items-center mr-2 border border-zinc-700/60 rounded-lg p-1 bg-[#0f172a] h-9">
-          <button
-            onClick={() => setAppMode('edit')}
-            style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
-            className="px-3 h-full flex items-center text-xs font-semibold rounded-md transition-colors"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => setAppMode('preview')}
-            style={{ backgroundColor: appMode === 'preview' ? '#155dfc' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
-            className="px-3 h-full flex items-center text-xs font-semibold rounded-md transition-colors"
-          >
-            Preview
-          </button>
-        </div>
-      )}
 
       {/* Undo / Redo */}
       {isLoaded && appMode === 'edit' && (
