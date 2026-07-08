@@ -374,8 +374,9 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   return (
     <motion.div
       initial={false}
-      onPanStart={(_e, info) => {
+      onPanStart={(e, info) => {
         if (activeTool !== 'select') return;
+        if ((e.target as HTMLElement).closest('.resize-handle')) return;
         // If they start dragging an unselected field, select it (clear others)
         if (!isSelected) selectField(field.id);
         dragStartRef.current = { x: info.point.x, y: info.point.y };
@@ -513,7 +514,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           style={{ touchAction: 'none' }}
-          className="absolute -bottom-1.5 -right-1.5 w-3 h-3 rounded-sm bg-blue-500 border border-white cursor-se-resize z-30"
+          className="resize-handle absolute -bottom-1.5 -right-1.5 w-3 h-3 rounded-sm bg-blue-500 border border-white cursor-se-resize z-30"
         />
       )}
     </motion.div>
