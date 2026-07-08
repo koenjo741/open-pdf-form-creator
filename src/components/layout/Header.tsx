@@ -63,24 +63,24 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
 
   return (
     <header className="sticky top-0 z-40 flex items-center gap-2 px-6 h-12 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60">
-      {/* Logo (matches 'select' width: w-24) */}
-      <div className="w-24 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+      {/* Logo (matches 'select' button) */}
+      <button className="flex-1 min-w-[200px] max-w-[240px] h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 cursor-default pointer-events-none transition-colors">
         <FileText className="w-4 h-4 text-white" />
-      </div>
+      </button>
       
-      {/* Title (matches 'text' width + gap + 'dropdown' width: w-28 + 8px + w-32 = 112 + 8 + 128 = 248px) */}
-      <div className="w-[248px] flex items-center justify-center shrink-0">
-        <span className="font-semibold text-white text-sm hidden sm:block">Open PDF Form Creator</span>
-      </div>
+      {/* Title (matches 'text' button) */}
+      <button className="flex-1 min-w-[200px] max-w-[240px] h-8 flex items-center justify-center shrink-0 cursor-default pointer-events-none bg-transparent">
+        <span className="font-semibold text-white text-sm hidden sm:block whitespace-nowrap">Open PDF Form Creator</span>
+      </button>
 
-      {/* Upload button (matches 'checkbox' width: w-32) */}
+      {/* Upload button (matches 'dropdown' button) */}
       <button
         id="header-upload-btn"
         onClick={() => {
           if (!isLoaded && !isImporting) fileInputRef.current?.click();
         }}
         disabled={isLoaded || isImporting}
-        className={`w-32 flex items-center justify-center gap-2 h-9 rounded-lg text-sm transition-colors border ${
+        className={`flex-1 min-w-[200px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg text-sm transition-colors border shrink-0 ${
           isLoaded || isImporting
             ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed font-medium'
             : 'bg-[#059669] hover:bg-[#059669]/90 text-white border-[#059669]/50'
