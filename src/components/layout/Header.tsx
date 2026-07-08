@@ -104,11 +104,11 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       {isLoaded && (
         <button
           onClick={clearPdf}
-          className="flex items-center gap-1.5 px-3 h-9 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40"
+          className="flex-1 min-w-[200px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40 shrink-0"
           title={t('header.close')}
         >
           <X className="w-4 h-4" />
-          <span className="hidden sm:block">{t('header.close')}</span>
+          <span className="hidden sm:block whitespace-nowrap">{t('header.close')}</span>
         </button>
       )}
 
