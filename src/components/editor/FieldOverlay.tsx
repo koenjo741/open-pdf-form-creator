@@ -563,6 +563,10 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     border: '1px solid rgba(59, 130, 246, 0.5)',
     borderRadius: '2px',
     color: '#111827',
+    fontFamily: field.fontFamily === 'monospace' ? 'monospace' : 'Inter, sans-serif',
+    textAlign: field.textAlign || 'left',
+    fontSize: field.fontSize ? `${field.fontSize}px` : '12px',
+    fontWeight: field.fontWeight === 'bold' ? 'bold' : 'normal',
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -571,12 +575,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
       updateField(field.id, { checked: target.checked });
     } else if (field.type === 'radio') {
       const target = e.target as HTMLInputElement;
-      // When a radio is checked, it gets this value
       updateField(field.id, { checked: target.checked });
-      // In a real radio group, checking one unchecks others, but since they are individual fields in our store
-      // we might need to uncheck others with the same groupName.
-      // For simplicity and immediate visual feedback, updating its own checked state is a good start.
-      // If we need cross-field updates, we can do it via a store action, but for now this works.
     } else {
       updateField(field.id, { value: e.target.value });
     }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PDFDocument, PDFName, PDFBool, PDFString } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import { useEditorStore } from '../store/useEditorStore';
@@ -69,16 +69,29 @@ export function usePdfExport() {
           width: field.pdfWidth,
           height: field.pdfHeight,
         };
-        const font = field.fontWeight === 'bold' ? embeddedBold : embeddedRegular;
-        const fontSize = field.fontSize ?? 12;
+          // 1. Determine base font (proportional or monospace)
+          let font;
+          if (field.fontFamily === 'monospace') {
+            const monoType = field.fontWeight === 'bold' ? StandardFonts.CourierBold : StandardFonts.Courier;
+            font = await pdfDoc.embedFont(monoType);
+          } else {
+            font = field.fontWeight === 'bold' ? embeddedBold : embeddedRegular;
+          }
 
-        try {
-          switch (field.type) {
+          const fontSize = field.fontSize ?? 12;
+
+          try {
+            switch (field.type) {
             case 'text': {
               const tf = form.createTextField(field.name);
               tf.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
               tf.setFontSize(fontSize);
               tf.disableMultiline();
+
+              if (field.textAlign === 'center') tf.setAlignment(TextAlignment.Center);
+              else if (field.textAlign === 'right') tf.setAlignment(TextAlignment.Right);
+              else tf.setAlignment(TextAlignment.Left);
+
               if (field.value) {
                 tf.setText(field.value);
               }

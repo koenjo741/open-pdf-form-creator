@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEditorStore } from '../../store/useEditorStore';
 import { FieldCommonInputs } from './FieldCommonInputs';
 import type { FieldDef, FontWeight } from '../../types';
+import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
 interface Props { field: FieldDef; }
 
@@ -34,6 +35,27 @@ export function TextFieldPanel({ field }: Props) {
         </div>
       </div>
 
+      {/* Font Family */}
+      <div>
+        <label className="block text-xs font-medium text-zinc-400 mb-1.5">{t('sidebar.fontFamily')}</label>
+        <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
+          {(['proportional', 'monospace'] as const).map((f) => (
+            <button
+              key={f}
+              id={`field-fontfamily-${f}-${field.id}`}
+              onClick={() => updateField(field.id, { fontFamily: f })}
+              className={`flex-1 py-2 text-sm transition-colors ${
+                (field.fontFamily ?? 'proportional') === f
+                  ? 'bg-blue-600 text-white font-medium'
+                  : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              {t(`sidebar.${f}` as const)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Font Weight */}
       <div>
         <label className="block text-xs font-medium text-zinc-400 mb-1.5">{t('sidebar.fontWeight')}</label>
@@ -52,6 +74,35 @@ export function TextFieldPanel({ field }: Props) {
               {t(`sidebar.${w}` as const)}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Text Align */}
+      <div>
+        <label className="block text-xs font-medium text-zinc-400 mb-1.5">{t('sidebar.textAlign')}</label>
+        <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
+          {(['left', 'center', 'right'] as const).map((align) => {
+            let Icon = null;
+            if (align === 'left') Icon = AlignLeft;
+            else if (align === 'center') Icon = AlignCenter;
+            else if (align === 'right') Icon = AlignRight;
+
+            return (
+              <button
+                key={align}
+                id={`field-align-${align}-${field.id}`}
+                onClick={() => updateField(field.id, { textAlign: align })}
+                title={t(`sidebar.${align}` as const)}
+                className={`flex-1 flex justify-center items-center py-2 text-sm transition-colors ${
+                  (field.textAlign ?? 'left') === align
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {Icon && <Icon className="w-4 h-4" />}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

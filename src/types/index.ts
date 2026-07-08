@@ -21,6 +21,8 @@ export interface FieldDef {
   // ── Text / Dropdown shared ──
   fontSize?: number;       // pt, default 12
   fontWeight?: FontWeight; // default 'regular'
+  fontFamily?: 'proportional' | 'monospace'; // default 'proportional'
+  textAlign?: 'left' | 'center' | 'right'; // default 'left'
 
   // ── Dropdown-specific ──
   options?: string[];
