@@ -486,20 +486,27 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
             if (isSelected) {
               const selectedFieldsList = fields.filter((f) => selectedFieldIds.includes(f.id));
               selectedFieldsList.forEach((f) => {
+                const newWidth = Math.max(5, f.pdfWidth + dwPdf);
+                const newHeight = Math.max(5, f.pdfHeight + dhPdf);
                 updateField(f.id, {
-                  pdfWidth: Math.max(5, f.pdfWidth + dwPdf),
-                  pdfHeight: Math.max(5, f.pdfHeight + dhPdf),
+                  pdfWidth: newWidth,
+                  pdfHeight: newHeight,
+                  pdfY: f.pdfY - (newHeight - f.pdfHeight),
                 });
               });
             } else {
+              const newWidth = scaleToPdf(currentWebW, pageMeta.widthPt, canvasWidth);
+              const newHeight = scaleToPdf(currentWebH, pageMeta.heightPt, canvasHeight);
               updateField(field.id, {
-                pdfWidth: scaleToPdf(currentWebW, pageMeta.widthPt, canvasWidth),
-                pdfHeight: scaleToPdf(currentWebH, pageMeta.heightPt, canvasHeight),
+                pdfWidth: newWidth,
+                pdfHeight: newHeight,
+                pdfY: field.pdfY - (newHeight - field.pdfHeight),
               });
             }
             setResizeOffset({ dwWeb: 0, dhWeb: 0 });
           }}
           onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           style={{ touchAction: 'none' }}
           className="absolute -bottom-1.5 -right-1.5 w-3 h-3 rounded-sm bg-blue-500 border border-white cursor-se-resize z-30"
         />
