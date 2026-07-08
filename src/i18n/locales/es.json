@@ -45,7 +45,7 @@
     "deleteField": "Eliminar campo",
     "infoTitle": "Info y Notas",
     "infoFunctionTitle": "Funcionalidad",
-    "infoFunctionText": "Suba PDFs estáticos y añada campos de entrada. El resultado se puede descargar de dos maneras:",
+    "infoFunctionText": "Suba PDFs estáticos y hágalos interactivos. Utilice la vista de Editor para colocar campos y la Vista previa para rellenarlos con datos. El formulario se puede descargar de dos maneras:",
     "infoFunctionPoint1": "PDF editable: Los campos permanecen activos y todavía se pueden rellenar.",
     "infoFunctionPoint2": "PDF finalizado: Los campos se integran en el documento y no se pueden modificar posteriormente.",
     "infoPrivacyTitle": "Privacidad",

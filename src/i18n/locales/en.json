@@ -54,7 +54,7 @@
     "deleteField": "Delete Field",
     "infoTitle": "Info & Notes",
     "infoFunctionTitle": "Functionality",
-    "infoFunctionText": "Upload static PDFs and add input fields. The result can be downloaded in two ways:",
+    "infoFunctionText": "Upload static PDFs and make them interactive. Use the Editor view to place fields and the Preview to fill them with data. The form can be downloaded in two ways:",
     "infoFunctionPoint1": "Editable PDF: Fields remain active and can still be filled out.",
     "infoFunctionPoint2": "Finalized PDF: Fields are \"burned\" into the document and cannot be modified later.",
     "infoPrivacyTitle": "Privacy",
