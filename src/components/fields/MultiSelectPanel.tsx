@@ -182,6 +182,27 @@ export function MultiSelectPanel() {
             </div>
           </div>
 
+          {/* Font Weight */}
+          <div>
+            <label className="block text-[10px] font-medium text-zinc-500 mb-1.5">{t('sidebar.fontWeight')}</label>
+            <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
+              {(['regular', 'bold'] as const).map((w) => {
+                const isActive = textFields.every(field => (field.fontWeight ?? 'regular') === w);
+                return (
+                  <button
+                    key={w}
+                    onClick={() => handleBulkUpdate({ fontWeight: w })}
+                    className={`flex-1 py-1.5 text-xs transition-colors ${
+                      isActive ? 'bg-blue-600 text-white font-medium' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    {t(`sidebar.${w}` as const)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Text Align */}
           <div>
             <label className="block text-[10px] font-medium text-zinc-500 mb-1.5">{t('sidebar.textAlign')}</label>
