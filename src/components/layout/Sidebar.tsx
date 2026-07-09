@@ -5,7 +5,7 @@ import { DropdownFieldPanel } from '../fields/DropdownFieldPanel';
 import { DateFieldPanel } from '../fields/DateFieldPanel';
 import { CheckboxFieldPanel } from '../fields/CheckboxFieldPanel';
 import { RadioFieldPanel } from '../fields/RadioFieldPanel';
-import { Trash2, MousePointerClick } from 'lucide-react';
+import { Trash2, MousePointerClick, ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { FieldDef } from '../../types';
 
@@ -14,7 +14,7 @@ import { FieldDirectionalPad } from '../fields/FieldDirectionalPad';
 
 export function Sidebar() {
   const { t } = useTranslation();
-  const { fields, selectedFieldIds, deleteField } = useEditorStore();
+  const { fields, selectedFieldIds, deleteField, sidebarPosition, setSidebarPosition } = useEditorStore();
   
   const selected: FieldDef | undefined = selectedFieldIds.length === 1 
     ? fields.find((f) => f.id === selectedFieldIds[0]) 
@@ -28,7 +28,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-72 shrink-0 flex flex-col bg-[#0f172a] border-l border-zinc-800/60 overflow-y-auto">
+    <aside className={`w-72 shrink-0 flex flex-col bg-[#0f172a] ${sidebarPosition === 'right' ? 'border-l' : 'border-r'} border-zinc-800/60 overflow-y-auto`}>
       <div className="px-4 h-12 flex items-center border-b border-zinc-800/60">
         <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
           INFO
@@ -95,7 +95,7 @@ export function Sidebar() {
           </motion.div>
         ) : (
           <motion.div
-            key={isMultiSelect ? 'multi' : selected!.id}
+            key={isMultiSelect ? 'multi' : selected?.id}
             initial={{ opacity: 0, x: 8 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 8 }}
@@ -145,6 +145,18 @@ export function Sidebar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Toggle Sidebar Position Button */}
+      <div className="mt-auto px-4 pb-4 pt-2 border-t border-zinc-800/60 flex justify-center">
+        <button
+          onClick={() => setSidebarPosition(sidebarPosition === 'right' ? 'left' : 'right')}
+          data-tooltip={sidebarPosition === 'right' ? t('sidebar.moveToLeft') : t('sidebar.moveToRight')}
+          data-tooltip-pos="top"
+          className="p-2 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
+        >
+          {sidebarPosition === 'right' ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+        </button>
+      </div>
     </aside>
   );
 }

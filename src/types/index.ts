@@ -43,6 +43,9 @@ export interface FieldDef {
   // ── Date-specific ──
   /** 'auto' to use navigator.language, or explicitly 'DD.MM.YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD' */
   dateFormat?: string;
+
+  // ── Tab Order ──
+  tabIndex?: number;
 }
 
 // ─── Page Metadata ───────────────────────────────────────────────────────────

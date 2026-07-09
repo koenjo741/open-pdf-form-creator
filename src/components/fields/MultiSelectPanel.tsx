@@ -1,5 +1,5 @@
 import { useEditorStore } from '../../store/useEditorStore';
-import { AlignLeft, AlignCenter, AlignRight, ArrowLeftRight, ArrowUpDown, Maximize2 } from 'lucide-react';
+import { AlignLeft, AlignCenter, AlignRight, ArrowUpDown, Maximize2, ArrowUpToLine, ArrowDownToLine, GripHorizontal, GripVertical } from 'lucide-react';
 import type { FieldDef } from '../../types';
 import { useTranslation } from 'react-i18next';
 
@@ -133,7 +133,7 @@ export function MultiSelectPanel() {
     });
   };
 
-  const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'dropdown');
+  const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'dropdown' || f.type === 'date');
 
   const handleBulkUpdate = (patch: Partial<FieldDef>) => {
     textFields.forEach(f => updateField(f.id, patch));
@@ -276,23 +276,23 @@ export function MultiSelectPanel() {
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.alignObjects')}</h3>
         <div className="grid grid-cols-3 gap-2">
-          <button onClick={() => handleAlign('left')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Left">
+          <button onClick={() => handleAlign('left')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" data-tooltip="Align Left">
             <AlignLeft className="w-4 h-4 text-zinc-400" />
           </button>
-          <button onClick={() => handleAlign('center')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Center">
+          <button onClick={() => handleAlign('center')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" data-tooltip="Align Center">
             <AlignCenter className="w-4 h-4 text-zinc-400" />
           </button>
-          <button onClick={() => handleAlign('right')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Right">
+          <button onClick={() => handleAlign('right')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" data-tooltip="Align Right">
             <AlignRight className="w-4 h-4 text-zinc-400" />
           </button>
-          <button onClick={() => handleAlign('top')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Top">
-            <AlignRight className="w-4 h-4 text-zinc-400 -rotate-90" />
+          <button onClick={() => handleAlign('top')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" data-tooltip="Align Top">
+            <ArrowUpToLine className="w-4 h-4 text-zinc-400" />
           </button>
-          <button onClick={() => handleAlign('middle')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Middle">
-            <AlignCenter className="w-4 h-4 text-zinc-400 rotate-90" />
+          <button onClick={() => handleAlign('middle')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" data-tooltip="Align Middle">
+            <ArrowUpDown className="w-4 h-4 text-zinc-400" />
           </button>
-          <button onClick={() => handleAlign('bottom')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" title="Align Bottom">
-            <AlignLeft className="w-4 h-4 text-zinc-400 -rotate-90" />
+          <button onClick={() => handleAlign('bottom')} className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 flex justify-center transition-colors" data-tooltip="Align Bottom">
+            <ArrowDownToLine className="w-4 h-4 text-zinc-400" />
           </button>
         </div>
       </div>
@@ -301,31 +301,23 @@ export function MultiSelectPanel() {
         <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Match Dimensions</h3>
         <div className="grid grid-cols-2 gap-2">
           <div className="relative flex rounded-lg bg-zinc-900 border-2 border-zinc-800 overflow-hidden">
-            <button
-              onClick={handleMatchWidth}
-              className="flex-1 flex flex-col items-center justify-center gap-1.5 p-2 hover:bg-zinc-800 transition-colors"
-              title="Match Width"
-            >
-              <ArrowLeftRight className="w-4 h-4 text-zinc-400" />
+            <button onClick={handleMatchWidth} className="flex-[2] flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-zinc-800 transition-colors group" data-tooltip="Match Width">
+              <Maximize2 className="w-4 h-4 text-zinc-400 group-hover:text-blue-400 transition-colors" />
               <span className="text-[10px] text-zinc-500 font-medium">Width</span>
             </button>
             <div className="flex flex-col border-l border-zinc-800 w-6 shrink-0">
-              <button onClick={(e) => { e.stopPropagation(); handleAdjustWidth(1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 text-zinc-400 text-xs" title="Increase width">+</button>
-              <button onClick={(e) => { e.stopPropagation(); handleAdjustWidth(-1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 border-t border-zinc-800 text-zinc-400 text-xs" title="Decrease width">-</button>
+              <button onClick={(e) => { e.stopPropagation(); handleAdjustWidth(1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 text-zinc-400 text-xs" data-tooltip="Increase width">+</button>
+              <button onClick={(e) => { e.stopPropagation(); handleAdjustWidth(-1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 border-t border-zinc-800 text-zinc-400 text-xs" data-tooltip="Decrease width">-</button>
             </div>
           </div>
           <div className="relative flex rounded-lg bg-zinc-900 border-2 border-zinc-800 overflow-hidden">
-            <button
-              onClick={handleMatchHeight}
-              className="flex-1 flex flex-col items-center justify-center gap-1.5 p-2 hover:bg-zinc-800 transition-colors"
-              title="Match Height"
-            >
-              <ArrowUpDown className="w-4 h-4 text-zinc-400" />
+            <button onClick={handleMatchHeight} className="flex-[2] flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-zinc-800 transition-colors group" data-tooltip="Match Height">
+              <Maximize2 className="w-4 h-4 text-zinc-400 group-hover:text-blue-400 transition-colors rotate-90" />
               <span className="text-[10px] text-zinc-500 font-medium">Height</span>
             </button>
             <div className="flex flex-col border-l border-zinc-800 w-6 shrink-0">
-              <button onClick={(e) => { e.stopPropagation(); handleAdjustHeight(1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 text-zinc-400 text-xs" title="Increase height">+</button>
-              <button onClick={(e) => { e.stopPropagation(); handleAdjustHeight(-1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 border-t border-zinc-800 text-zinc-400 text-xs" title="Decrease height">-</button>
+              <button onClick={(e) => { e.stopPropagation(); handleAdjustHeight(1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 text-zinc-400 text-xs" data-tooltip="Increase height">+</button>
+              <button onClick={(e) => { e.stopPropagation(); handleAdjustHeight(-1); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 border-t border-zinc-800 text-zinc-400 text-xs" data-tooltip="Decrease height">-</button>
             </div>
           </div>
         </div>
@@ -335,33 +327,23 @@ export function MultiSelectPanel() {
         <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Distribute</h3>
         <div className="grid grid-cols-2 gap-2">
           <div className={`relative flex rounded-lg border-2 border-zinc-800 overflow-hidden ${selectedFields.length < 3 ? 'opacity-50 cursor-not-allowed bg-zinc-900' : 'bg-zinc-900'}`}>
-            <button
-              onClick={handleDistributeHorizontally}
-              disabled={selectedFields.length < 3}
-              className="flex-1 flex flex-col items-center justify-center gap-1.5 p-2 hover:bg-zinc-800 transition-colors disabled:hover:bg-zinc-900"
-              title="Distribute Horizontally"
-            >
-              <Maximize2 className="w-4 h-4 text-zinc-400 rotate-45" />
+            <button onClick={handleDistributeHorizontally} disabled={selectedFields.length < 3} className="flex-[2] flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-zinc-800 disabled:hover:bg-transparent transition-colors group" data-tooltip="Distribute Horizontally">
+              <GripHorizontal className="w-4 h-4 text-zinc-400 group-hover:text-blue-400 group-disabled:text-zinc-600 transition-colors" />
               <span className="text-[10px] text-zinc-500 font-medium">Horizontal</span>
             </button>
             <div className="flex flex-col border-l border-zinc-800 w-6 shrink-0">
-              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeHorizontallyAdjust(2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent text-zinc-400 text-xs" title="Increase spacing">+</button>
-              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeHorizontallyAdjust(-2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent border-t border-zinc-800 text-zinc-400 text-xs" title="Decrease spacing">-</button>
+              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeHorizontallyAdjust(2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent text-zinc-400 text-xs" data-tooltip="Increase spacing">+</button>
+              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeHorizontallyAdjust(-2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent border-t border-zinc-800 text-zinc-400 text-xs" data-tooltip="Decrease spacing">-</button>
             </div>
           </div>
           <div className={`relative flex rounded-lg border-2 border-zinc-800 overflow-hidden ${selectedFields.length < 3 ? 'opacity-50 cursor-not-allowed bg-zinc-900' : 'bg-zinc-900'}`}>
-            <button
-              onClick={handleDistributeVertically}
-              disabled={selectedFields.length < 3}
-              className="flex-1 flex flex-col items-center justify-center gap-1.5 p-2 hover:bg-zinc-800 transition-colors disabled:hover:bg-zinc-900"
-              title="Distribute Vertically"
-            >
-              <Maximize2 className="w-4 h-4 text-zinc-400 -rotate-45" />
+            <button onClick={handleDistributeVertically} disabled={selectedFields.length < 3} className="flex-[2] flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-zinc-800 disabled:hover:bg-transparent transition-colors group" data-tooltip="Distribute Vertically">
+              <GripVertical className="w-4 h-4 text-zinc-400 group-hover:text-blue-400 group-disabled:text-zinc-600 transition-colors" />
               <span className="text-[10px] text-zinc-500 font-medium">Vertical</span>
             </button>
             <div className="flex flex-col border-l border-zinc-800 w-6 shrink-0">
-              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeVerticallyAdjust(2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent text-zinc-400 text-xs" title="Increase spacing">+</button>
-              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeVerticallyAdjust(-2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent border-t border-zinc-800 text-zinc-400 text-xs" title="Decrease spacing">-</button>
+              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeVerticallyAdjust(2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent text-zinc-400 text-xs" data-tooltip="Increase spacing">+</button>
+              <button disabled={selectedFields.length < 3} onClick={(e) => { e.stopPropagation(); handleDistributeVerticallyAdjust(-2); }} className="flex-1 flex items-center justify-center hover:bg-zinc-800 disabled:hover:bg-transparent border-t border-zinc-800 text-zinc-400 text-xs" data-tooltip="Decrease spacing">-</button>
             </div>
           </div>
         </div>

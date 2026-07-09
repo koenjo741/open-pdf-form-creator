@@ -11,7 +11,10 @@
     "downloadFinalized": "Finales PDF herunterladen",
     "undo": "Rückgängig",
     "redo": "Wiederholen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "saveEditable": "Speichern, editierbar",
+    "saveFinalized": "Speichern, finalisiert",
+    "closeWithoutSaving": "Ohne Speichern schließen."
   },
   "tools": {
     "select": "Auswählen",
@@ -53,8 +56,10 @@
     "radioValue": "Exportwert",
     "radioValuePlaceholder": "z.B. maennlich",
     "deleteField": "Feld löschen",
+    "moveToLeft": "INFO-Feld an den linken Rand verschieben",
+    "moveToRight": "INFO-Feld an den rechten Rand verschieben",
     "infoTitle": "Info & Hinweise",
-    "infoFunctionTitle": "Funktion",
+    "infoFunctionTitle": "Funktionsweise",
     "infoFunctionText": "Statische PDFs hochladen und interaktiv machen. Nutzen Sie die Editor-Ansicht zum Platzieren von Feldern und die Vorschau, um diese mit Daten zu befüllen. Das Formular kann auf zwei Arten heruntergeladen werden:",
     "infoFunctionPoint1": "Bearbeitbares PDF: Felder bleiben aktiv und können weiterhin ausgefüllt werden.",
     "infoFunctionPoint2": "Finales PDF: Felder werden fest in das Dokument \"eingebrannt\" und sind nachträglich nicht mehr veränderbar.",

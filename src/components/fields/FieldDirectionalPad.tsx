@@ -1,21 +1,10 @@
-import { useState } from 'react';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export function FieldDirectionalPad() {
   const { fields, selectedFieldIds, updateField } = useEditorStore();
   const { t } = useTranslation();
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  const handleMouseEnterPad = () => {
-    if (!sessionStorage.getItem('dpad_tooltip_shown')) {
-      setShowTooltip(true);
-      sessionStorage.setItem('dpad_tooltip_shown', 'true');
-      setTimeout(() => setShowTooltip(false), 4000);
-    }
-  };
 
   const handleMove = (dx: number, dy: number, e: React.MouseEvent) => {
     // If ctrl/meta is held, move by 10 instead of 1
@@ -34,23 +23,10 @@ export function FieldDirectionalPad() {
 
   return (
     <div 
-      className="flex flex-col items-center justify-center py-2 relative"
-      onMouseEnter={handleMouseEnterPad}
+      className="flex flex-col items-center justify-center py-2"
+      data-tooltip={t('editor.dpadTip')}
+      data-tooltip-pos="top"
     >
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 5 }}
-            className="absolute bottom-[calc(100%-8px)] mb-2 w-max max-w-[140px] bg-blue-600 text-white text-[10px] p-2 rounded shadow-lg text-center z-50 pointer-events-none"
-          >
-            {t('editor.dpadTip')}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-blue-600" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div className="grid grid-cols-3 gap-1">
         <div />
         <button

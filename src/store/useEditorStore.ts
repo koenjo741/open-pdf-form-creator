@@ -38,10 +38,13 @@ export interface EditorState {
   isLoaded: boolean;
   /** Current app mode */
   appMode: AppMode;
+  /** Sidebar position: left or right */
+  sidebarPosition: 'left' | 'right';
 }
 
 export interface EditorActions {
   setAppMode: (mode: AppMode) => void;
+  setSidebarPosition: (pos: 'left' | 'right') => void;
   setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
@@ -54,14 +57,41 @@ export interface EditorActions {
   setActiveTool: (tool: ToolMode) => void;
   /** Check uniqueness of a field name (excluding the field being edited) */
   isNameTaken: (name: string, excludeId?: string) => boolean;
+  /** Sets tabIndex and swaps if duplicate */
+  setTabIndex: (fieldId: string, newIndex: number | undefined) => void;
+  /** Enforces 1..N tab indices for all fields */
+  normalizeTabIndices: () => void;
 }
 
 type EditorStore = EditorState & EditorActions;
 
+// Helper to enforce 1..N sequential order
+function ensureSequentialTabIndices(fields: FieldDef[]): FieldDef[] {
+  const sorted = [...fields].sort((a, b) => {
+    if (a.tabIndex !== undefined && b.tabIndex !== undefined) {
+      return a.tabIndex - b.tabIndex;
+    }
+    if (a.tabIndex !== undefined) return -1;
+    if (b.tabIndex !== undefined) return 1;
+    
+    // geometric
+    const aTop = a.pdfY + a.pdfHeight;
+    const bTop = b.pdfY + b.pdfHeight;
+    if (Math.abs(aTop - bTop) < 5) return a.pdfX - b.pdfX;
+    return bTop - aTop;
+  });
+
+  return fields.map(f => {
+    const correctIndex = sorted.findIndex(s => s.id === f.id) + 1;
+    if (f.tabIndex !== correctIndex) return { ...f, tabIndex: correctIndex };
+    return f;
+  });
+}
+
 // ─── Persisted slice (fields + page metas + tool) ────────────────────────────
 // pdfBuffer is intentionally NOT in the persisted state.
 
-type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool'>;
+type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition'>;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -78,16 +108,18 @@ export const useEditorStore = create<EditorStore>()(
         activeTool: 'select' as ToolMode,
         isLoaded: false,
         appMode: 'edit',
+        sidebarPosition: 'right',
 
         // ── Actions ───────────────────────────────────────────────────────
         setAppMode: (mode) => set({ appMode: mode }),
+        setSidebarPosition: (pos) => set({ sidebarPosition: pos }),
         
         setPdfBuffer: (buffer, fileName, initialFields) =>
           set((state) => ({ 
             pdfBuffer: buffer, 
             pdfFileName: fileName, 
             isLoaded: true,
-            fields: initialFields ? initialFields : state.fields
+            fields: ensureSequentialTabIndices(initialFields ? initialFields : state.fields)
           })),
 
         clearPdf: () =>
@@ -103,7 +135,10 @@ export const useEditorStore = create<EditorStore>()(
         setPageMetas: (metas) => set({ pageMetas: metas }),
 
         addField: (field) =>
-          set((state) => ({ fields: [...state.fields, field] })),
+          set((state) => {
+            const newFields = [...state.fields, { ...field, tabIndex: state.fields.length + 1 }];
+            return { fields: ensureSequentialTabIndices(newFields) };
+          }),
 
         updateField: (id, patch) =>
           set((state) => ({
@@ -114,16 +149,19 @@ export const useEditorStore = create<EditorStore>()(
 
         deleteField: (id) =>
           set((state) => {
+            let nextFields = state.fields;
+            let nextSelected = state.selectedFieldIds;
             if (id) {
-              return {
-                fields: state.fields.filter((f) => f.id !== id),
-                selectedFieldIds: state.selectedFieldIds.filter((selId) => selId !== id),
-              };
+              nextFields = state.fields.filter((f) => f.id !== id);
+              nextSelected = state.selectedFieldIds.filter((selId) => selId !== id);
+            } else {
+              // Delete all selected
+              nextFields = state.fields.filter((f) => !state.selectedFieldIds.includes(f.id));
+              nextSelected = [];
             }
-            // Delete all selected
             return {
-              fields: state.fields.filter((f) => !state.selectedFieldIds.includes(f.id)),
-              selectedFieldIds: [],
+              fields: ensureSequentialTabIndices(nextFields),
+              selectedFieldIds: nextSelected,
             };
           }),
 
@@ -155,6 +193,39 @@ export const useEditorStore = create<EditorStore>()(
               f.id !== excludeId,
           );
         },
+
+        normalizeTabIndices: () => set((state) => ({ fields: ensureSequentialTabIndices(state.fields) })),
+
+        setTabIndex: (fieldId, newIndex) =>
+          set((state) => {
+            const currentFields = state.fields;
+            const targetField = currentFields.find(f => f.id === fieldId);
+            if (!targetField) return state;
+
+            const oldIndex = targetField.tabIndex;
+
+            // If unsetting, just remove it from this field
+            if (newIndex === undefined || newIndex === null) {
+              const mapped = currentFields.map((f) => 
+                f.id === fieldId ? { ...f, tabIndex: undefined } : f
+              );
+              return { fields: ensureSequentialTabIndices(mapped) };
+            }
+
+            // Find if any field already has this newIndex
+            const conflictField = currentFields.find(f => f.tabIndex === newIndex && f.id !== fieldId);
+
+            const mapped = currentFields.map((f) => {
+              if (f.id === fieldId) {
+                return { ...f, tabIndex: newIndex };
+              }
+              if (conflictField && f.id === conflictField.id) {
+                return { ...f, tabIndex: oldIndex }; // Swap!
+              }
+              return f;
+            });
+            return { fields: ensureSequentialTabIndices(mapped) };
+          }),
       }),
       {
         // zundo options — undo/redo is in-memory only (not persisted)
@@ -162,6 +233,7 @@ export const useEditorStore = create<EditorStore>()(
           fields: state.fields,
           pageMetas: state.pageMetas,
           activeTool: state.activeTool,
+          sidebarPosition: state.sidebarPosition,
         }),
         limit: 100,
       },
@@ -174,6 +246,7 @@ export const useEditorStore = create<EditorStore>()(
         fields: state.fields,
         pageMetas: state.pageMetas,
         activeTool: state.activeTool,
+        sidebarPosition: state.sidebarPosition,
       }),
       // Re-hydrate without crashing if IDB is unavailable
       onRehydrateStorage: () => (_state, error) => {

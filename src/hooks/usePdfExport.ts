@@ -59,8 +59,36 @@ export function usePdfExport() {
       // 5. Set NeedAppearances so PDF viewers regenerate appearances
       form.acroForm.dict.set(PDFName.of('NeedAppearances'), PDFBool.True);
 
-      // 6. Add fields
-      for (const field of fields) {
+      // 5.5 Enforce Annotation Array order for Tabbing
+      for (const page of pdfDoc.getPages()) {
+        page.node.set(PDFName.of('Tabs'), PDFName.of('A'));
+      }
+
+      // 6. Sort and add fields
+      // Acrobat uses the Annots array order to determine Tab order if /Tabs is not strictly structure.
+      const sortedFields = [...fields].sort((a, b) => {
+        if (a.tabIndex !== undefined && b.tabIndex !== undefined) {
+          return a.tabIndex - b.tabIndex;
+        }
+        // Explicit tabIndex comes before geometric sort
+        if (a.tabIndex !== undefined) return -1;
+        if (b.tabIndex !== undefined) return 1;
+        
+        // Geometric fallback: top-to-bottom, then left-to-right
+        // Origin is bottom-left, so top edge is pdfY + pdfHeight.
+        const aTop = a.pdfY + a.pdfHeight;
+        const bTop = b.pdfY + b.pdfHeight;
+        
+        // If roughly on the same row (e.g. within 5 points), sort by X (left-to-right)
+        if (Math.abs(aTop - bTop) < 5) {
+          return a.pdfX - b.pdfX;
+        }
+        
+        // Sort top-to-bottom (highest top edge first)
+        return bTop - aTop;
+      });
+
+      for (const field of sortedFields) {
         const page = pdfDoc.getPage(field.pageIndex);
         // pdf-lib uses bottom-left origin — same as our stored coords ✓
         const rect = {

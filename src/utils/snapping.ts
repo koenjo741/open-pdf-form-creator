@@ -170,3 +170,97 @@ export function calculateSnaps(
 
   return result;
 }
+
+export function calculateResizeSnaps(
+  baseX: number, baseY: number, baseW: number, baseH: number,
+  rx: number, ry: number, rw: number, rh: number,
+  handle: string,
+  otherRects: Rect[],
+  ignoreId: string,
+  threshold = 5
+) {
+  const result = { rx, ry, rw, rh, guides: [] as GuideLine[] };
+
+  let minDiffX = threshold + 1;
+  let minDiffY = threshold + 1;
+
+  const currentRight = baseX + baseW + rw;
+  const currentLeft = baseX + rx;
+  const currentTop = baseY + ry;
+  const currentBottom = baseY + baseH + rh;
+
+  let snappedEdgeX: number | null = null;
+  let snappedEdgeY: number | null = null;
+
+  for (const other of otherRects) {
+    if (other.id === ignoreId) continue;
+
+    const oLeft = other.x;
+    const oRight = other.x + other.w;
+    const oCenterX = other.x + other.w / 2;
+    const oTop = other.y;
+    const oBottom = other.y + other.h;
+    const oCenterY = other.y + other.h / 2;
+
+    const checkX = (movingEdge: number, targetEdge: number) => {
+      const diff = Math.abs(movingEdge - targetEdge);
+      if (diff < minDiffX) {
+        minDiffX = diff;
+        snappedEdgeX = targetEdge;
+      }
+    };
+
+    const checkY = (movingEdge: number, targetEdge: number) => {
+      const diff = Math.abs(movingEdge - targetEdge);
+      if (diff < minDiffY) {
+        minDiffY = diff;
+        snappedEdgeY = targetEdge;
+      }
+    };
+
+    if (handle.includes('e')) {
+      checkX(currentRight, oLeft);
+      checkX(currentRight, oRight);
+      checkX(currentRight, oCenterX);
+    }
+    if (handle.includes('w')) {
+      checkX(currentLeft, oLeft);
+      checkX(currentLeft, oRight);
+      checkX(currentLeft, oCenterX);
+    }
+    if (handle.includes('s')) {
+      checkY(currentBottom, oTop);
+      checkY(currentBottom, oBottom);
+      checkY(currentBottom, oCenterY);
+    }
+    if (handle.includes('n')) {
+      checkY(currentTop, oTop);
+      checkY(currentTop, oBottom);
+      checkY(currentTop, oCenterY);
+    }
+  }
+
+  if (snappedEdgeX !== null) {
+    if (handle.includes('e')) {
+      result.rw = snappedEdgeX - (baseX + baseW);
+    }
+    if (handle.includes('w')) {
+      result.rx = snappedEdgeX - baseX;
+      result.rw = -(snappedEdgeX - baseX);
+    }
+    result.guides.push({ type: 'vertical', position: snappedEdgeX });
+  }
+
+  if (snappedEdgeY !== null) {
+    if (handle.includes('s')) {
+      result.rh = snappedEdgeY - (baseY + baseH);
+    }
+    if (handle.includes('n')) {
+      result.ry = snappedEdgeY - baseY;
+      result.rh = -(snappedEdgeY - baseY);
+    }
+    result.guides.push({ type: 'horizontal', position: snappedEdgeY });
+  }
+
+  return result;
+}

@@ -2,10 +2,9 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import * as pdfjs from 'pdfjs-dist';
 import { initialisePdfJs } from '../../utils/pdfLoader';
-import { useEditorStore } from '../../store/useEditorStore';
+import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { PageRenderer } from './PageRenderer';
-import { AddFieldToolbar } from './AddFieldToolbar';
 import { useTranslation } from 'react-i18next';
 import { Upload, FileUp } from 'lucide-react';
 import { toast } from '../common/Toast';
@@ -92,6 +91,8 @@ export function EditorCanvas() {
         if (!cancelled) {
           console.log('[DEBUG] Setting page metas in store...', metas);
           setPageMetas(metas);
+          // Clear history immediately so loading doesn't count as an unsaved change
+          useEditorStore.temporal.getState().clear();
         }
       } catch (err: unknown) {
         console.error('[DEBUG] Error loading document:', err);
@@ -146,7 +147,6 @@ export function EditorCanvas() {
   if (!isLoaded) {
     return (
       <div className="flex-1 flex flex-col overflow-hidden">
-        {appMode === 'edit' && <AddFieldToolbar />}
         {/* Empty state / drop zone */}
         <div
           ref={containerRef}
@@ -187,7 +187,6 @@ export function EditorCanvas() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {appMode === 'edit' && <AddFieldToolbar />}
       <div ref={containerRef} className="flex-1 overflow-y-scroll px-6 py-6">
         {/* Loading spinner while PDF is being parsed */}
         {isLoadingPdf && (

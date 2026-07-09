@@ -120,63 +120,56 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
         </div>
       )}
 
-      {/* Download dropdown (matches 'radio' button) */}
-      {isLoaded && (
-        <div className="relative flex-1 min-w-[200px] max-w-[240px] shrink-0 h-8">
+      {/* Action Buttons based on unsaved changes */}
+      {isLoaded && !canUndo && (
+        <>
+          <div className="flex-1 min-w-[200px] max-w-[240px] shrink-0 pointer-events-none" />
           <button
-            id="header-download-btn"
-            onClick={() => setDownloadOpen((o) => !o)}
-            disabled={isExporting}
-            className="w-full h-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+            onClick={clearPdf}
+            className="flex-1 min-w-[200px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40 shrink-0"
+            data-tooltip={t('header.close')} data-tooltip-pos="bottom"
           >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:block whitespace-nowrap">
-              {isExporting ? t('export.generating') : t('header.download')}
-            </span>
-            <ChevronDown className="w-3 h-3" />
+            <X className="w-4 h-4" />
+            <span className="hidden sm:block whitespace-nowrap">{t('header.close')}</span>
           </button>
-
-          <AnimatePresence>
-            {downloadOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                transition={{ duration: 0.15 }}
-                className="absolute right-0 top-full mt-2 w-52 bg-zinc-900 border border-zinc-700/60 rounded-xl shadow-2xl overflow-hidden z-10"
-                onMouseLeave={() => setDownloadOpen(false)}
-              >
-                <button
-                  id="download-editable-btn"
-                  onClick={() => { setDownloadOpen(false); onExportEditable(); }}
-                  className="w-full px-4 py-3 text-left text-sm text-zinc-200 hover:bg-zinc-800 transition-colors"
-                >
-                  {t('header.downloadEditable')}
-                </button>
-                <div className="border-t border-zinc-800" />
-                <button
-                  id="download-finalized-btn"
-                  onClick={() => { setDownloadOpen(false); onExportFlattened(); }}
-                  className="w-full px-4 py-3 text-left text-sm text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
-                >
-                  {t('header.downloadFinalized')}
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        </>
       )}
 
-      {/* Close button */}
-      {isLoaded && (
-        <button
-          onClick={clearPdf}
-          className="flex-1 min-w-[200px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40 shrink-0"
-          title={t('header.close')}
-        >
-          <X className="w-4 h-4" />
-          <span className="hidden sm:block whitespace-nowrap">{t('header.close')}</span>
-        </button>
+      {isLoaded && canUndo && (
+        <>
+          <button
+            onClick={() => {
+              setDownloadOpen(false);
+              onExportEditable();
+            }}
+            disabled={isExporting}
+            className="flex-1 min-w-[150px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:block whitespace-nowrap">{t('header.saveEditable')}</span>
+          </button>
+          
+          <div className="flex-1 min-w-[150px] max-w-[240px] flex gap-2 h-8 shrink-0">
+            <button
+              onClick={() => {
+                setDownloadOpen(false);
+                onExportFlattened();
+              }}
+              disabled={isExporting}
+              className="flex-1 flex items-center justify-center gap-2 h-8 rounded-lg bg-[#059669] hover:bg-[#059669]/90 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:block whitespace-nowrap">{t('header.saveFinalized')}</span>
+            </button>
+            <button
+              onClick={clearPdf}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/20 hover:border-red-500/40 shrink-0"
+              data-tooltip={t('header.closeWithoutSaving')} data-tooltip-pos="bottom"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </>
       )}
 
       {/* Invisible placeholders when not loaded to maintain flex distribution */}
@@ -191,7 +184,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       {/* Spacer & Loaded file name */}
       <div className="flex-1 min-w-0 px-2 flex items-center">
         {pdfFileName && (
-          <span className="text-zinc-500 text-xs truncate hidden md:block" title={pdfFileName}>
+          <span className="text-zinc-500 text-xs truncate min-w-0 hidden md:block" data-tooltip={pdfFileName} data-tooltip-pos="bottom">
             {pdfFileName}
           </span>
         )}
@@ -204,7 +197,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
             id="header-undo-btn"
             onClick={handleUndo}
             disabled={!canUndo}
-            title={t('header.undo')}
+            data-tooltip={t('header.undo')} data-tooltip-pos="bottom"
             className="p-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <Undo2 className="w-4 h-4" />
@@ -213,7 +206,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
             id="header-redo-btn"
             onClick={handleRedo}
             disabled={!canRedo}
-            title={t('header.redo')}
+            data-tooltip={t('header.redo')} data-tooltip-pos="bottom"
             className="p-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <Redo2 className="w-4 h-4" />

@@ -62,6 +62,7 @@ export function FieldTextStyling({ field }: Props) {
               key={w}
               id={`field-weight-${w}-${field.id}`}
               onClick={() => updateField(field.id, { fontWeight: w })}
+              data-tooltip={t(`sidebar.${w}` as const)}
               className={`flex-1 py-2 text-sm transition-colors ${
                 (field.fontWeight ?? 'regular') === w
                   ? 'bg-blue-600 text-white font-medium'

@@ -11,7 +11,10 @@
     "downloadFinalized": "Download Finalized PDF",
     "undo": "Undo",
     "redo": "Redo",
-    "close": "Close"
+    "close": "Close",
+    "saveEditable": "Save, editable",
+    "saveFinalized": "Save, finalized",
+    "closeWithoutSaving": "Close without saving."
   },
   "tools": {
     "select": "Select",
@@ -54,6 +57,8 @@
     "radioValuePlaceholder": "e.g. male",
     "deleteField": "Delete Field",
     "infoTitle": "Info & Notes",
+    "moveToLeft": "Move INFO panel to the left edge",
+    "moveToRight": "Move INFO panel to the right edge",
     "infoFunctionTitle": "Functionality",
     "infoFunctionText": "Upload static PDFs and make them interactive. Use the Editor view to place fields and the Preview to fill them with data. The form can be downloaded in two ways:",
     "infoFunctionPoint1": "Editable PDF: Fields remain active and can still be filled out.",

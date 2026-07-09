@@ -3,7 +3,7 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
 import type { FieldDef, PageMeta } from '../../types';
-import { calculateSnaps, type GuideLine, type Rect } from '../../utils/snapping';
+import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from '../../utils/snapping';
 import { Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DateValidationModal } from '../modals/DateValidationModal';
@@ -38,6 +38,9 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; fieldId: string } | null>(null);
   const [activeGuides, setActiveGuides] = useState<GuideLine[]>([]);
   const [marquee, setMarquee] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
+
+  const [globalDrag, setGlobalDrag] = useState<{ originId: string; dxWeb: number; dyWeb: number } | null>(null);
+  const [globalResize, setGlobalResize] = useState<{ originId: string; handle: string; rx: number; ry: number; rw: number; rh: number } | null>(null);
 
   // Keyboard Nudging (Multiple Fields)
   useEffect(() => {
@@ -278,6 +281,34 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         />
       ))}
 
+      {/* Laser Beams for selected text/date fields */}
+      {appMode === 'edit' && selectedFieldIds.map(id => {
+        const f = pageFields.find(pf => pf.id === id);
+        if (!f || (f.type !== 'text' && f.type !== 'date')) return null;
+
+        let { webY } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
+        let webH = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
+
+        if (globalDrag && (globalDrag.originId === f.id || selectedFieldIds.includes(f.id))) {
+           webY += globalDrag.dyWeb;
+        }
+        if (globalResize && (globalResize.originId === f.id || selectedFieldIds.includes(f.id))) {
+           webY += globalResize.ry;
+           webH += globalResize.rh;
+        }
+
+        const scaledFontSize = (f.fontSize || 12) * (canvasHeight / pageMeta.heightPt);
+        const baselineY = webY + (webH / 2) + scaledFontSize * 0.351;
+
+        return (
+          <div
+            key={`laser-${id}`}
+            className="absolute left-0 right-0 border-t border-dashed border-red-500/40 z-40 pointer-events-none"
+            style={{ top: baselineY }}
+          />
+        );
+      })}
+
       {pageFields.map((field) => (
         appMode === 'preview' ? (
           <PreviewFieldBox
@@ -296,6 +327,10 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
             canvasHeight={canvasHeight}
             otherFields={pageFields.filter((f) => f.id !== field.id)}
             onGuidesChange={setActiveGuides}
+            globalDrag={globalDrag}
+            setGlobalDrag={setGlobalDrag}
+            globalResize={globalResize}
+            setGlobalResize={setGlobalResize}
             onContextMenu={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -340,18 +375,19 @@ interface FieldBoxInnerProps {
   otherFields: FieldDef[];
   onGuidesChange: (guides: GuideLine[]) => void;
   onContextMenu: (e: React.MouseEvent) => void;
+  globalDrag: { originId: string; dxWeb: number; dyWeb: number } | null;
+  setGlobalDrag: (val: { originId: string; dxWeb: number; dyWeb: number } | null) => void;
+  globalResize: { originId: string; handle: string; rx: number; ry: number; rw: number; rh: number } | null;
+  setGlobalResize: (val: { originId: string; handle: string; rx: number; ry: number; rw: number; rh: number } | null) => void;
 }
 
-function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields, onGuidesChange, onContextMenu }: FieldBoxInnerProps) {
+function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields, onGuidesChange, onContextMenu, globalDrag, setGlobalDrag, globalResize, setGlobalResize }: FieldBoxInnerProps) {
   const { selectedFieldIds, selectField, updateField, activeTool, fields } = useEditorStore();
   const isSelected = selectedFieldIds.includes(field.id);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const isResizingRef = useRef(false);
   
   // Local state for smooth drag/resize
-  const [dragOffset, setDragOffset] = useState({ dxWeb: 0, dyWeb: 0 });
-  const [resizeOffset, setResizeOffset] = useState({ dwWeb: 0, dhWeb: 0 });
-
   // Convert PDF coords → web pixels for rendering
   // field.pdfY is bottom edge, so top edge is field.pdfY + field.pdfHeight
   const { webX, webY } = pdfToWeb(
@@ -362,11 +398,42 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   const webW = (field.pdfWidth / pageMeta.widthPt) * canvasWidth;
   const webH = (field.pdfHeight / pageMeta.heightPt) * canvasHeight;
 
+  // Now driven entirely by global state for multi-selection visually
+  let rx = 0, ry = 0, rw = 0, rh = 0;
+  let dxWeb = 0, dyWeb = 0;
+
+  if (isSelected || (globalDrag?.originId === field.id) || (globalResize?.originId === field.id)) {
+    if (globalDrag) {
+      dxWeb = globalDrag.dxWeb;
+      dyWeb = globalDrag.dyWeb;
+    }
+    if (globalResize) {
+      rx = globalResize.rx;
+      ry = globalResize.ry;
+      rw = globalResize.rw;
+      rh = globalResize.rh;
+    }
+  }
+
+  // Constrain to minimum dimensions for ALL rendering fields if resizing
+  if (globalResize && (isSelected || globalResize.originId === field.id)) {
+    if (webW + rw < 16) {
+      const diff = 16 - (webW + rw);
+      rw += diff;
+      if (globalResize.handle.includes('w')) rx -= diff;
+    }
+    if (webH + rh < 10) {
+      const diff = 10 - (webH + rh);
+      rh += diff;
+      if (globalResize.handle.includes('n')) ry -= diff;
+    }
+  }
+
   // Apply local offsets during active drag/resize
-  const currentWebX = webX + dragOffset.dxWeb;
-  const currentWebY = webY + dragOffset.dyWeb;
-  const currentWebW = Math.max(16, webW + resizeOffset.dwWeb);
-  const currentWebH = Math.max(10, webH + resizeOffset.dhWeb);
+  const currentWebX = webX + dxWeb + rx;
+  const currentWebY = webY + dyWeb + ry;
+  const currentWebW = webW + rw;
+  const currentWebH = webH + rh;
 
   const typeColors: Record<string, string> = {
     text:     'border-blue-400 bg-blue-500/10',
@@ -388,14 +455,14 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       onPan={(_e, info) => {
         if (activeTool !== 'select' || !dragStartRef.current) return;
         
-        let dxWeb = info.point.x - dragStartRef.current.x;
-        let dyWeb = info.point.y - dragStartRef.current.y;
+        let dxWebSnap = info.point.x - dragStartRef.current.x;
+        let dyWebSnap = info.point.y - dragStartRef.current.y;
 
         // Snapping logic
         const movingRect: Rect = {
           id: field.id,
-          x: webX + dxWeb,
-          y: webY + dyWeb,
+          x: webX + dxWebSnap,
+          y: webY + dyWebSnap,
           w: webW,
           h: webH,
         };
@@ -411,16 +478,21 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         const snapResult = calculateSnaps(movingRect, otherRects, 8);
         onGuidesChange(snapResult.guides);
 
-        if (snapResult.snappedX !== null) dxWeb = snapResult.snappedX - webX;
-        if (snapResult.snappedY !== null) dyWeb = snapResult.snappedY - webY;
+        if (snapResult.snappedX !== null) dxWebSnap = snapResult.snappedX - webX;
+        if (snapResult.snappedY !== null) dyWebSnap = snapResult.snappedY - webY;
 
-        setDragOffset({ dxWeb, dyWeb });
+        setGlobalDrag({ originId: field.id, dxWeb: dxWebSnap, dyWeb: dyWebSnap });
       }}
       onPanEnd={() => {
         onGuidesChange([]);
         if (!dragStartRef.current) return;
-        const dxPdf = scaleToPdf(dragOffset.dxWeb, pageMeta.widthPt, canvasWidth);
-        const dyPdf = scaleToPdf(dragOffset.dyWeb, pageMeta.heightPt, canvasHeight);
+        if (!globalDrag || globalDrag.originId !== field.id) {
+          dragStartRef.current = null;
+          return;
+        }
+
+        const dxPdf = scaleToPdf(globalDrag.dxWeb, pageMeta.widthPt, canvasWidth);
+        const dyPdf = scaleToPdf(globalDrag.dyWeb, pageMeta.heightPt, canvasHeight);
         
         // Move ALL selected fields if this is a selected field
         if (isSelected) {
@@ -439,7 +511,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         }
         
         dragStartRef.current = null;
-        setDragOffset({ dxWeb: 0, dyWeb: 0 });
+        setGlobalDrag(null);
       }}
       onClick={(e) => {
         e.stopPropagation();
@@ -460,7 +532,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         touchAction: 'none',
       }}
       className={`
-        rounded border-2 border-dashed transition-shadow
+        rounded border-2 transition-shadow
         ${typeColors[field.type] ?? 'border-zinc-400 bg-zinc-500/10'}
         ${isSelected ? 'shadow-lg shadow-blue-500/20' : ''}
       `}
@@ -478,58 +550,163 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         {field.type.slice(0, 3)}
       </span>
 
-      {/* Resize handle (bottom-right) — only when selected & in select mode */}
-      {isSelected && activeTool === 'select' && (
-        <motion.div
-          onPanStart={(e) => {
-            e.stopPropagation();
-          }}
-          onPan={(e, info) => {
-            e.stopPropagation();
-            setResizeOffset({ dwWeb: info.offset.x, dhWeb: info.offset.y });
-          }}
-          onPanEnd={(e) => {
-            e.stopPropagation();
-            isResizingRef.current = false;
-            const dwPdf = scaleToPdf(currentWebW, pageMeta.widthPt, canvasWidth) - field.pdfWidth;
-            const dhPdf = scaleToPdf(currentWebH, pageMeta.heightPt, canvasHeight) - field.pdfHeight;
-
-            if (isSelected) {
-              const selectedFieldsList = fields.filter((f) => selectedFieldIds.includes(f.id));
-              selectedFieldsList.forEach((f) => {
-                const newWidth = Math.max(5, f.pdfWidth + dwPdf);
-                const newHeight = Math.max(5, f.pdfHeight + dhPdf);
-                updateField(f.id, {
-                  pdfWidth: newWidth,
-                  pdfHeight: newHeight,
-                  pdfY: f.pdfY - (newHeight - f.pdfHeight),
-                });
-              });
-            } else {
-              const newWidth = scaleToPdf(currentWebW, pageMeta.widthPt, canvasWidth);
-              const newHeight = scaleToPdf(currentWebH, pageMeta.heightPt, canvasHeight);
-              updateField(field.id, {
-                pdfWidth: newWidth,
-                pdfHeight: newHeight,
-                pdfY: field.pdfY - (newHeight - field.pdfHeight),
-              });
-            }
-            setResizeOffset({ dwWeb: 0, dhWeb: 0 });
-          }}
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            isResizingRef.current = true;
-          }}
-          onPointerUp={() => {
-            isResizingRef.current = false;
-          }}
-          onPointerLeave={() => {
-            isResizingRef.current = false;
-          }}
-          style={{ touchAction: 'none' }}
-          className="resize-handle absolute -bottom-1.5 -right-1.5 w-3 h-3 rounded-sm bg-blue-500 border border-white cursor-se-resize z-30"
+      {/* Visual Baseline Indicator */}
+      {(field.type === 'text' || field.type === 'date') && (
+        <div 
+          className="absolute left-0 right-0 border-b border-dashed border-red-500/60 pointer-events-none z-10"
+          style={{ 
+            top: '50%', 
+            transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.351}px)` 
+          }} 
+          title="Text Baseline"
         />
+      )}
+
+      {/* Resize handles — only when selected & in select mode */}
+      {isSelected && activeTool === 'select' && (
+        <>
+          {[
+            { pos: 'nw', cursor: 'nwse-resize', class: '-top-1.5 -left-1.5' },
+            { pos: 'n', cursor: 'ns-resize', class: '-top-1.5 left-1/2 -translate-x-1/2' },
+            { pos: 'ne', cursor: 'nesw-resize', class: '-top-1.5 -right-1.5' },
+            { pos: 'e', cursor: 'ew-resize', class: 'top-1/2 -right-1.5 -translate-y-1/2' },
+            { pos: 'se', cursor: 'nwse-resize', class: '-bottom-1.5 -right-1.5' },
+            { pos: 's', cursor: 'ns-resize', class: '-bottom-1.5 left-1/2 -translate-x-1/2' },
+            { pos: 'sw', cursor: 'nesw-resize', class: '-bottom-1.5 -left-1.5' },
+            { pos: 'w', cursor: 'ew-resize', class: 'top-1/2 -left-1.5 -translate-y-1/2' },
+          ].map((handle) => (
+            <motion.div
+              key={handle.pos}
+              onPanStart={(e) => {
+                e.stopPropagation();
+                isResizingRef.current = true;
+              }}
+              onPan={(e, info) => {
+                e.stopPropagation();
+                
+                const rawX = info.offset.x;
+                const rawY = info.offset.y;
+
+                let tempRx = 0, tempRy = 0, tempRw = 0, tempRh = 0;
+                if (handle.pos.includes('e')) tempRw = rawX;
+                if (handle.pos.includes('w')) { tempRx = rawX; tempRw = -rawX; }
+                if (handle.pos.includes('s')) tempRh = rawY;
+                if (handle.pos.includes('n')) { tempRy = rawY; tempRh = -rawY; }
+
+                if (webW + tempRw < 16) {
+                  const diff = 16 - (webW + tempRw);
+                  tempRw += diff;
+                  if (handle.pos.includes('w')) tempRx -= diff;
+                }
+                if (webH + tempRh < 10) {
+                  const diff = 10 - (webH + tempRh);
+                  tempRh += diff;
+                  if (handle.pos.includes('n')) tempRy -= diff;
+                }
+
+                // Snap logic for resize
+                const otherRects = otherFields.map((f) => {
+                  const { webX: ox, webY: oy } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
+                  const ow = (f.pdfWidth / pageMeta.widthPt) * canvasWidth;
+                  const oh = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
+                  return { id: f.id, x: ox, y: oy, w: ow, h: oh };
+                });
+
+                const snapResult = calculateResizeSnaps(
+                  webX, webY, webW, webH,
+                  tempRx, tempRy, tempRw, tempRh,
+                  handle.pos,
+                  otherRects,
+                  field.id,
+                  8
+                );
+
+                onGuidesChange(snapResult.guides);
+                setGlobalResize({ originId: field.id, handle: handle.pos, rx: snapResult.rx, ry: snapResult.ry, rw: snapResult.rw, rh: snapResult.rh });
+              }}
+              onPanEnd={(e) => {
+                e.stopPropagation();
+                isResizingRef.current = false;
+                onGuidesChange([]);
+
+                if (!globalResize || globalResize.originId !== field.id) return;
+                
+                // Use the precise constrained values from global state
+                const finalRx = globalResize.rx;
+                const finalRy = globalResize.ry;
+                const finalRw = globalResize.rw;
+                const finalRh = globalResize.rh;
+
+                if (isSelected) {
+                  const selectedFieldsList = fields.filter((f) => selectedFieldIds.includes(f.id));
+                  selectedFieldsList.forEach((f) => {
+                    const fWebW = (f.pdfWidth / pageMeta.widthPt) * canvasWidth;
+                    const fWebH = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
+                    
+                    let fRw = finalRw;
+                    let fRh = finalRh;
+                    let fRx = finalRx;
+                    let fRy = finalRy;
+
+                    // Constrain individual fields
+                    if (fWebW + fRw < 16) {
+                      const diff = 16 - (fWebW + fRw);
+                      fRw += diff;
+                      if (handle.pos.includes('w')) fRx -= diff;
+                    }
+                    if (fWebH + fRh < 10) {
+                      const diff = 10 - (fWebH + fRh);
+                      fRh += diff;
+                      if (handle.pos.includes('n')) fRy -= diff;
+                    }
+
+                    const newWidth = scaleToPdf(fWebW + fRw, pageMeta.widthPt, canvasWidth);
+                    const newHeight = scaleToPdf(fWebH + fRh, pageMeta.heightPt, canvasHeight);
+                    const fDxPdf = scaleToPdf(fRx, pageMeta.widthPt, canvasWidth);
+                    const fDyPdf = scaleToPdf(fRy, pageMeta.heightPt, canvasHeight);
+
+                    const newPdfY = (f.pdfY + f.pdfHeight) - fDyPdf - newHeight;
+
+                    updateField(f.id, {
+                      pdfX: f.pdfX + fDxPdf,
+                      pdfY: newPdfY,
+                      pdfWidth: newWidth,
+                      pdfHeight: newHeight,
+                    });
+                  });
+                } else {
+                  const newWidth = scaleToPdf(webW + finalRw, pageMeta.widthPt, canvasWidth);
+                  const newHeight = scaleToPdf(webH + finalRh, pageMeta.heightPt, canvasHeight);
+                  const fDxPdf = scaleToPdf(finalRx, pageMeta.widthPt, canvasWidth);
+                  const fDyPdf = scaleToPdf(finalRy, pageMeta.heightPt, canvasHeight);
+
+                  const newPdfY = (field.pdfY + field.pdfHeight) - fDyPdf - newHeight;
+
+                  updateField(field.id, {
+                    pdfX: field.pdfX + fDxPdf,
+                    pdfY: newPdfY,
+                    pdfWidth: newWidth,
+                    pdfHeight: newHeight,
+                  });
+                }
+                setGlobalResize(null);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                isResizingRef.current = true;
+              }}
+              onPointerUp={() => {
+                isResizingRef.current = false;
+              }}
+              onPointerLeave={() => {
+                isResizingRef.current = false;
+              }}
+              style={{ touchAction: 'none', cursor: handle.cursor }}
+              className={`resize-handle absolute w-3 h-3 rounded-sm bg-blue-500 border border-white z-30 ${handle.class}`}
+            />
+          ))}
+        </>
       )}
     </motion.div>
   );
@@ -580,7 +757,7 @@ interface PreviewFieldBoxProps {
 
 function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
   const { updateField } = useEditorStore();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
   const { webX, webY } = pdfToWeb(
     field.pdfX, field.pdfY + field.pdfHeight,
@@ -626,6 +803,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         style={baseStyle}
         value={field.value || ''}
         onChange={handleChange}
+        tabIndex={field.tabIndex}
         className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
       />
     );
@@ -690,6 +868,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           onChange={handleChange}
           onBlur={handleDateBlur}
           onKeyDown={handleKeyDown}
+          tabIndex={field.tabIndex}
           className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
         />
         <DateValidationModal
@@ -708,6 +887,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         style={baseStyle}
         value={field.value || field.defaultOption || ''}
         onChange={handleChange}
+        tabIndex={field.tabIndex}
         className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
       >
         <option value=""></option>
@@ -725,6 +905,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           type="checkbox"
           checked={field.checked ?? field.checkedByDefault ?? false}
           onChange={handleChange}
+          tabIndex={field.tabIndex}
           className="w-full h-full cursor-pointer accent-blue-600"
         />
       </div>
@@ -740,6 +921,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           value={field.radioValue}
           checked={field.checked ?? false}
           onChange={handleChange}
+          tabIndex={field.tabIndex}
           className="w-full h-full cursor-pointer accent-blue-600"
         />
       </div>
