@@ -28,7 +28,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className={`w-72 shrink-0 flex flex-col bg-[#0f172a] ${sidebarPosition === 'right' ? 'border-l' : 'border-r'} border-zinc-800/60 overflow-y-auto`}>
+    <aside className={`w-72 shrink-0 flex flex-col bg-[#0f172a] ${sidebarPosition === 'right' ? 'border-l' : 'border-r'} border-zinc-800/60 overflow-hidden relative z-20`}>
       <div className="px-4 h-12 flex items-center border-b border-zinc-800/60">
         <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
           INFO
@@ -100,10 +100,10 @@ export function Sidebar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 8 }}
             transition={{ duration: 0.18 }}
-            className="flex-1 flex flex-col"
+            className="flex-1 flex flex-col min-h-0"
           >
             {/* Field-type specific panel or MultiSelect Panel */}
-            <div className="flex-1 px-4 py-2 space-y-3" style={{ zoom: 0.95 }}>
+            <div className="flex-1 px-4 py-2 space-y-3 overflow-y-auto" style={{ zoom: 0.95 }}>
               {isMultiSelect ? (
                 <MultiSelectPanel />
               ) : selected ? (
@@ -130,7 +130,7 @@ export function Sidebar() {
             </div>
 
             {/* Delete button */}
-            <div className="px-4 pb-4 pt-2 border-t border-zinc-800/60">
+            <div className="px-4 pb-4 pt-2 border-t border-zinc-800/60 shrink-0">
               <button
                 id="sidebar-delete-btn"
                 onClick={handleDelete}
@@ -147,7 +147,7 @@ export function Sidebar() {
       </AnimatePresence>
 
       {/* Toggle Sidebar Position Button */}
-      <div className="mt-auto px-4 pb-4 pt-2 border-t border-zinc-800/60 flex justify-center">
+      <div className="mt-auto px-4 pb-4 pt-2 border-t border-zinc-800/60 flex justify-center shrink-0">
         <button
           onClick={() => setSidebarPosition(sidebarPosition === 'right' ? 'left' : 'right')}
           data-tooltip={sidebarPosition === 'right' ? t('sidebar.moveToLeft') : t('sidebar.moveToRight')}
