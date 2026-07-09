@@ -1,6 +1,6 @@
 // ─── Field Types ─────────────────────────────────────────────────────────────
 
-export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio';
+export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date';
 export type FontWeight = 'regular' | 'bold';
 
 export interface FieldDef {
@@ -37,8 +37,12 @@ export interface FieldDef {
   groupName?: string;
   radioValue?: string; // the export value for this button
 
-  // ── User-entered Value (Text/Dropdown) ──
+  // ── User-entered Value (Text/Dropdown/Date) ──
   value?: string;
+
+  // ── Date-specific ──
+  /** 'auto' to use navigator.language, or explicitly 'DD.MM.YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD' */
+  dateFormat?: string;
 }
 
 // ─── Page Metadata ───────────────────────────────────────────────────────────

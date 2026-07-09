@@ -369,10 +369,6 @@ export function MultiSelectPanel() {
           <p className="text-[10px] text-zinc-600 text-center mt-1">Requires 3+ fields</p>
         )}
       </div>
-      
-      <div className="text-center pt-4 border-t border-zinc-800/60 mt-4">
-        <p className="text-xs text-blue-400 font-medium">{selectedFields.length} fields selected</p>
-      </div>
     </div>
   );
 }

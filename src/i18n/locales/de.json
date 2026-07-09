@@ -18,7 +18,8 @@
     "text": "Textfeld",
     "dropdown": "Dropdown",
     "checkbox": "Kontrollkästchen",
-    "radio": "Optionsfeld"
+    "radio": "Optionsfeld",
+    "date": "Datum"
   },
   "sidebar": {
     "noSelection": "Feld auswählen oder hinzufügen",
@@ -62,7 +63,8 @@
     "infoLicenseTitle": "Lizenz",
     "infoLicenseText": "Open-Source (MIT-Lizenz).",
     "infoDisclaimerTitle": "Haftungsausschluss",
-    "infoDisclaimerText": "Nutzung auf eigene Gefahr. Keine Haftung für Fehlfunktionen oder Datenverlust."
+    "infoDisclaimerText": "Nutzung auf eigene Gefahr. Keine Haftung für Fehlfunktionen oder Datenverlust.",
+    "deleteNFields": "{{count}} Felder löschen"
   },
   "editor": {
     "uploadPrompt": "PDF hochladen um zu beginnen",
@@ -71,6 +73,8 @@
     "clickToUpload": "oder zum Hochladen klicken",
     "page": "Seite",
     "of": "von",
+    "dpadTip": "Tipp: Halte Strg für 10x",
+    "nFieldsSelected": "{{count}} Felder markiert",
     "zoomIn": "Vergrößern",
     "zoomOut": "Verkleinern"
   },
@@ -99,5 +103,14 @@
     "license": "MIT-Lizenz",
     "privacy": "Daten bleiben auf Ihrem Gerät. Immer.",
     "github": "Auf GitHub ansehen"
+  },
+  "validation": {
+    "dateInvalid": "Falsches Datum. Bitte korrigieren.",
+    "dateHistory": "Sie verwenden ein historisches Datum. Wenn es richtig ist, bestätigen Sie mit OK, falls nicht, korrigieren Sie die Eingabe.",
+    "dateFuture": "Sie geben ein Datum ein, das sehr weit in der Zukunft liegt. Wenn es richtig ist, bestätigen Sie mit OK, falls nicht, korrigieren Sie das Ergebnis."
+  },
+  "fields": {
+    "dateFormat": "Datumsformat",
+    "dateFormatAuto": "Automatisch (Sprache)"
   }
 }

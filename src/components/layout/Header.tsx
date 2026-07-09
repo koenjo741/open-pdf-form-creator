@@ -179,6 +179,15 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
         </button>
       )}
 
+      {/* Invisible placeholders when not loaded to maintain flex distribution */}
+      {!isLoaded && (
+        <>
+          <div className="flex-1 min-w-[200px] max-w-[240px] shrink-0 pointer-events-none" />
+          <div className="flex-1 min-w-[200px] max-w-[240px] shrink-0 pointer-events-none" />
+          <div className="flex-1 min-w-[200px] max-w-[240px] shrink-0 pointer-events-none" />
+        </>
+      )}
+
       {/* Spacer & Loaded file name */}
       <div className="flex-1 min-w-0 px-2 flex items-center">
         {pdfFileName && (
@@ -189,7 +198,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       </div>
 
       {/* Undo / Redo */}
-      {isLoaded && appMode === 'edit' && (
+      {isLoaded && appMode === 'edit' ? (
         <>
           <button
             id="header-undo-btn"
@@ -209,6 +218,11 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
           >
             <Redo2 className="w-4 h-4" />
           </button>
+        </>
+      ) : (
+        <>
+          <div className="p-2 w-8 pointer-events-none" />
+          <div className="p-2 w-8 pointer-events-none" />
         </>
       )}
 

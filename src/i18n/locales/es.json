@@ -17,7 +17,8 @@
     "text": "Campo de texto",
     "dropdown": "Lista desplegable",
     "checkbox": "Casilla de verificación",
-    "radio": "Botón de opción"
+    "radio": "Botón de opción",
+    "date": "Fecha"
   },
   "sidebar": {
     "noSelection": "Seleccione o agregue un campo",
@@ -53,7 +54,8 @@
     "infoLicenseTitle": "Licencia",
     "infoLicenseText": "Código abierto (Licencia MIT).",
     "infoDisclaimerTitle": "Descargo de responsabilidad",
-    "infoDisclaimerText": "Uso bajo su propio riesgo. Sin responsabilidad por fallos de funcionamiento o pérdida de datos."
+    "infoDisclaimerText": "Úselo bajo su propio riesgo. Sin responsabilidad por mal funcionamiento o pérdida de datos.",
+    "deleteNFields": "Eliminar {{count}} campos"
   },
   "editor": {
     "uploadPrompt": "Suba un PDF para comenzar",
@@ -62,6 +64,8 @@
     "clickToUpload": "o haga clic para subir",
     "page": "Página",
     "of": "de",
+    "dpadTip": "Consejo: Mantén Ctrl para 10x",
+    "nFieldsSelected": "{{count}} campos seleccionados",
     "zoomIn": "Acercar",
     "zoomOut": "Alejar"
   },
@@ -90,5 +94,14 @@
     "license": "Licencia MIT",
     "privacy": "Los datos permanecen en su dispositivo. Siempre.",
     "github": "Ver en GitHub"
+  },
+  "validation": {
+    "dateInvalid": "Fecha no válida. Por favor corrija.",
+    "dateHistory": "Está utilizando una fecha histórica. Si es correcto, confirme con OK, de lo contrario corrija la entrada.",
+    "dateFuture": "Ingresó una fecha muy lejana en el futuro. Si es correcto, confirme con OK, de lo contrario corrija la entrada."
+  },
+  "fields": {
+    "dateFormat": "Formato de fecha",
+    "dateFormatAuto": "Automático (Idioma)"
   }
 }

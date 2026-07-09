@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEditorStore } from '../../store/useEditorStore';
 import { TextFieldPanel } from '../fields/TextFieldPanel';
 import { DropdownFieldPanel } from '../fields/DropdownFieldPanel';
+import { DateFieldPanel } from '../fields/DateFieldPanel';
 import { CheckboxFieldPanel } from '../fields/CheckboxFieldPanel';
 import { RadioFieldPanel } from '../fields/RadioFieldPanel';
 import { Trash2, MousePointerClick } from 'lucide-react';
@@ -9,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { FieldDef } from '../../types';
 
 import { MultiSelectPanel } from '../fields/MultiSelectPanel';
+import { FieldDirectionalPad } from '../fields/FieldDirectionalPad';
 
 export function Sidebar() {
   const { t } = useTranslation();
@@ -101,17 +103,30 @@ export function Sidebar() {
             className="flex-1 flex flex-col"
           >
             {/* Field-type specific panel or MultiSelect Panel */}
-            <div className="flex-1 px-4 py-4 space-y-4">
+            <div className="flex-1 px-4 py-2 space-y-3" style={{ zoom: 0.95 }}>
               {isMultiSelect ? (
                 <MultiSelectPanel />
               ) : selected ? (
                 <>
                   {selected.type === 'text' && <TextFieldPanel field={selected} />}
                   {selected.type === 'dropdown' && <DropdownFieldPanel field={selected} />}
+                  {selected.type === 'date' && <DateFieldPanel field={selected} />}
                   {selected.type === 'checkbox' && <CheckboxFieldPanel field={selected} />}
                   {selected.type === 'radio' && <RadioFieldPanel field={selected} />}
                 </>
               ) : null}
+
+              {/* Directional Pad and Status */}
+              <div className="flex flex-col items-center pt-2">
+                <div className="scale-90">
+                  <FieldDirectionalPad />
+                </div>
+                {isMultiSelect && (
+                  <div className="text-xs text-blue-400 font-medium mt-6 mb-2">
+                    {t('editor.nFieldsSelected', { count: selectedFieldIds.length })}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Delete button */}
@@ -124,7 +139,7 @@ export function Sidebar() {
                   text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                {isMultiSelect ? `Delete ${selectedFieldIds.length} Fields` : t('sidebar.deleteField')}
+                {isMultiSelect ? t('sidebar.deleteNFields', { count: selectedFieldIds.length }) : t('sidebar.deleteField')}
               </button>
             </div>
           </motion.div>

@@ -5,11 +5,14 @@ import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
 import type { FieldDef, PageMeta } from '../../types';
 import { calculateSnaps, type GuideLine, type Rect } from '../../utils/snapping';
 import { Copy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { DateValidationModal } from '../modals/DateValidationModal';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
   text:     { w: 144, h: 24 },
   dropdown: { w: 144, h: 24 },
+  date:     { w: 144, h: 24 },
   checkbox: { w: 16,  h: 16 },
   radio:    { w: 16,  h: 16 },
 };
@@ -532,6 +535,40 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   );
 }
 
+// ─── Date Parsing Utility ────────────────────────────────────────────────────
+
+function parseDateString(input: string, format: string, locale: string): Date | null {
+  let resolvedFormat = format;
+  if (!resolvedFormat || resolvedFormat === 'auto') {
+    if (locale.startsWith('de')) resolvedFormat = 'DD.MM.YYYY';
+    else if (locale.startsWith('en')) resolvedFormat = 'MM/DD/YYYY';
+    else if (locale.startsWith('fr') || locale.startsWith('es')) resolvedFormat = 'DD/MM/YYYY';
+    else resolvedFormat = 'YYYY-MM-DD';
+  }
+
+  const parts = input.match(/\d+/g);
+  if (!parts || parts.length < 3) return null;
+
+  let year, month, day;
+  if (resolvedFormat === 'DD.MM.YYYY' || resolvedFormat === 'DD/MM/YYYY') {
+    day = parseInt(parts[0], 10); month = parseInt(parts[1], 10); year = parseInt(parts[2], 10);
+  } else if (resolvedFormat === 'MM/DD/YYYY') {
+    month = parseInt(parts[0], 10); day = parseInt(parts[1], 10); year = parseInt(parts[2], 10);
+  } else if (resolvedFormat === 'YYYY-MM-DD') {
+    year = parseInt(parts[0], 10); month = parseInt(parts[1], 10); day = parseInt(parts[2], 10);
+  } else {
+    return null;
+  }
+
+  if (year < 100) year += 2000;
+
+  const d = new Date(year, month - 1, day);
+  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) {
+    return null;
+  }
+  return d;
+}
+
 // ─── Preview Field Box ───────────────────────────────────────────────────────
 
 interface PreviewFieldBoxProps {
@@ -543,6 +580,7 @@ interface PreviewFieldBoxProps {
 
 function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
   const { updateField } = useEditorStore();
+  const { t, i18n } = useTranslation();
 
   const { webX, webY } = pdfToWeb(
     field.pdfX, field.pdfY + field.pdfHeight,
@@ -590,6 +628,77 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         onChange={handleChange}
         className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
       />
+    );
+  }
+
+  if (field.type === 'date') {
+    const [validationModal, setValidationModal] = useState<{ open: boolean; type: 'invalid' | 'history' | 'future' | null }>({ open: false, type: null });
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const runValidation = (val: string) => {
+      const parsedDate = parseDateString(val, field.dateFormat || 'auto', i18n.language);
+      
+      if (!parsedDate) {
+        setValidationModal({ open: true, type: 'invalid' });
+      } else {
+        const year = parsedDate.getFullYear();
+        if (year < 1900) {
+          setValidationModal({ open: true, type: 'history' });
+        } else if (year > 2199) {
+          setValidationModal({ open: true, type: 'future' });
+        }
+      }
+    };
+
+    // Use a longer timeout (250ms) to let the browser finish any scroll/focus reflows before opening the modal
+    const handleDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      // Prevent blurring if modal is already open
+      if (validationModal.open) return;
+
+      const val = e.target.value.trim();
+      if (!val) return;
+
+      setTimeout(() => {
+        runValidation(val);
+      }, 250);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.currentTarget.blur();
+      }
+    };
+
+    const handleConfirm = () => {
+      setValidationModal({ open: false, type: null });
+      // Keep value
+    };
+
+    const handleCorrect = () => {
+      setValidationModal({ open: false, type: null });
+      // Wait for the exit animation (approx 150ms) before refocusing to avoid layout shifts
+      setTimeout(() => inputRef.current?.focus(), 200);
+    };
+
+    return (
+      <>
+        <input
+          ref={inputRef}
+          type="text"
+          style={baseStyle}
+          value={field.value || ''}
+          onChange={handleChange}
+          onBlur={handleDateBlur}
+          onKeyDown={handleKeyDown}
+          className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+        />
+        <DateValidationModal
+          open={validationModal.open}
+          type={validationModal.type}
+          onConfirm={handleConfirm}
+          onCorrect={handleCorrect}
+        />
+      </>
     );
   }
 

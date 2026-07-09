@@ -17,7 +17,8 @@
     "text": "Champ texte",
     "dropdown": "Liste déroulante",
     "checkbox": "Case à cocher",
-    "radio": "Bouton radio"
+    "radio": "Bouton radio",
+    "date": "Date"
   },
   "sidebar": {
     "noSelection": "Sélectionnez ou ajoutez un champ",
@@ -53,7 +54,8 @@
     "infoLicenseTitle": "Licence",
     "infoLicenseText": "Open-Source (Licence MIT).",
     "infoDisclaimerTitle": "Avis de non-responsabilité",
-    "infoDisclaimerText": "Utilisation à vos propres risques. Aucune responsabilité pour les dysfonctionnements ou la perte de données."
+    "infoDisclaimerText": "Utilisez à vos propres risques. Aucune responsabilité en cas de dysfonctionnement ou de perte de données.",
+    "deleteNFields": "Supprimer {{count}} champs"
   },
   "editor": {
     "uploadPrompt": "Téléchargez un PDF pour commencer",
@@ -62,6 +64,8 @@
     "clickToUpload": "ou cliquez pour télécharger",
     "page": "Page",
     "of": "sur",
+    "dpadTip": "Astuce : Maintenez Ctrl pour 10x",
+    "nFieldsSelected": "{{count}} champs sélectionnés",
     "zoomIn": "Agrandir",
     "zoomOut": "Réduire"
   },
@@ -90,5 +94,14 @@
     "license": "Licence MIT",
     "privacy": "Les données restent sur votre appareil. Toujours.",
     "github": "Voir sur GitHub"
+  },
+  "validation": {
+    "dateInvalid": "Date invalide. Veuillez corriger.",
+    "dateHistory": "Vous utilisez une date historique. Si correct, confirmez avec OK, sinon corrigez la saisie.",
+    "dateFuture": "Vous avez entré une date lointaine dans le futur. Si correct, confirmez avec OK, sinon corrigez la saisie."
+  },
+  "fields": {
+    "dateFormat": "Format de date",
+    "dateFormatAuto": "Automatique (Langue)"
   }
 }

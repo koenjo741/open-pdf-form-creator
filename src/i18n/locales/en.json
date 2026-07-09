@@ -18,7 +18,8 @@
     "text": "Text Field",
     "dropdown": "Dropdown",
     "checkbox": "Checkbox",
-    "radio": "Radio Button"
+    "radio": "Radio Button",
+    "date": "Date"
   },
   "sidebar": {
     "noSelection": "Select or add a field",
@@ -62,7 +63,8 @@
     "infoLicenseTitle": "License",
     "infoLicenseText": "Open-Source (MIT License).",
     "infoDisclaimerTitle": "Disclaimer",
-    "infoDisclaimerText": "Use at your own risk. No liability for malfunctions or data loss."
+    "infoDisclaimerText": "Use at your own risk. No liability for malfunctions or data loss.",
+    "deleteNFields": "Delete {{count}} Fields"
   },
   "editor": {
     "uploadPrompt": "Upload a PDF to get started",
@@ -71,6 +73,8 @@
     "clickToUpload": "or click to upload",
     "page": "Page",
     "of": "of",
+    "dpadTip": "Tip: Hold Ctrl for 10x",
+    "nFieldsSelected": "{{count}} fields selected",
     "zoomIn": "Zoom In",
     "zoomOut": "Zoom Out"
   },
@@ -99,5 +103,14 @@
     "license": "MIT License",
     "privacy": "Data stays on your device. Always.",
     "github": "View on GitHub"
+  },
+  "validation": {
+    "dateInvalid": "Invalid date. Please correct.",
+    "dateHistory": "You are using a historical date. If correct, confirm with OK, otherwise correct the input.",
+    "dateFuture": "You entered a date far in the future. If correct, confirm with OK, otherwise correct the input."
+  },
+  "fields": {
+    "dateFormat": "Date format",
+    "dateFormatAuto": "Auto (Language)"
   }
 }

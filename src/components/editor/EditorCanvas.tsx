@@ -158,10 +158,13 @@ export function EditorCanvas() {
             ${isDraggingOver ? 'bg-blue-900/10' : ''}
           `}
         >
-          <div className={`
-            flex flex-col items-center gap-4 px-12 py-16 rounded-2xl border-2 border-dashed transition-colors
-            ${isDraggingOver ? 'border-blue-500 bg-blue-500/5' : 'border-zinc-700/50 bg-zinc-900/30'}
-          `}>
+          <div 
+            onClick={() => document.getElementById('header-upload-btn')?.click()}
+            className={`
+              flex flex-col items-center gap-4 px-12 py-16 rounded-2xl border-2 border-dashed transition-colors cursor-pointer hover:bg-zinc-900/50
+              ${isDraggingOver ? 'border-blue-500 bg-blue-500/5' : 'border-zinc-700/50 bg-zinc-900/30'}
+            `}
+          >
             <div className={`
               w-16 h-16 rounded-2xl flex items-center justify-center transition-colors
               ${isDraggingOver ? 'bg-blue-600/20' : 'bg-zinc-800/60'}

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── Inter font from /public/fonts/ — zero CDN calls ── */
+/* 🎨 Inter font from /public/fonts/ – zero CDN calls 🎨 */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -17,7 +17,7 @@
   src: url('/open-pdf-form-creator/fonts/Inter-Bold.ttf') format('truetype');
 }
 
-/* ── Base resets ── */
+/* 🎨 Base resets 🎨 */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -36,7 +36,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Custom scrollbar ── */
+/* 🎨 Custom scrollbar 🎨 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -52,7 +52,7 @@ body {
   background: #52525b; /* zinc-600 */
 }
 
-/* ── Range input accent ── */
+/* 🎨 Range input accent 🎨 */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -77,8 +77,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 0 0 6px #2563eb25;
 }
 
-/* ── Focus visible utility ── */
+/* 🎨 Focus visible utility 🎨 */
 :focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+html {
+  scrollbar-gutter: stable;
 }

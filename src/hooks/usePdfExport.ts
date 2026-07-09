@@ -82,7 +82,8 @@ export function usePdfExport() {
 
           try {
             switch (field.type) {
-            case 'text': {
+            case 'text':
+            case 'date': {
               const tf = form.createTextField(field.name);
               tf.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
               tf.setFontSize(fontSize);
