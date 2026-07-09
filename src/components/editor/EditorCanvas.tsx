@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import * as pdfjs from 'pdfjs-dist';
 import { initialisePdfJs } from '../../utils/pdfLoader';
-import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
+import { useEditorStore } from '../../store/useEditorStore';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { PageRenderer } from './PageRenderer';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,6 @@ export function EditorCanvas() {
   // Read pdfBuffer as a stable reference — we only re-load when the buffer identity changes
   const pdfBuffer = useEditorStore((s) => s.pdfBuffer);
   const isLoaded = useEditorStore((s) => s.isLoaded);
-  const appMode = useEditorStore((s) => s.appMode);
   const setPageMetas = useEditorStore((s) => s.setPageMetas);
   const setPdfBuffer = useEditorStore((s) => s.setPdfBuffer);
 

@@ -24,7 +24,6 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, appMode, setAppMode } = useEditorStore();
   const temporalStore = useTemporalStore();
-  const [downloadOpen, setDownloadOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -139,7 +138,6 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
         <>
           <button
             onClick={() => {
-              setDownloadOpen(false);
               onExportEditable();
             }}
             disabled={isExporting}
@@ -152,7 +150,6 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
           <div className="flex-1 min-w-[150px] max-w-[240px] flex gap-2 h-8 shrink-0">
             <button
               onClick={() => {
-                setDownloadOpen(false);
                 onExportFlattened();
               }}
               disabled={isExporting}
