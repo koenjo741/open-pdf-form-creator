@@ -129,8 +129,8 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
             className="flex-1 min-w-[200px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-sm font-medium transition-colors border border-red-500/20 hover:border-red-500/40 shrink-0"
             data-tooltip={t('header.close')} data-tooltip-pos="bottom"
           >
-            <X className="w-4 h-4" />
-            <span className="hidden sm:block whitespace-nowrap">{t('header.close')}</span>
+            <X className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:block truncate">{t('header.close')}</span>
           </button>
         </>
       )}
@@ -142,22 +142,22 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
               onExportEditable();
             }}
             disabled={isExporting}
-            className="flex-1 min-w-[150px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0"
+            className="flex-1 min-w-[120px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0 min-w-0 overflow-hidden px-2"
           >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:block whitespace-nowrap">{t('header.saveEditable')}</span>
+            <Download className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:block truncate">{t('header.saveEditable')}</span>
           </button>
           
-          <div className="flex-1 min-w-[150px] max-w-[240px] flex gap-2 h-8 shrink-0">
+          <div className="flex-1 min-w-[120px] max-w-[240px] flex gap-2 h-8 shrink-0 min-w-0">
             <button
               onClick={() => {
                 onExportFlattened();
               }}
               disabled={isExporting}
-              className="flex-1 flex items-center justify-center gap-2 h-8 rounded-lg bg-[#059669] hover:bg-[#059669]/90 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 h-8 rounded-lg bg-[#059669] hover:bg-[#059669]/90 disabled:opacity-50 text-white text-sm font-medium transition-colors min-w-0 overflow-hidden px-2"
             >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:block whitespace-nowrap">{t('header.saveFinalized')}</span>
+              <Download className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:block truncate">{t('header.saveFinalized')}</span>
             </button>
             <button
               onClick={clearPdf}
