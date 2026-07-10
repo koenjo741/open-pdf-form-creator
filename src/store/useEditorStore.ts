@@ -42,12 +42,15 @@ export interface EditorState {
   sidebarPosition: 'left' | 'right';
   /** App theme: dark or light */
   theme: 'dark' | 'light';
+  /** Whether grid snapping is enabled */
+  snapToGrid: boolean;
 }
 
 export interface EditorActions {
   setAppMode: (mode: AppMode) => void;
   setSidebarPosition: (pos: 'left' | 'right') => void;
   setTheme: (theme: 'dark' | 'light') => void;
+  setSnapToGrid: (snap: boolean) => void;
   setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
@@ -94,7 +97,7 @@ function ensureSequentialTabIndices(fields: FieldDef[]): FieldDef[] {
 // ─── Persisted slice (fields + page metas + tool) ────────────────────────────
 // pdfBuffer is intentionally NOT in the persisted state.
 
-type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme'>;
+type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid'>;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -113,11 +116,13 @@ export const useEditorStore = create<EditorStore>()(
         appMode: 'edit',
         sidebarPosition: 'right',
         theme: 'dark',
+        snapToGrid: true,
 
         // ── Actions ───────────────────────────────────────────────────────
         setAppMode: (mode) => set({ appMode: mode }),
         setSidebarPosition: (pos) => set({ sidebarPosition: pos }),
         setTheme: (theme) => set({ theme }),
+        setSnapToGrid: (snap) => set({ snapToGrid: snap }),
         
         setPdfBuffer: (buffer, fileName, initialFields) =>
           set((state) => ({ 
@@ -191,12 +196,7 @@ export const useEditorStore = create<EditorStore>()(
         setActiveTool: (tool) => set({ activeTool: tool }),
 
         isNameTaken: (name, excludeId) => {
-          const { fields } = get();
-          return fields.some(
-            (f) =>
-              f.name.toLowerCase() === name.toLowerCase() &&
-              f.id !== excludeId,
-          );
+          return false; // Allowed natively in PDF to mirror fields
         },
 
         normalizeTabIndices: () => set((state) => ({ fields: ensureSequentialTabIndices(state.fields) })),
@@ -240,6 +240,7 @@ export const useEditorStore = create<EditorStore>()(
           activeTool: state.activeTool,
           sidebarPosition: state.sidebarPosition,
           theme: state.theme,
+          snapToGrid: state.snapToGrid,
         }),
         limit: 100,
       },
@@ -254,6 +255,7 @@ export const useEditorStore = create<EditorStore>()(
         activeTool: state.activeTool,
         sidebarPosition: state.sidebarPosition,
         theme: state.theme,
+        snapToGrid: state.snapToGrid,
       }),
       // Re-hydrate without crashing if IDB is unavailable
       onRehydrateStorage: () => (_state, error) => {

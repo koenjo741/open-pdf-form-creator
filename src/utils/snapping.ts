@@ -28,6 +28,8 @@ export function calculateSnaps(
   movingRect: Rect,
   otherRects: Rect[],
   threshold = 5,
+  gridX?: number,
+  gridY?: number
 ): SnapResult {
   const result: SnapResult = {
     snappedX: null,
@@ -114,6 +116,21 @@ export function calculateSnaps(
     }
   }
 
+  // --- Grid Snapping (Fallback if no guide is close enough) ---
+  if (result.snappedX === null && gridX && gridX > 0) {
+    const snappedLeft = Math.round(movingRect.x / gridX) * gridX;
+    if (Math.abs(movingRect.x - snappedLeft) < gridX) { // Always snap if grid is enabled and no guides
+      result.snappedX = snappedLeft;
+    }
+  }
+
+  if (result.snappedY === null && gridY && gridY > 0) {
+    const snappedTop = Math.round(movingRect.y / gridY) * gridY;
+    if (Math.abs(movingRect.y - snappedTop) < gridY) {
+      result.snappedY = snappedTop;
+    }
+  }
+
   // After finding the closest snapped coordinates, rebuild the guides
   if (result.snappedX !== null) {
     const snappedEdges = {
@@ -177,7 +194,9 @@ export function calculateResizeSnaps(
   handle: string,
   otherRects: Rect[],
   ignoreId: string,
-  threshold = 5
+  threshold = 5,
+  gridX?: number,
+  gridY?: number
 ) {
   const result = { rx, ry, rw, rh, guides: [] as GuideLine[] };
 
@@ -260,6 +279,29 @@ export function calculateResizeSnaps(
       result.rh = -(snappedEdgeY - baseY);
     }
     result.guides.push({ type: 'horizontal', position: snappedEdgeY });
+  } else if (gridY && gridY > 0) {
+    if (handle.includes('s')) {
+      const snappedBottom = Math.round(currentBottom / gridY) * gridY;
+      result.rh = snappedBottom - (baseY + baseH);
+    }
+    if (handle.includes('n')) {
+      const snappedTop = Math.round(currentTop / gridY) * gridY;
+      result.ry = snappedTop - baseY;
+      result.rh = -(snappedTop - baseY);
+    }
+  }
+
+  // Fallback to Grid Snapping X
+  if (snappedEdgeX === null && gridX && gridX > 0) {
+    if (handle.includes('e')) {
+      const snappedRight = Math.round(currentRight / gridX) * gridX;
+      result.rw = snappedRight - (baseX + baseW);
+    }
+    if (handle.includes('w')) {
+      const snappedLeft = Math.round(currentLeft / gridX) * gridX;
+      result.rx = snappedLeft - baseX;
+      result.rw = -(snappedLeft - baseX);
+    }
   }
 
   return result;

@@ -98,11 +98,24 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
     if (!sourceField) return;
 
+    let prefix = sourceField.name.split(' -- ')[0] || sourceField.type;
+    // ensure prefix is capitalized if it was e.g. text
+    prefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+
+    let counter = 1;
+    let baseName = '';
+    while (true) {
+      baseName = `${prefix} -- ${counter}`;
+      if (!fields.some(f => f.name === baseName)) break;
+      counter++;
+    }
+
     const id = crypto.randomUUID();
     const newField: FieldDef = {
       ...sourceField,
       id,
-      name: `${sourceField.name}_copy`,
+      name: baseName,
+      label: baseName,
       pdfY: sourceField.pdfY - sourceField.pdfHeight - 10, // place 10pt below
     };
     addField(newField);
@@ -216,22 +229,34 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         canvasWidth, canvasHeight,
       );
 
-      const sizes = DEFAULT_SIZES[activeTool];
+      const sizes = DEFAULT_SIZES[activeTool === 'number' ? 'text' : activeTool] || {w: 144, h: 24};
       const id = crypto.randomUUID();
-      const baseName = `${activeTool}_${id.slice(0, 6)}`;
+      
+      const type = activeTool === 'number' ? 'text' : activeTool;
+      const textSubType = activeTool === 'number' ? 'number' : undefined;
+      const prefix = activeTool.charAt(0).toUpperCase() + activeTool.slice(1);
+      
+      let counter = 1;
+      let baseName = '';
+      while (true) {
+        baseName = `${prefix} -- ${counter}`;
+        if (!fields.some(f => f.name === baseName)) break;
+        counter++;
+      }
 
       const newField: FieldDef = {
         id,
         pageIndex: pageMeta.pageIndex,
-        type: activeTool,
+        type: type,
         name: baseName,
-        label: activeTool.charAt(0).toUpperCase() + activeTool.slice(1),
+        label: baseName,
         pdfX,
         pdfY: pdfY - sizes.h, // anchor top-left
         pdfWidth: sizes.w,
         pdfHeight: sizes.h,
         fontSize: 12,
         fontWeight: 'regular',
+        textSubType,
         options: activeTool === 'dropdown' ? [] : undefined,
         checkedByDefault: activeTool === 'checkbox' ? false : undefined,
         groupName: activeTool === 'radio' ? 'group1' : undefined,
@@ -382,10 +407,14 @@ interface FieldBoxInnerProps {
 }
 
 function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields, onGuidesChange, onContextMenu, globalDrag, setGlobalDrag, globalResize, setGlobalResize }: FieldBoxInnerProps) {
-  const { selectedFieldIds, selectField, updateField, activeTool, fields } = useEditorStore();
+  const { selectedFieldIds, selectField, updateField, activeTool, fields, snapToGrid } = useEditorStore();
   const isSelected = selectedFieldIds.includes(field.id);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const isResizingRef = useRef(false);
+
+  // 10 PDF points in web pixels
+  const webGridX = snapToGrid ? (10 / pageMeta.widthPt) * canvasWidth : undefined;
+  const webGridY = snapToGrid ? (10 / pageMeta.heightPt) * canvasHeight : undefined;
   
   // Local state for smooth drag/resize
   // Convert PDF coords → web pixels for rendering
@@ -475,7 +504,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
           return { id: f.id, x: ox, y: oy, w: ow, h: oh };
         });
 
-        const snapResult = calculateSnaps(movingRect, otherRects, 8);
+        const snapResult = calculateSnaps(movingRect, otherRects, 8, webGridX, webGridY);
         onGuidesChange(snapResult.guides);
 
         if (snapResult.snappedX !== null) dxWebSnap = snapResult.snappedX - webX;
@@ -545,10 +574,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         {field.label || field.name}
       </span>
 
-      {/* Type icon badge */}
-      <span className="absolute bottom-0.5 right-0.5 text-[8px] text-zinc-500 pointer-events-none select-none uppercase font-mono">
-        {field.type.slice(0, 3)}
-      </span>
+
 
       {/* Visual Baseline Indicator */}
       {(field.type === 'text' || field.type === 'date') && (
@@ -560,6 +586,14 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
           }} 
           title="Text Baseline"
         />
+      )}
+
+      {/* Tab Index badge (Edit mode only) */}
+      {field.tabIndex !== undefined && (
+        <span className="absolute -top-5 right-0 text-[9px] leading-none px-1 py-0.5 rounded
+          bg-blue-600/90 text-white truncate max-w-full pointer-events-none select-none shadow-sm">
+          Tab {field.tabIndex}
+        </span>
       )}
 
       {/* Resize handles — only when selected & in select mode */}
@@ -618,7 +652,9 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
                   handle.pos,
                   otherRects,
                   field.id,
-                  8
+                  8,
+                  webGridX,
+                  webGridY
                 );
 
                 onGuidesChange(snapResult.guides);
@@ -925,8 +961,5 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           className="w-full h-full cursor-pointer accent-blue-600"
         />
       </div>
-    );
-  }
-
   return null;
 }

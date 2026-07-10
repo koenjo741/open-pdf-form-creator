@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Header } from './components/layout/Header';
+import { LeftSidebar } from './components/layout/LeftSidebar';
 import { Footer } from './components/layout/Footer';
 import { Sidebar } from './components/layout/Sidebar';
 import { EditorCanvas } from './components/editor/EditorCanvas';
-import { AddFieldToolbar } from './components/editor/AddFieldToolbar';
 import { ConsentModal } from './components/modals/ConsentModal';
 import { FlattenConfirmModal } from './components/modals/FlattenConfirmModal';
 import { ToastContainer } from './components/common/Toast';
@@ -39,18 +38,15 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-50 overflow-hidden transition-colors duration-200">
-      <Header
-        onExportEditable={handleExportEditable}
-        onExportFlattened={handleExportFlattened}
-        isExporting={isExporting}
-      />
-
-      {/* AddFieldToolbar placed above main so it spans full width and Sidebar starts below it */}
-      {appMode === 'edit' && <AddFieldToolbar />}
+    <div className="h-screen flex flex-col bg-slate-300 text-slate-700 dark:bg-slate-800 dark:text-slate-50 overflow-hidden transition-colors duration-200">
 
       {/* Main editor area */}
       <main className={`flex-1 flex overflow-hidden min-h-0 ${sidebarPosition === 'left' ? 'flex-row-reverse' : ''}`}>
+        <LeftSidebar 
+          onExportEditable={handleExportEditable}
+          onExportFlattened={handleExportFlattened}
+          isExporting={isExporting}
+        />
         <EditorCanvas />
         {appMode === 'edit' && <Sidebar />}
       </main>

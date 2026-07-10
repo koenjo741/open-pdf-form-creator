@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment, PDFArray, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import { useEditorStore } from '../store/useEditorStore';
@@ -64,6 +64,9 @@ export function usePdfExport() {
         page.node.set(PDFName.of('Tabs'), PDFName.of('A'));
       }
 
+      // Prepare Calculation Order (CO) array
+      const coArray = pdfDoc.context.obj([]);
+
       // 6. Sort and add fields
       // Acrobat uses the Annots array order to determine Tab order if /Tabs is not strictly structure.
       const sortedFields = [...fields].sort((a, b) => {
@@ -124,6 +127,32 @@ export function usePdfExport() {
               if (field.value) {
                 tf.setText(field.value);
               }
+              
+              // Handle calculation
+              if (field.calculation) {
+                const isNumber = field.textSubType === 'number';
+                let jsStr = '';
+                if (isNumber) {
+                  jsStr = field.calculation.replace(/\[([^\]]+)\]/g, '(Number(this.getField("$1").value) || 0)');
+                } else {
+                  jsStr = field.calculation.replace(/\[([^\]]+)\]/g, 'this.getField("$1").value');
+                }
+                const jsCode = `event.value = ${jsStr};`;
+                
+                const jsAction = pdfDoc.context.obj({
+                  Type: 'Action',
+                  S: 'JavaScript',
+                  JS: PDFString.of(jsCode)
+                });
+                
+                const aaDict = pdfDoc.context.obj({
+                  C: jsAction
+                });
+                
+                tf.acroField.dict.set(PDFName.of('AA'), aaDict);
+                coArray.push(tf.acroField.ref);
+              }
+
               try { tf.updateAppearances(font); } catch { /* ignore */ }
               break;
             }
@@ -177,6 +206,11 @@ export function usePdfExport() {
         } catch (fieldErr) {
           console.warn(`[PDF Export] Could not add field "${field.name}":`, fieldErr);
         }
+      }
+
+      // Add CO array to AcroForm if there are calculated fields
+      if (coArray.size() > 0) {
+        form.acroForm.dict.set(PDFName.of('CO'), coArray);
       }
 
       // 7. Flatten if requested or embed state if editable

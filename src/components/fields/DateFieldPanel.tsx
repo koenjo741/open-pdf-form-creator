@@ -35,6 +35,25 @@ export function DateFieldPanel({ field }: Props) {
       </div>
 
       <FieldTextStyling field={field} />
+
+      <div className="pt-4 border-t border-zinc-700/50">
+        <label className="block text-xs font-medium text-zinc-400 mb-1.5 flex justify-between items-center">
+          <span>Berechnetes Feld (Zeitdifferenz)</span>
+        </label>
+        <div className="space-y-2">
+          <textarea
+            value={field.calculation || ''}
+            onChange={(e) => updateField(field.id, { calculation: e.target.value })}
+            placeholder="z.B. [EndDate] - [StartDate]"
+            className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
+              text-sm text-zinc-100 outline-none transition-colors font-mono resize-y min-h-[60px]"
+          />
+          <div className="text-[10px] text-zinc-500 leading-tight">
+            <b>Syntax:</b> Datumsfelder in eckige Klammern setzen <code>[Name]</code>.<br />
+            <b>Format:</b> Das Ergebnis wird berechnet und im Feld ausgegeben.
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

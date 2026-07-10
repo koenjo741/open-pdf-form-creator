@@ -23,6 +23,8 @@ export interface FieldDef {
   fontWeight?: FontWeight; // default 'regular'
   fontFamily?: 'proportional' | 'monospace'; // default 'proportional'
   textAlign?: 'left' | 'center' | 'right'; // default 'left'
+  textSubType?: 'text' | 'number' | 'email' | 'currency'; // subtype for text fields
+  calculation?: string; // Optional formula (e.g., "[Feld1] + [Feld2]")
 
   // ── Dropdown-specific ──
   options?: string[];
@@ -76,7 +78,7 @@ export type ExportMode = 'editable' | 'flattened';
 
 // ─── Tool Mode ───────────────────────────────────────────────────────────────
 
-export type ToolMode = FieldType | 'select';
+export type ToolMode = FieldType | 'select' | 'number';
 
 // ─── App Mode ────────────────────────────────────────────────────────────────
 

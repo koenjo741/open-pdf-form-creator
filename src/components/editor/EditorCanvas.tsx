@@ -158,7 +158,7 @@ export function EditorCanvas() {
           `}
         >
           <div 
-            onClick={() => document.getElementById('header-upload-btn')?.click()}
+            onClick={() => document.getElementById('sidebar-upload-btn')?.click()}
             className={`
               flex flex-col items-center gap-4 px-12 py-16 rounded-2xl border-2 border-dashed transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900/50
               ${isDraggingOver ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-300 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-900/30'}

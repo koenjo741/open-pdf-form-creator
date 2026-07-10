@@ -31,6 +31,9 @@ export function FieldCommonInputs({ field }: Props) {
         {nameTaken && (
           <p className="text-red-400 text-xs mt-1">{t('sidebar.nameError')}</p>
         )}
+        <p className="text-zinc-500 text-[10px] mt-1.5 leading-tight">
+          <b>Tipp:</b> Wenn du zwei Feldern exakt denselben Namen gibst, werden ihre Werte im fertigen PDF automatisch in Echtzeit gespiegelt.
+        </p>
       </div>
 
       {/* Label */}
@@ -68,9 +71,53 @@ export function FieldCommonInputs({ field }: Props) {
           }}
           placeholder="Automatisch"
           className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
-            text-sm text-zinc-100 placeholder:text-zinc-600 outline-none
-            focus:ring-2 focus:ring-blue-500/50 transition-colors"
+            text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors"
         />
+      </div>
+
+      {/* Geometry Settings */}
+      <div>
+        <label className="block text-xs font-medium text-zinc-400 mb-1.5 mt-2">
+          Position & Größe (pt)
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-500 w-3">X:</span>
+            <input
+              type="number"
+              value={Math.round(field.pdfX)}
+              onChange={(e) => updateField(field.id, { pdfX: parseInt(e.target.value) || 0 })}
+              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-500 w-3">Y:</span>
+            <input
+              type="number"
+              value={Math.round(field.pdfY)}
+              onChange={(e) => updateField(field.id, { pdfY: parseInt(e.target.value) || 0 })}
+              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-500 w-3">B:</span>
+            <input
+              type="number"
+              value={Math.round(field.pdfWidth)}
+              onChange={(e) => updateField(field.id, { pdfWidth: parseInt(e.target.value) || 0 })}
+              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-500 w-3">H:</span>
+            <input
+              type="number"
+              value={Math.round(field.pdfHeight)}
+              onChange={(e) => updateField(field.id, { pdfHeight: parseInt(e.target.value) || 0 })}
+              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
+            />
+          </div>
+        </div>
       </div>
     </>
   );
