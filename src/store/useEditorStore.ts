@@ -239,6 +239,7 @@ export const useEditorStore = create<EditorStore>()(
           pageMetas: state.pageMetas,
           activeTool: state.activeTool,
           sidebarPosition: state.sidebarPosition,
+          theme: state.theme,
         }),
         limit: 100,
       },
@@ -252,6 +253,7 @@ export const useEditorStore = create<EditorStore>()(
         pageMetas: state.pageMetas,
         activeTool: state.activeTool,
         sidebarPosition: state.sidebarPosition,
+        theme: state.theme,
       }),
       // Re-hydrate without crashing if IDB is unavailable
       onRehydrateStorage: () => (_state, error) => {

@@ -1,11 +1,9 @@
 import { useEditorStore } from '../../store/useEditorStore';
 import { Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useEditorStore();
-  const { t } = useTranslation();
   
   const isDark = theme === 'dark';
 
