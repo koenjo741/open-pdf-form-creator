@@ -160,23 +160,23 @@ export function EditorCanvas() {
           <div 
             onClick={() => document.getElementById('header-upload-btn')?.click()}
             className={`
-              flex flex-col items-center gap-4 px-12 py-16 rounded-2xl border-2 border-dashed transition-colors cursor-pointer hover:bg-zinc-900/50
-              ${isDraggingOver ? 'border-blue-500 bg-blue-500/5' : 'border-zinc-700/50 bg-zinc-900/30'}
+              flex flex-col items-center gap-4 px-12 py-16 rounded-2xl border-2 border-dashed transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900/50
+              ${isDraggingOver ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-300 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-900/30'}
             `}
           >
             <div className={`
               w-16 h-16 rounded-2xl flex items-center justify-center transition-colors
-              ${isDraggingOver ? 'bg-blue-600/20' : 'bg-zinc-800/60'}
+              ${isDraggingOver ? 'bg-cyan-600/20' : 'bg-slate-200 dark:bg-slate-800/60'}
             `}>
               {isDraggingOver
-                ? <FileUp className="w-8 h-8 text-blue-400" />
-                : <Upload className="w-8 h-8 text-zinc-500" />
+                ? <FileUp className="w-8 h-8 text-cyan-500" />
+                : <Upload className="w-8 h-8 text-slate-400 dark:text-slate-500" />
               }
             </div>
             <div className="text-center">
-              <p className="text-zinc-300 font-medium">{t('editor.uploadPrompt')}</p>
-              <p className="text-zinc-600 text-sm mt-1">{t('editor.uploadPromptSub')}</p>
-              <p className="text-zinc-700 text-xs mt-3">{t('editor.dropHere')} · {t('editor.clickToUpload')}</p>
+              <p className="text-slate-800 dark:text-slate-300 font-medium">{t('editor.uploadPrompt')}</p>
+              <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{t('editor.uploadPromptSub')}</p>
+              <p className="text-slate-500 dark:text-slate-500 text-xs mt-3">{t('editor.dropHere')} · {t('editor.clickToUpload')}</p>
             </div>
           </div>
         </div>
@@ -204,10 +204,10 @@ export function EditorCanvas() {
                 <div key={i}>
                   {/* Page label */}
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs text-zinc-600 font-medium">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                       {t('editor.page')} {i + 1} {t('editor.of')} {numPages}
                     </span>
-                    <div className="flex-1 h-px bg-zinc-800/60" />
+                    <div className="flex-1 h-px bg-slate-300 dark:bg-slate-800/60" />
                   </div>
                   <PageRenderer
                     pdfDoc={pdfDoc}

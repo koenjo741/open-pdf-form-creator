@@ -40,11 +40,14 @@ export interface EditorState {
   appMode: AppMode;
   /** Sidebar position: left or right */
   sidebarPosition: 'left' | 'right';
+  /** App theme: dark or light */
+  theme: 'dark' | 'light';
 }
 
 export interface EditorActions {
   setAppMode: (mode: AppMode) => void;
   setSidebarPosition: (pos: 'left' | 'right') => void;
+  setTheme: (theme: 'dark' | 'light') => void;
   setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
@@ -91,7 +94,7 @@ function ensureSequentialTabIndices(fields: FieldDef[]): FieldDef[] {
 // ─── Persisted slice (fields + page metas + tool) ────────────────────────────
 // pdfBuffer is intentionally NOT in the persisted state.
 
-type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition'>;
+type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme'>;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -109,10 +112,12 @@ export const useEditorStore = create<EditorStore>()(
         isLoaded: false,
         appMode: 'edit',
         sidebarPosition: 'right',
+        theme: 'dark',
 
         // ── Actions ───────────────────────────────────────────────────────
         setAppMode: (mode) => set({ appMode: mode }),
         setSidebarPosition: (pos) => set({ sidebarPosition: pos }),
+        setTheme: (theme) => set({ theme }),
         
         setPdfBuffer: (buffer, fileName, initialFields) =>
           set((state) => ({ 

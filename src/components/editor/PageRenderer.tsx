@@ -47,15 +47,15 @@ export function PageRenderer({ pdfDoc, pageIndex, containerWidth }: PageRenderer
 
       {/* Loading spinner overlay */}
       {isRendering && (
-        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/40 rounded-sm">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center bg-white/40 dark:bg-slate-900/40 rounded-sm">
+          <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Error overlay */}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80 rounded-sm">
-          <p className="text-red-400 text-sm px-4 text-center">{error}</p>
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 rounded-sm">
+          <p className="text-red-500 dark:text-red-400 text-sm px-4 text-center">{error}</p>
         </div>
       )}
 

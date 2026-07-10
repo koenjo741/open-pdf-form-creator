@@ -17,7 +17,7 @@ export function AddFieldToolbar() {
   const { activeTool, setActiveTool } = useEditorStore();
 
   return (
-    <div className="flex items-center gap-2 px-6 h-12 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60 overflow-x-auto">
+    <div className="flex items-center gap-2 px-6 h-12 bg-slate-300/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 overflow-x-auto">
       {TOOLS.map(({ mode, icon, labelKey }) => (
         <button
           key={mode}
@@ -25,8 +25,8 @@ export function AddFieldToolbar() {
           onClick={() => setActiveTool(mode)}
           className={`flex items-center justify-center gap-2 h-8 flex-1 min-w-[200px] max-w-[240px] whitespace-nowrap rounded-lg text-sm transition-colors ${
             activeTool === mode
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-300 bg-[#1e293b] hover:bg-slate-700'
+              ? 'bg-cyan-600 text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
         >
           {icon}

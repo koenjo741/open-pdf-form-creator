@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farbpalette: Professional Joy</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f8fafc;
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { margin-bottom: 10px; }
+        p { margin-bottom: 40px; max-width: 600px; text-align: center; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .color-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .color-swatch {
+            height: 120px;
+            width: 100%;
+        }
+        .color-info {
+            padding: 15px;
+            background: white;
+            color: #0f172a;
+        }
+        .color-name { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
+        .color-hex { font-family: monospace; color: #64748b; }
+        .section-title { width: 100%; max-width: 1000px; margin-top: 40px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        
+        .bg-slate-900 { background-color: #0f172a; }
+        .bg-slate-800 { background-color: #1e293b; }
+        .bg-slate-50 { background-color: #f8fafc; }
+        .bg-slate-700 { background-color: #334155; }
+        .bg-cyan-500 { background-color: #06b6d4; }
+        .bg-orange-500 { background-color: #f97316; }
+        .bg-emerald-500 { background-color: #10b981; }
+        
+    </style>
+</head>
+<body>
+
+    <h1>Palette: "Professional Joy"</h1>
+    <p>Eine Vorschau der vorgeschlagenen Farben. Die Basis bildet ein seriöses, tiefes Blau-Grau, aufgelockert durch fröhliche Ozean- und Koralltöne.</p>
+
+    <h2 class="section-title">Dark Mode (Standard)</h2>
+    <div class="grid">
+        <div class="color-card">
+            <div class="color-swatch bg-slate-900"></div>
+            <div class="color-info">
+                <div class="color-name">App Hintergrund</div>
+                <div class="color-hex">#0F172A (slate-900)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch bg-slate-800"></div>
+            <div class="color-info">
+                <div class="color-name">Oberflächen / Cards</div>
+                <div class="color-hex">#1E293B (slate-800)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch bg-slate-50" style="border-bottom: 1px solid #e2e8f0;"></div>
+            <div class="color-info">
+                <div class="color-name">Textfarbe (Dark)</div>
+                <div class="color-hex">#F8FAFC (slate-50)</div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Light Mode</h2>
+    <div class="grid">
+        <div class="color-card">
+            <div class="color-swatch bg-slate-50"></div>
+            <div class="color-info">
+                <div class="color-name">App Hintergrund</div>
+                <div class="color-hex">#F8FAFC (slate-50)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch" style="background-color: #ffffff; border-bottom: 1px solid #e2e8f0;"></div>
+            <div class="color-info">
+                <div class="color-name">Oberflächen / Cards</div>
+                <div class="color-hex">#FFFFFF (white)</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch bg-slate-700"></div>
+            <div class="color-info">
+                <div class="color-name">Textfarbe (Light)</div>
+                <div class="color-hex">#334155 (slate-700)</div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Fröhliche Akzentfarben</h2>
+    <div class="grid">
+        <div class="color-card">
+            <div class="color-swatch bg-cyan-500"></div>
+            <div class="color-info">
+                <div class="color-name">Primär (Aktionen)</div>
+                <div class="color-hex">#06B6D4 (cyan-500)</div>
+                <div style="font-size: 0.85em; color: #64748b; margin-top: 5px;">Frisch, klar & professionell</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch bg-orange-500"></div>
+            <div class="color-info">
+                <div class="color-name">Sekundär (Highlights)</div>
+                <div class="color-hex">#F97316 (orange-500)</div>
+                <div style="font-size: 0.85em; color: #64748b; margin-top: 5px;">Heiter, warm & freundlich</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch bg-emerald-500"></div>
+            <div class="color-info">
+                <div class="color-name">Erfolg</div>
+                <div class="color-hex">#10B981 (emerald-500)</div>
+                <div style="font-size: 0.85em; color: #64748b; margin-top: 5px;">Positives Feedback</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

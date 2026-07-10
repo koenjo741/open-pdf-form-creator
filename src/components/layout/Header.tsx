@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
+import { ThemeToggle } from './ThemeToggle';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
@@ -61,7 +62,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
   return (
-    <header className="sticky top-0 z-40 flex items-center gap-2 px-6 h-12 bg-[#020617]/90 backdrop-blur-md border-b border-zinc-800/60">
+    <header className="sticky top-0 z-40 flex items-center gap-2 px-6 h-12 bg-slate-300/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-300 dark:border-slate-800">
       {/* Logo (matches 'select' button) */}
       <button className="flex-1 min-w-[200px] max-w-[240px] h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 cursor-default pointer-events-none transition-colors">
         <FileText className="w-4 h-4 text-white" />
@@ -69,7 +70,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       
       {/* Title (matches 'text' button) */}
       <button className="flex-1 min-w-[200px] max-w-[240px] h-8 flex items-center justify-center shrink-0 cursor-default pointer-events-none bg-transparent">
-        <span className="font-semibold text-white text-sm hidden sm:block whitespace-nowrap">Open PDF Form Creator</span>
+        <span className="font-semibold text-slate-800 dark:text-white text-sm hidden sm:block whitespace-nowrap">Open PDF Form Creator</span>
       </button>
 
       {/* Upload button (matches 'dropdown' button) */}
@@ -101,7 +102,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
 
       {/* Mode Toggle Switch (matches 'checkbox' button) */}
       {isLoaded && (
-        <div className="flex-1 min-w-[200px] max-w-[240px] flex items-center shrink-0 border border-zinc-700/60 rounded-lg p-0.5 bg-[#0f172a] h-8">
+        <div className="flex-1 min-w-[200px] max-w-[240px] flex items-center shrink-0 border border-slate-300 dark:border-slate-700/60 rounded-lg p-0.5 bg-slate-100 dark:bg-slate-900 h-8">
           <button
             onClick={() => setAppMode('edit')}
             style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
@@ -111,7 +112,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
           </button>
           <button
             onClick={() => setAppMode('preview')}
-            style={{ backgroundColor: appMode === 'preview' ? '#155dfc' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
+            style={{ backgroundColor: appMode === 'preview' ? '#06b6d4' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
             className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
           >
             Preview
@@ -141,7 +142,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
               onExportEditable();
             }}
             disabled={isExporting}
-            className="flex-1 min-w-[150px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0"
+            className="flex-1 min-w-[150px] max-w-[240px] flex items-center justify-center gap-2 h-8 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium transition-colors shrink-0"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:block whitespace-nowrap">{t('header.saveEditable')}</span>
@@ -179,7 +180,7 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       )}
 
       {/* Spacer & Loaded file name */}
-      <div className="flex-1 min-w-0 px-2 flex items-center">
+      <div className="flex-1 min-w-0 px-2 flex items-center overflow-hidden">
         {pdfFileName && (
           <span className="text-zinc-500 text-xs truncate min-w-0 hidden md:block" data-tooltip={pdfFileName} data-tooltip-pos="bottom">
             {pdfFileName}
@@ -217,6 +218,8 @@ export function Header({ onExportEditable, onExportFlattened, isExporting }: Hea
       )}
 
 
+
+      <ThemeToggle />
 
       {/* Language switcher */}
       <div className="relative">

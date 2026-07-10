@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Sidebar } from './components/layout/Sidebar';
@@ -16,7 +16,18 @@ export default function App() {
   const { exportPdf, isExporting } = usePdfExport();
   const appMode = useEditorStore((s) => s.appMode);
   const sidebarPosition = useEditorStore((s) => s.sidebarPosition);
+  const theme = useEditorStore((s) => s.theme);
   const [flattenModalOpen, setFlattenModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    }
+  }, [theme]);
 
   useAutoSave();
 
@@ -28,7 +39,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#020617] text-zinc-100 overflow-hidden">
+    <div className="h-screen flex flex-col bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-50 overflow-hidden transition-colors duration-200">
       <Header
         onExportEditable={handleExportEditable}
         onExportFlattened={handleExportFlattened}
