@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment, PDFArray, rgb } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import { useEditorStore } from '../store/useEditorStore';

@@ -104,7 +104,7 @@ type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 
 export const useEditorStore = create<EditorStore>()(
   persist(
     temporal(
-      (set, get) => ({
+      (set) => ({
         // ── Initial state ──────────────────────────────────────────────────
         pdfBuffer: null,
         pdfFileName: null,
@@ -195,7 +195,7 @@ export const useEditorStore = create<EditorStore>()(
 
         setActiveTool: (tool) => set({ activeTool: tool }),
 
-        isNameTaken: (name, excludeId) => {
+        isNameTaken: (_name, _excludeId) => {
           return false; // Allowed natively in PDF to mirror fields
         },
 

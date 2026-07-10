@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, MousePointer, Calendar, Hash, Image } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
