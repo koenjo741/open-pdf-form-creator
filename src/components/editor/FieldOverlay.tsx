@@ -961,5 +961,8 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           className="w-full h-full cursor-pointer accent-blue-600"
         />
       </div>
+    );
+  }
+
   return null;
 }
