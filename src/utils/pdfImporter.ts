@@ -146,6 +146,11 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
     form.removeField(f);
   }
 
+  // If all fields were stripped, remove the AcroForm dict to prevent PDF.js parsing errors
+  if (form.getFields().length === 0) {
+    pdfDoc.catalog.delete(PDFName.of('AcroForm'));
+  }
+
   // --- FALLBACK: If pdf-lib failed to find AcroForm fields (e.g. Foxit PDF issues), scan annotations manually ---
   if (extractedFields.length === 0 && !stateRecovered) {
     debugLog += `Fallback activated. Pages: ${pages.length}. `;

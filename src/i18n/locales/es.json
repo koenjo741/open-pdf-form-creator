@@ -50,6 +50,7 @@
     "infoFunctionTitle": "Funcionalidad",
     "infoFunctionText": "Suba PDFs estáticos y hágalos interactivos. Utilice la vista de Editor para colocar campos y la Vista previa para rellenarlos con datos. El formulario se puede descargar de dos maneras:",
     "infoFunctionPoint1": "PDF editable: Los campos permanecen activos y todavía se pueden rellenar.",
+    "infoFunctionPointExtract": "PDF editable: Los contenidos de los campos se pueden extraer en formato JSON utilizando la función Extraer.",
     "infoFunctionPoint2": "PDF finalizado: Los campos se integran en el documento y no se pueden modificar posteriormente.",
     "infoPrivacyTitle": "Privacidad",
     "infoPrivacyText": "100% local. Todos los datos y documentos permanecen exclusivamente en su dispositivo. Ninguna carga a ningún servidor.",

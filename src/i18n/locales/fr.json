@@ -50,6 +50,7 @@
     "infoFunctionTitle": "Fonctionnalité",
     "infoFunctionText": "Téléchargez des PDF statiques et rendez-les interactifs. Utilisez la vue Éditeur pour placer des champs et l'Aperçu pour les remplir avec des données. Le formulaire peut être téléchargé de deux manières :",
     "infoFunctionPoint1": "PDF modifiable : Les champs restent actifs et peuvent toujours être remplis.",
+    "infoFunctionPointExtract": "PDF modifiable : Le contenu des champs peut être extrait au format JSON à l'aide de la fonction Extraire.",
     "infoFunctionPoint2": "PDF finalisé : Les champs sont intégrés au document et ne peuvent plus être modifiés ultérieurement.",
     "infoPrivacyTitle": "Confidentialité",
     "infoPrivacyText": "100% local. Toutes les données et documents restent exclusivement sur votre appareil. Aucun téléchargement sur un serveur.",

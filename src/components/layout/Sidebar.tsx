@@ -60,6 +60,7 @@ export function Sidebar() {
                     {t('sidebar.infoFunctionText')}
                     <ul className="list-disc pl-4 mt-2 space-y-1.5">
                       <li>{t('sidebar.infoFunctionPoint1')}</li>
+                      <li>{t('sidebar.infoFunctionPointExtract')}</li>
                       <li>{t('sidebar.infoFunctionPoint2')}</li>
                     </ul>
                   </div>

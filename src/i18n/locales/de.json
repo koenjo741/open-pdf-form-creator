@@ -62,6 +62,7 @@
     "infoFunctionTitle": "Funktionsweise",
     "infoFunctionText": "Statische PDFs hochladen und interaktiv machen. Nutzen Sie die Editor-Ansicht zum Platzieren von Feldern und die Vorschau, um diese mit Daten zu befüllen. Das Formular kann auf zwei Arten heruntergeladen werden:",
     "infoFunctionPoint1": "Bearbeitbares PDF: Felder bleiben aktiv und können weiterhin ausgefüllt werden.",
+    "infoFunctionPointExtract": "Bearbeitbares PDF: Feldinhalte können mit der Extract-Funktion im JSON-Format ausgegeben werden.",
     "infoFunctionPoint2": "Finales PDF: Felder werden fest in das Dokument \"eingebrannt\" und sind nachträglich nicht mehr veränderbar.",
     "infoPrivacyTitle": "Datenschutz",
     "infoPrivacyText": "100% lokal. Alle Daten und Dokumente bleiben ausschließlich auf Ihrem Gerät. Kein Upload auf Server.",
