@@ -57,7 +57,8 @@
     "infoLicenseText": "Código abierto (Licencia MIT).",
     "infoDisclaimerTitle": "Descargo de responsabilidad",
     "infoDisclaimerText": "Úselo bajo su propio riesgo. Sin responsabilidad por mal funcionamiento o pérdida de datos.",
-    "deleteNFields": "Eliminar {{count}} campos"
+    "deleteNFields": "Eliminar {{count}} campos",
+    "filenameTemplateTip": "Sintaxis: [Nombre, N] para los primeros N caracteres, o -N para los últimos. Ej: [Date -- 1, -4] devuelve '1957'."
   },
   "editor": {
     "uploadPrompt": "Suba un PDF para comenzar",

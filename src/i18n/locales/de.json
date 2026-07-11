@@ -69,7 +69,8 @@
     "infoLicenseText": "Open-Source (MIT-Lizenz).",
     "infoDisclaimerTitle": "Haftungsausschluss",
     "infoDisclaimerText": "Nutzung auf eigene Gefahr. Keine Haftung für Fehlfunktionen oder Datenverlust.",
-    "deleteNFields": "{{count}} Felder löschen"
+    "deleteNFields": "{{count}} Felder löschen",
+    "filenameTemplateTip": "Syntax: [Feldname, N] für die ersten N Zeichen, oder -N für die letzten N Zeichen. Bsp: [Date -- 1, -4] liefert '1957'."
   },
   "editor": {
     "uploadPrompt": "PDF hochladen um zu beginnen",

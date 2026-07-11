@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -136,12 +136,21 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
 
           {appMode === 'edit' && (
             <div className="mt-2 flex flex-col gap-1">
-              <label className="text-[10px] font-semibold text-slate-500 uppercase">Export Filename Template</label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Export Filename Template</label>
+                <div 
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-help"
+                  data-tooltip={t('sidebar.filenameTemplateTip')}
+                  data-tooltip-pos="top"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </div>
+              </div>
               <input 
                 type="text" 
                 value={filenameTemplate}
                 onChange={(e) => setFilenameTemplate(e.target.value)}
-                placeholder="z.B. [Text -- 1]_[Date -- 4]"
+                placeholder="z.B. [Text -- 1]_[Text -- 2, 4]"
                 className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md px-2 py-1.5 text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cyan-500"
               />
             </div>
