@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { DateValidationModal } from '../modals/DateValidationModal';
 import { TextValidationModal } from '../modals/TextValidationModal';
 import { FieldActionModal } from '../modals/FieldActionModal';
-import { toast } from '../common/Toast';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -270,7 +269,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       const sizes = DEFAULT_SIZES[type] || {w: 144, h: 24};
       const id = crypto.randomUUID();
       
-      const textSubType = isTextSubtype ? activeTool : undefined;
+      const textSubType = isTextSubtype ? (activeTool as NonNullable<FieldDef['textSubType']>) : undefined;
       const prefix = activeTool.charAt(0).toUpperCase() + activeTool.slice(1);
       
       let counter = 1;
