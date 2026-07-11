@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { PDFDocument } from 'pdf-lib';
-import { Download, UploadCloud, FileJson, AlertCircle } from 'lucide-react';
+import { Download, UploadCloud, FileJson, AlertCircle, X } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { generateFilename } from '../../utils/dynamicFilename';
 import { useTranslation, Trans } from 'react-i18next';
@@ -11,7 +11,7 @@ export function DataExtractor() {
   const [extractedData, setExtractedData] = useState<Record<string, any> | null>(null);
   const [originalFilename, setOriginalFilename] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { filenameTemplate } = useEditorStore();
+  const { filenameTemplate, setAppMode } = useEditorStore();
   const { t } = useTranslation();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,14 +127,24 @@ export function DataExtractor() {
             <FileJson className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             {t('extract.title')}
           </h1>
-          {extractedData && (
+          <div className="flex items-center gap-6">
+            {extractedData && (
+              <button
+                onClick={() => setExtractedData(null)}
+                className="text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              >
+                {t('extract.loadNew')}
+              </button>
+            )}
             <button
-              onClick={() => setExtractedData(null)}
-              className="text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              onClick={() => setAppMode('edit')}
+              className="flex items-center gap-2 px-4 py-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:border-red-500/50 transition-colors rounded-lg font-medium"
+              title="Schließen"
             >
-              {t('extract.loadNew')}
+              <X className="w-5 h-5" />
+              Reset / Close
             </button>
-          )}
+          </div>
         </div>
 
         {!extractedData ? (

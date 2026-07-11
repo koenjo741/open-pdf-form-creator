@@ -112,72 +112,102 @@ export function usePdfExport() {
           const fontSize = field.fontSize ?? 12;
 
           try {
+            const existingField = form.getFieldMaybe(field.name);
+            const isDuplicate = !!existingField;
+
             switch (field.type) {
             case 'text':
             case 'date': {
-              const tf = form.createTextField(field.name);
+              const tf = existingField ? form.getTextField(field.name) : form.createTextField(field.name);
               tf.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-              tf.setFontSize(fontSize);
-              tf.disableMultiline();
-
-              if (field.textAlign === 'center') tf.setAlignment(TextAlignment.Center);
-              else if (field.textAlign === 'right') tf.setAlignment(TextAlignment.Right);
-              else tf.setAlignment(TextAlignment.Left);
-
-              if (field.value) {
-                tf.setText(field.value);
-              }
               
-              // Handle calculation
-              if (field.calculation) {
-                const isNumber = field.textSubType === 'number';
-                let jsStr = '';
-                if (isNumber) {
-                  jsStr = field.calculation.replace(/\[([^\]]+)\]/g, '(Number(this.getField("$1").value) || 0)');
-                } else {
-                  jsStr = field.calculation.replace(/\[([^\]]+)\]/g, 'this.getField("$1").value');
+              if (isDuplicate) {
+                const widgets = tf.acroField.getWidgets();
+                if (widgets.length > 0) {
+                  const newWidget = widgets[widgets.length - 1];
+                  newWidget.setFlags(newWidget.getFlags() | 64); // ReadOnly (bit 7)
                 }
-                const jsCode = `event.value = ${jsStr};`;
+              } else {
+                tf.setFontSize(fontSize);
+                tf.disableMultiline();
+
+                if (field.textAlign === 'center') tf.setAlignment(TextAlignment.Center);
+                else if (field.textAlign === 'right') tf.setAlignment(TextAlignment.Right);
+                else tf.setAlignment(TextAlignment.Left);
+
+                if (field.value) {
+                  tf.setText(field.value);
+                }
                 
-                const jsAction = pdfDoc.context.obj({
-                  Type: 'Action',
-                  S: 'JavaScript',
-                  JS: PDFString.of(jsCode)
-                });
-                
-                const aaDict = pdfDoc.context.obj({
-                  C: jsAction
-                });
-                
-                tf.acroField.dict.set(PDFName.of('AA'), aaDict);
-                coArray.push(tf.acroField.ref);
+                // Handle calculation
+                if (field.calculation) {
+                  const isNumber = field.textSubType === 'number';
+                  let jsStr = '';
+                  if (isNumber) {
+                    jsStr = field.calculation.replace(/\[([^\]]+)\]/g, '(Number(this.getField("$1").value) || 0)');
+                  } else {
+                    jsStr = field.calculation.replace(/\[([^\]]+)\]/g, 'this.getField("$1").value');
+                  }
+                  const jsCode = `event.value = ${jsStr};`;
+                  
+                  const jsAction = pdfDoc.context.obj({
+                    Type: 'Action',
+                    S: 'JavaScript',
+                    JS: PDFString.of(jsCode)
+                  });
+                  
+                  const aaDict = pdfDoc.context.obj({
+                    C: jsAction
+                  });
+                  
+                  tf.acroField.dict.set(PDFName.of('AA'), aaDict);
+                  coArray.push(tf.acroField.ref);
+                }
               }
 
               try { tf.updateAppearances(font); } catch { /* ignore */ }
               break;
             }
             case 'dropdown': {
-              const dd = form.createDropdown(field.name);
+              const dd = existingField ? form.getDropdown(field.name) : form.createDropdown(field.name);
               dd.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-              dd.setFontSize(fontSize);
-              if (field.options && field.options.length > 0) {
-                dd.setOptions(field.options);
-                if (field.value && field.options.includes(field.value)) {
-                  dd.select(field.value);
-                } else if (field.defaultOption && field.options.includes(field.defaultOption)) {
-                  dd.select(field.defaultOption);
+              
+              if (isDuplicate) {
+                const widgets = dd.acroField.getWidgets();
+                if (widgets.length > 0) {
+                  const newWidget = widgets[widgets.length - 1];
+                  newWidget.setFlags(newWidget.getFlags() | 64); // ReadOnly
+                }
+              } else {
+                dd.setFontSize(fontSize);
+                if (field.options && field.options.length > 0) {
+                  dd.setOptions(field.options);
+                  if (field.value && field.options.includes(field.value)) {
+                    dd.select(field.value);
+                  } else if (field.defaultOption && field.options.includes(field.defaultOption)) {
+                    dd.select(field.defaultOption);
+                  }
                 }
               }
               try { dd.updateAppearances(font); } catch { /* ignore */ }
               break;
             }
             case 'checkbox': {
-              const cb = form.createCheckBox(field.name);
+              const cb = existingField ? form.getCheckBox(field.name) : form.createCheckBox(field.name);
               cb.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-              if (field.checked !== undefined) {
-                if (field.checked) cb.check();
-              } else if (field.checkedByDefault) {
-                cb.check();
+              
+              if (isDuplicate) {
+                const widgets = cb.acroField.getWidgets();
+                if (widgets.length > 0) {
+                  const newWidget = widgets[widgets.length - 1];
+                  newWidget.setFlags(newWidget.getFlags() | 64); // ReadOnly
+                }
+              } else {
+                if (field.checked !== undefined) {
+                  if (field.checked) cb.check();
+                } else if (field.checkedByDefault) {
+                  cb.check();
+                }
               }
               // checkbox.updateAppearances() signature varies by pdf-lib version
               try { (cb as unknown as { updateAppearances: () => void }).updateAppearances(); } catch { /* ignore */ }

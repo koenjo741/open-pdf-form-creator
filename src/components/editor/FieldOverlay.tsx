@@ -4,9 +4,10 @@ import { useEditorStore } from '../../store/useEditorStore';
 import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
 import type { FieldDef, PageMeta } from '../../types';
 import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from '../../utils/snapping';
-import { Copy } from 'lucide-react';
+import { Copy, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DateValidationModal } from '../modals/DateValidationModal';
+import { FieldActionModal } from '../modals/FieldActionModal';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -93,10 +94,25 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     return () => window.removeEventListener('click', handleClickOutside);
   }, []);
 
+  const handleRename = () => {
+    if (!contextMenu) return;
+    const currentField = pageFields.find(f => f.id === contextMenu.fieldId);
+    if (currentField) {
+      const newName = window.prompt('Feldname umbenennen:', currentField.name);
+      if (newName && newName.trim() !== '') {
+        updateField(contextMenu.fieldId, { name: newName.trim(), label: newName.trim() });
+      }
+    }
+  };
+
   const handleDuplicate = () => {
     if (!contextMenu) return;
     const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
     if (!sourceField) return;
+
+    if (sourceField.label.includes(' (nicht editierbar)')) {
+      return handleClone();
+    }
 
     let prefix = sourceField.name.split(' -- ')[0] || sourceField.type;
     // ensure prefix is capitalized if it was e.g. text
@@ -120,7 +136,25 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     };
     addField(newField);
     selectField(id);
-    setContextMenu(null);
+  };
+
+  const handleClone = () => {
+    if (!contextMenu) return;
+    const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
+    if (!sourceField) return;
+
+    const id = crypto.randomUUID();
+    const newField: FieldDef = {
+      ...sourceField,
+      id,
+      // Name stays exactly the same so it acts as a mirror/clone
+      label: sourceField.label.includes(' (nicht editierbar)') 
+        ? sourceField.label 
+        : `${sourceField.label} (nicht editierbar)`,
+      pdfY: sourceField.pdfY - sourceField.pdfHeight - 10,
+    };
+    addField(newField);
+    selectField(id);
   };
 
   const handlePointerDown = useCallback(
@@ -370,21 +404,14 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         )
       ))}
 
-      {/* Context Menu */}
-      {contextMenu && appMode === 'edit' && (
-        <div
-          className="absolute z-50 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl py-1 min-w-[120px]"
-          style={{ left: contextMenu.x, top: contextMenu.y }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={handleDuplicate}
-            className="w-full text-left px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-700 hover:text-white flex items-center gap-2"
-          >
-            <Copy className="w-4 h-4" />
-            Duplicate
-          </button>
-        </div>
+      {contextMenu && appMode === 'edit' && pageFields.find(f => f.id === contextMenu.fieldId) && (
+        <FieldActionModal
+          field={pageFields.find(f => f.id === contextMenu.fieldId)!}
+          onClose={() => setContextMenu(null)}
+          onRename={handleRename}
+          onDuplicate={handleDuplicate}
+          onClone={handleClone}
+        />
       )}
     </div>
   );
@@ -807,8 +834,11 @@ interface PreviewFieldBoxProps {
 }
 
 function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
-  const { updateField } = useEditorStore();
+  const { updateField, fields } = useEditorStore();
   const { i18n } = useTranslation();
+
+  // Find if this is a duplicate (i.e. not the first field with this name)
+  const isDuplicate = fields.find(f => f.name === field.name)?.id !== field.id;
 
   const { webX, webY } = pdfToWeb(
     field.pdfX, field.pdfY + field.pdfHeight,
@@ -854,8 +884,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         style={baseStyle}
         value={field.value || ''}
         onChange={handleChange}
+        readOnly={isDuplicate}
         tabIndex={field.tabIndex}
-        className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+        className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
       />
     );
   }
@@ -919,8 +950,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           onChange={handleChange}
           onBlur={handleDateBlur}
           onKeyDown={handleKeyDown}
+          readOnly={isDuplicate}
           tabIndex={field.tabIndex}
-          className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
         />
         <DateValidationModal
           open={validationModal.open}
@@ -938,8 +970,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         style={baseStyle}
         value={field.value || field.defaultOption || ''}
         onChange={handleChange}
+        disabled={isDuplicate}
         tabIndex={field.tabIndex}
-        className="px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+        className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
       >
         <option value=""></option>
         {field.options?.map((opt, i) => (
@@ -956,8 +989,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           type="checkbox"
           checked={field.checked ?? field.checkedByDefault ?? false}
           onChange={handleChange}
+          disabled={isDuplicate}
           tabIndex={field.tabIndex}
-          className="w-full h-full cursor-pointer accent-blue-600"
+          className={`w-full h-full accent-blue-600 ${isDuplicate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
         />
       </div>
     );
@@ -972,8 +1006,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           value={field.radioValue}
           checked={field.checked ?? false}
           onChange={handleChange}
+          disabled={isDuplicate}
           tabIndex={field.tabIndex}
-          className="w-full h-full cursor-pointer accent-blue-600"
+          className={`w-full h-full accent-blue-600 ${isDuplicate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
         />
       </div>
     );
