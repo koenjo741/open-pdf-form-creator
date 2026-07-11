@@ -98,6 +98,9 @@
     "github": "Ver en GitHub"
   },
   "validation": {
+    "invalidTitle": "Fecha inválida",
+    "historyTitle": "Fecha histórica",
+    "futureTitle": "Fecha futura",
     "dateInvalid": "Fecha no válida. Por favor corrija.",
     "dateHistory": "Está utilizando una fecha histórica. Si es correcto, confirme con OK, de lo contrario corrija la entrada.",
     "dateFuture": "Ingresó una fecha muy lejana en el futuro. Si es correcto, confirme con OK, de lo contrario corrija la entrada."
@@ -105,5 +108,21 @@
   "fields": {
     "dateFormat": "Formato de fecha",
     "dateFormatAuto": "Automático (Idioma)"
+  },
+  "extract": {
+    "title": "Extracción de datos",
+    "loadNew": "Cargar nuevo PDF",
+    "dropHere": "Suelte el PDF rellenado aquí",
+    "clickToUpload": "o haga clic para seleccionar un archivo",
+    "extracting": "Extrayendo...",
+    "selectPdf": "Seleccionar PDF",
+    "saveJson": "Guardar como JSON",
+    "filenameHint": "Si el nombre del archivo no es el esperado, asegúrese de haber configurado correctamente la <1>Plantilla de nombre de archivo de exportación</1> en el modo 'Edición' usando `[NombreDelCampo]`.",
+    "toastInvalidPdf": "Por favor, suelte un archivo PDF válido.",
+    "toastSuccess": "Datos extraídos con éxito.",
+    "toastReadError": "Error al leer el PDF.",
+    "toastSaveSuccess": "JSON guardado con éxito.",
+    "toastDownloadSuccess": "JSON descargado.",
+    "toastSaveError": "Error al guardar."
   }
 }
