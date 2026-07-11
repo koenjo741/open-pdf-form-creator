@@ -3,6 +3,7 @@ import { LeftSidebar } from './components/layout/LeftSidebar';
 import { Footer } from './components/layout/Footer';
 import { Sidebar } from './components/layout/Sidebar';
 import { EditorCanvas } from './components/editor/EditorCanvas';
+import { DataExtractor } from './components/extract/DataExtractor';
 import { ConsentModal } from './components/modals/ConsentModal';
 import { FlattenConfirmModal } from './components/modals/FlattenConfirmModal';
 import { ToastContainer } from './components/common/Toast';
@@ -47,8 +48,14 @@ export default function App() {
           onExportFlattened={handleExportFlattened}
           isExporting={isExporting}
         />
-        <EditorCanvas />
-        {appMode === 'edit' && <Sidebar />}
+        {appMode === 'extract' ? (
+          <DataExtractor />
+        ) : (
+          <>
+            <EditorCanvas />
+            {appMode === 'edit' && <Sidebar />}
+          </>
+        )}
       </main>
 
       <Footer />

@@ -23,7 +23,7 @@ interface LeftSidebarProps {
 export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }: LeftSidebarProps) {
   const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, appMode, setAppMode, sidebarPosition } = useEditorStore();
+  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, appMode, setAppMode, sidebarPosition, filenameTemplate, setFilenameTemplate } = useEditorStore();
   const temporalStore = useTemporalStore();
   const [langOpen, setLangOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -110,22 +110,40 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
             </div>
           )}
 
-          {isLoaded && (
-            <div className="flex border border-slate-300 dark:border-slate-700/60 rounded-lg p-0.5 bg-slate-100 dark:bg-slate-900 h-9">
-              <button
-                onClick={() => setAppMode('edit')}
-                style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
-                className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => setAppMode('preview')}
-                style={{ backgroundColor: appMode === 'preview' ? '#06b6d4' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
-                className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
-              >
-                Preview
-              </button>
+          <div className="flex border border-slate-300 dark:border-slate-700/60 rounded-lg p-0.5 bg-slate-100 dark:bg-slate-900 h-9">
+            <button
+              onClick={() => setAppMode('edit')}
+              style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
+              className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setAppMode('preview')}
+              style={{ backgroundColor: appMode === 'preview' ? '#06b6d4' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
+              className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setAppMode('extract')}
+              style={{ backgroundColor: appMode === 'extract' ? '#10b981' : 'transparent', color: appMode === 'extract' ? '#fff' : '#94a3b8' }}
+              className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+            >
+              Extract
+            </button>
+          </div>
+
+          {appMode === 'edit' && (
+            <div className="mt-2 flex flex-col gap-1">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase">Export Filename Template</label>
+              <input 
+                type="text" 
+                value={filenameTemplate}
+                onChange={(e) => setFilenameTemplate(e.target.value)}
+                placeholder="z.B. [Text -- 1]_[Date -- 4]"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md px-2 py-1.5 text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-cyan-500"
+              />
             </div>
           )}
         </section>

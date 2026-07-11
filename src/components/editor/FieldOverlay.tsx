@@ -752,11 +752,24 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
 
 function parseDateString(input: string, format: string, locale: string): Date | null {
   let resolvedFormat = format;
+
   if (!resolvedFormat || resolvedFormat === 'auto') {
-    if (locale.startsWith('de')) resolvedFormat = 'DD.MM.YYYY';
-    else if (locale.startsWith('en')) resolvedFormat = 'MM/DD/YYYY';
-    else if (locale.startsWith('fr') || locale.startsWith('es')) resolvedFormat = 'DD/MM/YYYY';
-    else resolvedFormat = 'YYYY-MM-DD';
+    if (input.includes('.')) {
+      resolvedFormat = 'DD.MM.YYYY';
+    } else if (input.includes('/')) {
+      if (locale.startsWith('en') && !locale.startsWith('en-GB')) {
+        resolvedFormat = 'MM/DD/YYYY';
+      } else {
+        resolvedFormat = 'DD/MM/YYYY';
+      }
+    } else if (input.includes('-')) {
+      resolvedFormat = 'YYYY-MM-DD';
+    } else {
+      if (locale.startsWith('de')) resolvedFormat = 'DD.MM.YYYY';
+      else if (locale.startsWith('en')) resolvedFormat = 'MM/DD/YYYY';
+      else if (locale.startsWith('fr') || locale.startsWith('es')) resolvedFormat = 'DD/MM/YYYY';
+      else resolvedFormat = 'YYYY-MM-DD';
+    }
   }
 
   const parts = input.match(/\d+/g);
@@ -773,7 +786,9 @@ function parseDateString(input: string, format: string, locale: string): Date | 
     return null;
   }
 
-  if (year < 100) year += 2000;
+  if (year < 100) {
+    year += year > 50 ? 1900 : 2000;
+  }
 
   const d = new Date(year, month - 1, day);
   if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) {

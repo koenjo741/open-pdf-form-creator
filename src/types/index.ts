@@ -82,4 +82,4 @@ export type ToolMode = FieldType | 'select' | 'number';
 
 // ─── App Mode ────────────────────────────────────────────────────────────────
 
-export type AppMode = 'edit' | 'preview';
+export type AppMode = 'edit' | 'preview' | 'extract';

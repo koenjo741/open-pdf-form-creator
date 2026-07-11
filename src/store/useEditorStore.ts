@@ -44,6 +44,8 @@ export interface EditorState {
   theme: 'dark' | 'light';
   /** Whether grid snapping is enabled */
   snapToGrid: boolean;
+  /** Template for dynamic JSON export filename */
+  filenameTemplate: string;
 }
 
 export interface EditorActions {
@@ -51,6 +53,7 @@ export interface EditorActions {
   setSidebarPosition: (pos: 'left' | 'right') => void;
   setTheme: (theme: 'dark' | 'light') => void;
   setSnapToGrid: (snap: boolean) => void;
+  setFilenameTemplate: (template: string) => void;
   setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
@@ -97,7 +100,7 @@ function ensureSequentialTabIndices(fields: FieldDef[]): FieldDef[] {
 // ─── Persisted slice (fields + page metas + tool) ────────────────────────────
 // pdfBuffer is intentionally NOT in the persisted state.
 
-type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid'>;
+type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid' | 'filenameTemplate'>;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -117,12 +120,14 @@ export const useEditorStore = create<EditorStore>()(
         sidebarPosition: 'right',
         theme: 'dark',
         snapToGrid: true,
+        filenameTemplate: '',
 
         // ── Actions ───────────────────────────────────────────────────────
         setAppMode: (mode) => set({ appMode: mode }),
         setSidebarPosition: (pos) => set({ sidebarPosition: pos }),
         setTheme: (theme) => set({ theme }),
         setSnapToGrid: (snap) => set({ snapToGrid: snap }),
+        setFilenameTemplate: (template) => set({ filenameTemplate: template }),
         
         setPdfBuffer: (buffer, fileName, initialFields) =>
           set((state) => ({ 
@@ -241,6 +246,7 @@ export const useEditorStore = create<EditorStore>()(
           sidebarPosition: state.sidebarPosition,
           theme: state.theme,
           snapToGrid: state.snapToGrid,
+          filenameTemplate: state.filenameTemplate,
         }),
         limit: 100,
       },
@@ -256,6 +262,7 @@ export const useEditorStore = create<EditorStore>()(
         sidebarPosition: state.sidebarPosition,
         theme: state.theme,
         snapToGrid: state.snapToGrid,
+        filenameTemplate: state.filenameTemplate,
       }),
       // Re-hydrate without crashing if IDB is unavailable
       onRehydrateStorage: () => (_state, error) => {

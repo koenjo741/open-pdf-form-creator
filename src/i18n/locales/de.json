@@ -110,6 +110,9 @@
     "github": "Auf GitHub ansehen"
   },
   "validation": {
+    "invalidTitle": "Falsches Datum",
+    "historyTitle": "Historisches Datum",
+    "futureTitle": "Datum in der Zukunft",
     "dateInvalid": "Falsches Datum. Bitte korrigieren.",
     "dateHistory": "Sie verwenden ein historisches Datum. Wenn es richtig ist, bestätigen Sie mit OK, falls nicht, korrigieren Sie die Eingabe.",
     "dateFuture": "Sie geben ein Datum ein, das sehr weit in der Zukunft liegt. Wenn es richtig ist, bestätigen Sie mit OK, falls nicht, korrigieren Sie das Ergebnis."
