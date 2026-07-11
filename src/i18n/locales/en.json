@@ -70,7 +70,7 @@
     "infoDisclaimerTitle": "Disclaimer",
     "infoDisclaimerText": "Use at your own risk. No liability for malfunctions or data loss.",
     "deleteNFields": "Delete {{count}} Fields",
-    "filenameTemplateTip": "Syntax: [FieldName, N] for first N chars, or -N for last N chars. E.g. [Date -- 1, -4] returns '1957'."
+    "filenameTemplateTip": "Syntax: [FieldName, N] for first N chars, or -N for last N chars.\n\nE.g. [Date -- 1, -4] → 15.09.1957 returns '1957'."
   },
   "editor": {
     "uploadPrompt": "Upload a PDF to get started",

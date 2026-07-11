@@ -26,9 +26,10 @@ export function TooltipLayer() {
       const posAttr = target.getAttribute('data-tooltip-pos') || 'top';
       const pos = posAttr as 'top' | 'bottom';
 
-      // Clamp x to prevent tooltip from overflowing the window edges
-      // Estimate width: ~6.5px per character for 11px font + 20px padding
-      const estimatedWidth = text.length * 6.5 + 20; 
+      // Estimate width based on longest line: ~6.5px per character for 11px font + 20px padding
+      const lines = text.split('\n');
+      const maxLineLength = Math.max(...lines.map(l => l.length));
+      const estimatedWidth = Math.min(maxLineLength * 6.5 + 20, 320); // 320px is max-w-xs
       const minLeft = estimatedWidth / 2 + 8;
       const maxLeft = window.innerWidth - (estimatedWidth / 2 + 8);
       
@@ -90,7 +91,7 @@ export function TooltipLayer() {
             pointerEvents: 'none',
             zIndex: 99999,
           }}
-          className="px-2.5 py-1.5 bg-[#0f172a]/90 text-zinc-200 text-[11px] font-medium rounded-md whitespace-nowrap shadow-xl border border-zinc-700/50 backdrop-blur-md"
+          className="px-2.5 py-2 bg-[#0f172a]/90 text-zinc-200 text-[11px] font-medium rounded-md whitespace-pre-wrap max-w-xs shadow-xl border border-zinc-700/50 backdrop-blur-md"
         >
           {tooltip.text}
         </motion.div>

@@ -58,7 +58,7 @@
     "infoDisclaimerTitle": "Avis de non-responsabilité",
     "infoDisclaimerText": "Utilisez à vos propres risques. Aucune responsabilité en cas de dysfonctionnement ou de perte de données.",
     "deleteNFields": "Supprimer {{count}} champs",
-    "filenameTemplateTip": "Syntaxe : [NomDuChamp, N] pour les N premiers caractères, ou -N pour les derniers. Ex: [Date -- 1, -4] donne '1957'."
+    "filenameTemplateTip": "Syntaxe : [NomDuChamp, N] pour les N premiers caractères, ou -N pour les derniers.\n\nEx: [Date -- 1, -4] → 15.09.1957 donne '1957'."
   },
   "editor": {
     "uploadPrompt": "Téléchargez un PDF pour commencer",
