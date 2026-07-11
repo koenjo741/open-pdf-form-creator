@@ -23,9 +23,36 @@ export function TextFieldPanel({ field }: Props) {
           <option value="text">Normaler Text</option>
           <option value="number">Zahlen</option>
           <option value="currency">Währung</option>
+          <option value="iban">IBAN</option>
           <option value="email">E-Mail</option>
+          <option value="url">URL</option>
         </select>
       </div>
+
+      {field.textSubType === 'currency' && (
+        <div>
+          <label className="block text-xs font-medium text-zinc-400 mb-1.5 mt-3">
+            Währungssymbol
+          </label>
+          <select
+            value={field.currencySymbol || '€'}
+            onChange={(e) => updateField(field.id, { currencySymbol: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
+              text-sm text-zinc-100 outline-none transition-colors"
+          >
+            <option value="€">€ (Euro)</option>
+            <option value="$">$ (US Dollar)</option>
+            <option value="£">£ (British Pound)</option>
+            <option value="CHF">CHF (Swiss Franc)</option>
+            <option value="¥">¥ (Yen / Yuan)</option>
+            <option value="C$">C$ (Canadian Dollar)</option>
+            <option value="A$">A$ (Australian Dollar)</option>
+            <option value="₹">₹ (Indian Rupee)</option>
+            <option value="R$">R$ (Brazilian Real)</option>
+            <option value="₽">₽ (Russian Ruble)</option>
+          </select>
+        </div>
+      )}
 
       <FieldCommonInputs field={field} />
       <FieldTextStyling field={field} />

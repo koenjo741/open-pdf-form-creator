@@ -7,7 +7,9 @@ import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from 
 
 import { useTranslation } from 'react-i18next';
 import { DateValidationModal } from '../modals/DateValidationModal';
+import { TextValidationModal } from '../modals/TextValidationModal';
 import { FieldActionModal } from '../modals/FieldActionModal';
+import { toast } from '../common/Toast';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -263,11 +265,12 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         canvasWidth, canvasHeight,
       );
 
-      const sizes = DEFAULT_SIZES[activeTool === 'number' ? 'text' : activeTool] || {w: 144, h: 24};
+      const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url'].includes(activeTool);
+      const type = isTextSubtype ? 'text' : activeTool as any;
+      const sizes = DEFAULT_SIZES[type] || {w: 144, h: 24};
       const id = crypto.randomUUID();
       
-      const type = activeTool === 'number' ? 'text' : activeTool;
-      const textSubType = activeTool === 'number' ? 'number' : undefined;
+      const textSubType = isTextSubtype ? activeTool : undefined;
       const prefix = activeTool.charAt(0).toUpperCase() + activeTool.slice(1);
       
       let counter = 1;
@@ -824,6 +827,47 @@ function parseDateString(input: string, format: string, locale: string): Date | 
   return d;
 }
 
+function isValidIBAN(iban: string) {
+  const str = iban.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+  if (str.length < 15 || str.length > 34) return false;
+  const reordered = str.substring(4) + str.substring(0, 4);
+  const numeric = reordered.split('').map(c => {
+    const code = c.charCodeAt(0);
+    return code >= 65 && code <= 90 ? (code - 55).toString() : c;
+  }).join('');
+  let remainder = numeric;
+  let block;
+  while (remainder.length > 2) {
+    block = remainder.slice(0, 9);
+    remainder = (parseInt(block, 10) % 97) + remainder.slice(block.length);
+  }
+  return parseInt(remainder, 10) % 97 === 1;
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidURL(url: string) {
+  const pattern = new RegExp(
+    '^([a-zA-Z]+:\\/\\/)?' + // protocol
+    '((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|' + // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-zA-Z\\d%_.~+]*)*' + // port and path
+    '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' + // query string
+    '(\\#[-a-zA-Z\\d_]*)?$', 'i'
+  );
+  return !!pattern.test(url);
+}
+
+function parseNumberStrict(val: string) {
+  if (!val) return NaN;
+  if (val.includes(',') && (!val.includes('.') || val.indexOf('.') < val.indexOf(','))) {
+     return parseFloat(val.replace(/\./g, '').replace(',', '.'));
+  }
+  return parseFloat(val.replace(/,/g, ''));
+}
+
 // ─── Preview Field Box ───────────────────────────────────────────────────────
 
 interface PreviewFieldBoxProps {
@@ -873,21 +917,80 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
       const target = e.target as HTMLInputElement;
       updateField(field.id, { checked: target.checked });
     } else {
-      updateField(field.id, { value: e.target.value });
+      let val = e.target.value;
+      if (field.type === 'text') {
+        if (field.textSubType === 'number') {
+          val = val.replace(/[^\d.,\-]/g, '');
+        } else if (field.textSubType === 'currency') {
+          // Allow digits, dot, comma, minus, space, and characters from the currency symbol
+          // Escape special regex characters in the symbol
+          const escapedSymbol = (field.currencySymbol || '€').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`[^\\d.,\\-\\s${escapedSymbol}]`, 'g');
+          val = val.replace(regex, '');
+        }
+      }
+      updateField(field.id, { value: val });
     }
   };
 
   if (field.type === 'text') {
+    const [validationModal, setValidationModal] = useState<{ open: boolean; title: string; message: string }>({ open: false, title: '', message: '' });
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleTextBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      if (validationModal.open) return;
+      const val = e.target.value.trim();
+      if (!val) return;
+
+      setTimeout(() => {
+        if (field.textSubType === 'currency') {
+          const num = parseNumberStrict(val.replace(/[^\d.,\-]/g, ''));
+          if (!isNaN(num)) {
+            const symbol = field.currencySymbol || '€';
+            const formatted = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num) + ' ' + symbol;
+            updateField(field.id, { value: formatted });
+          }
+        } else if (field.textSubType === 'iban') {
+          if (!isValidIBAN(val)) {
+            setValidationModal({ open: true, title: 'Ungültige IBAN', message: 'Die eingegebene IBAN ist nicht korrekt.' });
+          }
+        } else if (field.textSubType === 'email') {
+          if (!isValidEmail(val)) {
+            setValidationModal({ open: true, title: 'Ungültige E-Mail', message: 'Die eingegebene E-Mail-Adresse ist nicht korrekt.' });
+          }
+        } else if (field.textSubType === 'url') {
+          if (!isValidURL(val)) {
+            setValidationModal({ open: true, title: 'Ungültige URL', message: 'Die eingegebene URL ist nicht korrekt.' });
+          }
+        }
+      }, 250);
+    };
+
+    const handleCorrect = () => {
+      setValidationModal({ open: false, title: '', message: '' });
+      setTimeout(() => inputRef.current?.focus(), 200);
+    };
+
     return (
-      <input
-        type="text"
-        style={baseStyle}
-        value={field.value || ''}
-        onChange={handleChange}
-        readOnly={isDuplicate}
-        tabIndex={field.tabIndex}
-        className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
-      />
+      <>
+        <input
+          ref={inputRef}
+          type="text"
+          style={baseStyle}
+          value={field.value || ''}
+          onChange={handleChange}
+          onBlur={handleTextBlur}
+          readOnly={isDuplicate}
+          tabIndex={field.tabIndex}
+          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
+        />
+        <TextValidationModal
+          open={validationModal.open}
+          title={validationModal.title}
+          message={validationModal.message}
+          onCorrect={handleCorrect}
+        />
+      </>
     );
   }
 
