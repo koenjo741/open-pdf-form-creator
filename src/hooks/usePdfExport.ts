@@ -254,7 +254,16 @@ export function usePdfExport() {
           fields: fields,
         };
         const base64State = btoa(encodeURIComponent(JSON.stringify(statePayload)));
-        pdfDoc.catalog.set(PDFName.of('OpenPdfFormCreatorState'), PDFString.of(base64State));
+        
+        // Chunk the string to avoid the 32,767 byte limit for PDF literal strings (PDF 1.7 spec)
+        const chunkSize = 30000;
+        const chunks = [];
+        for (let i = 0; i < base64State.length; i += chunkSize) {
+          chunks.push(PDFString.of(base64State.slice(i, i + chunkSize)));
+        }
+        
+        const arrayObj = pdfDoc.context.obj(chunks);
+        pdfDoc.catalog.set(PDFName.of('OpenPdfFormCreatorState'), arrayObj);
       }
 
       // 8. Save & download

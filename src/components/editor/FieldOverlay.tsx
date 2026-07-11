@@ -4,7 +4,7 @@ import { useEditorStore } from '../../store/useEditorStore';
 import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
 import type { FieldDef, PageMeta } from '../../types';
 import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from '../../utils/snapping';
-import { Copy, Edit2 } from 'lucide-react';
+
 import { useTranslation } from 'react-i18next';
 import { DateValidationModal } from '../modals/DateValidationModal';
 import { FieldActionModal } from '../modals/FieldActionModal';

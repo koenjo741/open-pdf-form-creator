@@ -15,12 +15,29 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
   if (stateNode) {
     try {
       let b64State = '';
+      
       if (typeof (stateNode as any).decodeText === 'function') {
         b64State = (stateNode as any).decodeText();
       } else if ((stateNode as any).value) {
         b64State = (stateNode as any).value;
+      } else if (stateNode.constructor.name === 'PDFArray' || (stateNode as any).array) {
+        // Handle chunked strings
+        const arr = (stateNode as any).array || (stateNode as any).elements || [];
+        for (const el of arr) {
+          const resolved = pdfDoc.context.lookup(el);
+          if (resolved) {
+            if (typeof (resolved as any).decodeText === 'function') {
+              b64State += (resolved as any).decodeText();
+            } else if ((resolved as any).value) {
+              b64State += (resolved as any).value;
+            }
+          }
+        }
       }
+
       if (b64State) {
+        // Strip any whitespace/newlines that PDF viewers might have injected
+        b64State = b64State.replace(/\s+/g, '');
         const statePayload = JSON.parse(decodeURIComponent(atob(b64State)));
         if (statePayload && Array.isArray(statePayload.fields)) {
           extractedFields = statePayload.fields;
