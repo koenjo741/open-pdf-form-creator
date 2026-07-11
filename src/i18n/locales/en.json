@@ -120,5 +120,21 @@
   "fields": {
     "dateFormat": "Date format",
     "dateFormatAuto": "Auto (Language)"
+  },
+  "extract": {
+    "title": "Data Extraction",
+    "loadNew": "Load New PDF",
+    "dropHere": "Drop filled PDF here",
+    "clickToUpload": "or click to select a file",
+    "extracting": "Extracting...",
+    "selectPdf": "Select PDF",
+    "saveJson": "Save as JSON",
+    "filenameHint": "If the filename does not look as expected, make sure you have correctly configured the <1>Export Filename Template</1> in 'Edit' mode using `[FieldName]`.",
+    "toastInvalidPdf": "Please drop a valid PDF file.",
+    "toastSuccess": "Data successfully extracted.",
+    "toastReadError": "Error reading the PDF.",
+    "toastSaveSuccess": "JSON successfully saved.",
+    "toastDownloadSuccess": "JSON downloaded.",
+    "toastSaveError": "Failed to save."
   }
 }

@@ -120,5 +120,21 @@
   "fields": {
     "dateFormat": "Datumsformat",
     "dateFormatAuto": "Automatisch (Sprache)"
+  },
+  "extract": {
+    "title": "Daten-Extraktion",
+    "loadNew": "Neues PDF laden",
+    "dropHere": "Ausgefülltes PDF hier ablegen",
+    "clickToUpload": "oder klicke zum Auswählen einer Datei",
+    "extracting": "Wird ausgelesen...",
+    "selectPdf": "PDF auswählen",
+    "saveJson": "Als JSON speichern",
+    "filenameHint": "Falls der Dateiname nicht wie erwartet aussieht, stelle sicher, dass du das <1>Export Filename Template</1> im \"Edit\"-Modus korrekt mit `[Feldname]` konfiguriert hast.",
+    "toastInvalidPdf": "Bitte ein gültiges PDF ablegen.",
+    "toastSuccess": "Daten erfolgreich extrahiert.",
+    "toastReadError": "Fehler beim Auslesen des PDFs.",
+    "toastSaveSuccess": "JSON erfolgreich gespeichert.",
+    "toastDownloadSuccess": "JSON heruntergeladen.",
+    "toastSaveError": "Speichern fehlgeschlagen."
   }
 }

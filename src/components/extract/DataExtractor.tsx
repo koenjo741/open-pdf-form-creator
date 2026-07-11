@@ -3,6 +3,7 @@ import { PDFDocument } from 'pdf-lib';
 import { Download, UploadCloud, FileJson, AlertCircle } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { generateFilename } from '../../utils/dynamicFilename';
+import { useTranslation, Trans } from 'react-i18next';
 import { toast } from '../common/Toast';
 
 export function DataExtractor() {
@@ -11,6 +12,7 @@ export function DataExtractor() {
   const [originalFilename, setOriginalFilename] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { filenameTemplate } = useEditorStore();
+  const { t } = useTranslation();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,7 +28,7 @@ export function DataExtractor() {
     if (file && file.type === 'application/pdf') {
       await processPdfFile(file);
     } else {
-      toast.error('Please drop a valid PDF file.');
+      toast.error(t('extract.toastInvalidPdf'));
     }
   };
 
@@ -65,10 +67,10 @@ export function DataExtractor() {
       }
 
       setExtractedData(data);
-      toast.success('Daten erfolgreich extrahiert.');
+      toast.success(t('extract.toastSuccess'));
     } catch (err) {
       console.error(err);
-      toast.error('Fehler beim Auslesen des PDFs.');
+      toast.error(t('extract.toastReadError'));
       setExtractedData(null);
     } finally {
       setIsExtracting(false);
@@ -95,7 +97,7 @@ export function DataExtractor() {
         const writable = await handle.createWritable();
         await writable.write(jsonString);
         await writable.close();
-        toast.success('JSON erfolgreich gespeichert.');
+        toast.success(t('extract.toastSaveSuccess'));
       } else {
         // Fallback for older browsers
         const blob = new Blob([jsonString], { type: 'application/json' });
@@ -107,12 +109,12 @@ export function DataExtractor() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        toast.success('JSON heruntergeladen.');
+        toast.success(t('extract.toastDownloadSuccess'));
       }
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         console.error('Save failed', err);
-        toast.error('Speichern fehlgeschlagen.');
+        toast.error(t('extract.toastSaveError'));
       }
     }
   };
@@ -123,14 +125,14 @@ export function DataExtractor() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
             <FileJson className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-            Daten-Extraktion
+            {t('extract.title')}
           </h1>
           {extractedData && (
             <button
               onClick={() => setExtractedData(null)}
               className="text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             >
-              Neues PDF laden
+              {t('extract.loadNew')}
             </button>
           )}
         </div>
@@ -143,17 +145,17 @@ export function DataExtractor() {
           >
             <UploadCloud className="w-16 h-16 text-slate-400 dark:text-slate-500 mb-4" />
             <h3 className="text-lg font-medium text-slate-700 dark:text-slate-200 mb-2">
-              Ausgefülltes PDF hier ablegen
+              {t('extract.dropHere')}
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-              oder klicke zum Auswählen einer Datei
+              {t('extract.clickToUpload')}
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isExtracting}
               className="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-sm transition-colors"
             >
-              {isExtracting ? 'Wird ausgelesen...' : 'PDF auswählen'}
+              {isExtracting ? t('extract.extracting') : t('extract.selectPdf')}
             </button>
             <input
               ref={fileInputRef}
@@ -175,7 +177,7 @@ export function DataExtractor() {
                   className="flex items-center gap-2 px-4 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
                 >
                   <Download className="w-4 h-4" />
-                  Als JSON speichern
+                  {t('extract.saveJson')}
                 </button>
               </div>
               <div className="p-4 bg-slate-50 dark:bg-[#1e1e1e] overflow-auto max-h-[60vh]">
@@ -188,7 +190,9 @@ export function DataExtractor() {
             <div className="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg">
               <AlertCircle className="w-5 h-5 shrink-0 text-amber-500" />
               <p>
-                Falls der Dateiname nicht wie erwartet aussieht, stelle sicher, dass du das <strong>Export Filename Template</strong> im "Edit"-Modus korrekt mit `[Feldname]` konfiguriert hast.
+                <Trans i18nKey="extract.filenameHint">
+                  Falls der Dateiname nicht wie erwartet aussieht, stelle sicher, dass du das <strong>Export Filename Template</strong> im "Edit"-Modus korrekt mit `[Feldname]` konfiguriert hast.
+                </Trans>
               </p>
             </div>
           </div>
