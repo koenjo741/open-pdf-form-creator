@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import { Download, UploadCloud, FileJson, AlertCircle, X } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
@@ -11,8 +11,34 @@ export function DataExtractor() {
   const [extractedData, setExtractedData] = useState<Record<string, any> | null>(null);
   const [originalFilename, setOriginalFilename] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { filenameTemplate, setAppMode } = useEditorStore();
+  const { filenameTemplate, setAppMode, isLoaded, fields, pdfFileName } = useEditorStore();
   const { t } = useTranslation();
+
+  // Auto-fill extracted data if a document is currently loaded in the editor
+  useEffect(() => {
+    if (isLoaded && fields && fields.length > 0 && !extractedData) {
+      const data: Record<string, any> = {};
+      for (const field of fields) {
+        if (field.type === 'checkbox') {
+          data[field.name] = field.checked || false;
+        } else if (field.type === 'radio') {
+          if (field.checked) {
+            data[field.groupName || field.name] = field.radioValue || true;
+          } else if (data[field.groupName || field.name] === undefined) {
+            data[field.groupName || field.name] = false;
+          }
+        } else if (field.type === 'dropdown') {
+          data[field.name] = field.value || field.defaultOption || '';
+        } else {
+          data[field.name] = field.value || '';
+        }
+      }
+      setExtractedData(data);
+      if (pdfFileName) {
+        setOriginalFilename(pdfFileName);
+      }
+    }
+  }, [isLoaded, fields, pdfFileName, extractedData]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
