@@ -1,6 +1,6 @@
 // ─── Field Types ─────────────────────────────────────────────────────────────
 
-export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date';
+export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble';
 export type FontWeight = 'regular' | 'bold';
 
 export interface FieldDef {

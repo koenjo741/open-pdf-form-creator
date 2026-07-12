@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import { useEditorStore } from '../store/useEditorStore';
@@ -239,6 +239,83 @@ export function usePdfExport() {
               if (field.isRequired) radioGroup.enableRequired();
               else radioGroup.disableRequired();
               try { radioGroup.updateAppearances(); } catch { /* ignore */ }
+              break;
+            }
+            case 'signature': {
+              if (mode === 'flattened') {
+                // Flattened mode: Signature fields don't make sense as interactive elements,
+                // but we might want to draw a placeholder or just ignore them.
+                // Let's just draw a light gray box with text so it's visible.
+                page.drawRectangle({
+                  x: rect.x,
+                  y: rect.y,
+                  width: rect.width,
+                  height: rect.height,
+                  borderColor: rgb(0.8, 0.8, 0.8), // Light gray
+                  borderWidth: 1,
+                });
+              } else {
+                if (!existingField) {
+                  // Manual signature field creation because pdf-lib doesn't have createSignature() yet
+                  const signatureDict = pdfDoc.context.obj({
+                    Type: 'Annot',
+                    Subtype: 'Widget',
+                    FT: 'Sig',
+                    Rect: [rect.x, rect.y, rect.x + rect.width, rect.y + rect.height],
+                    T: PDFString.of(field.name),
+                    F: 4, // Print flag
+                    P: page.ref,
+                  });
+                  const signatureRef = pdfDoc.context.register(signatureDict);
+                  page.node.addAnnot(signatureRef);
+                  form.acroForm.addField(signatureRef);
+                } else {
+                  // If it already exists, we could theoretically update its Rect, but getSignature() is read-only in terms of adding to page
+                  // Usually, fields aren't duplicated for signatures, but if so, we can just leave the original.
+                }
+              }
+              break;
+            }
+            case 'scribble': {
+              // If there's a signature image, draw it
+              if (field.value && field.value.startsWith('data:image/')) {
+                // Extract base64
+                const isPng = field.value.startsWith('data:image/png');
+                const isJpg = field.value.startsWith('data:image/jpeg');
+                if (isPng || isJpg) {
+                  const imgDataUrl = field.value;
+                  const imgBytes = Uint8Array.from(atob(imgDataUrl.split(',')[1]), c => c.charCodeAt(0));
+                  const embeddedImg = isPng ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
+                  
+                  // Scale proportionally to fit within rect (like object-fit: contain)
+                  const imgWidth = embeddedImg.width;
+                  const imgHeight = embeddedImg.height;
+                  const scale = Math.min(rect.width / imgWidth, rect.height / imgHeight);
+                  
+                  const drawWidth = imgWidth * scale;
+                  const drawHeight = imgHeight * scale;
+                  const drawX = rect.x + (rect.width - drawWidth) / 2;
+                  const drawY = rect.y + (rect.height - drawHeight) / 2;
+
+                  page.drawImage(embeddedImg, {
+                    x: drawX,
+                    y: drawY,
+                    width: drawWidth,
+                    height: drawHeight,
+                  });
+                }
+              } else if (mode === 'editable') {
+                // If there's no image and mode is editable, render a gray box so the user sees where to place their signature in Acrobat
+                page.drawRectangle({
+                  x: rect.x,
+                  y: rect.y,
+                  width: rect.width,
+                  height: rect.height,
+                  color: rgb(0.95, 0.95, 0.95), // Very light gray fill
+                  borderColor: rgb(0.8, 0.8, 0.8),
+                  borderWidth: 1,
+                });
+              }
               break;
             }
           }

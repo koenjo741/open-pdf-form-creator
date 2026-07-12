@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { DateValidationModal } from '../modals/DateValidationModal';
 import { TextValidationModal } from '../modals/TextValidationModal';
 import { FieldActionModal } from '../modals/FieldActionModal';
+import { ScribbleModal } from '../modals/ScribbleModal';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -17,6 +18,8 @@ const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
   date:     { w: 144, h: 24 },
   checkbox: { w: 16,  h: 16 },
   radio:    { w: 16,  h: 16 },
+  signature:{ w: 144, h: 48 },
+  scribble: { w: 144, h: 48 },
 };
 
 interface FieldOverlayProps {
@@ -500,6 +503,8 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
     dropdown: 'border-violet-400 bg-violet-500/10',
     checkbox: 'border-emerald-400 bg-emerald-500/10',
     radio:    'border-amber-400 bg-amber-500/10',
+    signature:'border-purple-400 bg-purple-500/10',
+    scribble: 'border-fuchsia-400 bg-fuchsia-500/10',
   };
 
   return (
@@ -1122,6 +1127,49 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           className={`w-full h-full accent-blue-600 ${isDuplicate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
         />
       </div>
+    );
+  }
+
+  if (field.type === 'signature') {
+    return (
+      <div style={{ ...baseStyle, backgroundColor: '#f1f5f9', border: '1px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span className="text-[10px] text-slate-400 font-medium px-2 text-center leading-tight">
+          Kryptografische Signatur<br/>(Acrobat)
+        </span>
+      </div>
+    );
+  }
+
+  if (field.type === 'scribble') {
+    const [modalOpen, setModalOpen] = useState(false);
+    return (
+      <>
+        <button
+          style={{ ...baseStyle, backgroundColor: field.value ? 'transparent' : '#f8fafc', border: field.value ? 'none' : '1px dashed #cbd5e1', cursor: isDuplicate ? 'not-allowed' : 'pointer', padding: 0 }}
+          onClick={() => !isDuplicate && setModalOpen(true)}
+          disabled={isDuplicate}
+          tabIndex={field.tabIndex}
+        >
+          {field.value ? (
+            <img src={field.value} alt="Signature" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          ) : (
+            <span className="text-[10px] text-slate-400 font-medium px-2 text-center">
+              Klicken zum Signieren
+            </span>
+          )}
+        </button>
+        {modalOpen && (
+          <ScribbleModal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onSave={(dataUri) => {
+              updateField(field.id, { value: dataUri });
+              setModalOpen(false);
+            }}
+            initialValue={field.value}
+          />
+        )}
+      </>
     );
   }
 
