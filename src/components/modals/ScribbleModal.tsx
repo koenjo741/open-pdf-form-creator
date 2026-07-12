@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Eraser, UploadCloud, Check } from 'lucide-react';
+import { AlertModal } from './AlertModal';
 
 interface ScribbleModalProps {
   open: boolean;
@@ -14,6 +15,7 @@ export function ScribbleModal({ open, onClose, onSave, initialValue }: ScribbleM
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(!!initialValue);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   // Initialize canvas with existing image
   useEffect(() => {
@@ -120,7 +122,7 @@ export function ScribbleModal({ open, onClose, onSave, initialValue }: ScribbleM
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
     img.onerror = () => {
-      alert('Bild konnte nicht verarbeitet werden. Bitte ein gültiges Bildformat (PNG, JPG) wählen.');
+      setAlertMessage('Bild konnte nicht verarbeitet werden. Bitte ein gültiges Bildformat (PNG, JPG) wählen.');
       URL.revokeObjectURL(objectUrl);
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
@@ -190,9 +192,10 @@ export function ScribbleModal({ open, onClose, onSave, initialValue }: ScribbleM
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 dark:bg-black/60 p-4 sm:p-6 backdrop-blur-sm">
+    <>
+      <AnimatePresence>
+        {open && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 dark:bg-black/60 p-4 sm:p-6 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -293,7 +296,15 @@ export function ScribbleModal({ open, onClose, onSave, initialValue }: ScribbleM
             </div>
           </motion.div>
         </div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+      
+      <AlertModal
+        open={!!alertMessage}
+        title="Fehler"
+        message={alertMessage || ''}
+        onClose={() => setAlertMessage(null)}
+      />
+    </>
   );
 }

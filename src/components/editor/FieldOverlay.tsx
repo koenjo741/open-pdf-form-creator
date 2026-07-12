@@ -10,6 +10,7 @@ import { DateValidationModal } from '../modals/DateValidationModal';
 import { TextValidationModal } from '../modals/TextValidationModal';
 import { FieldActionModal } from '../modals/FieldActionModal';
 import { ScribbleModal } from '../modals/ScribbleModal';
+import { PromptModal } from '../modals/PromptModal';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -41,6 +42,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const isPlacingMode = activeTool !== 'select';
 
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; fieldId: string } | null>(null);
+  const [promptModal, setPromptModal] = useState<{ open: boolean; fieldId: string; initialValue: string } | null>(null);
   const [activeGuides, setActiveGuides] = useState<GuideLine[]>([]);
   const [marquee, setMarquee] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
 
@@ -104,10 +106,8 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     if (!contextMenu) return;
     const currentField = pageFields.find(f => f.id === contextMenu.fieldId);
     if (currentField) {
-      const newName = window.prompt('Feldname umbenennen:', currentField.name);
-      if (newName && newName.trim() !== '') {
-        updateField(contextMenu.fieldId, { name: newName.trim(), label: newName.trim() });
-      }
+      setPromptModal({ open: true, fieldId: contextMenu.fieldId, initialValue: currentField.name });
+      setContextMenu(null);
     }
   };
 
@@ -418,6 +418,21 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
           onRename={handleRename}
           onDuplicate={handleDuplicate}
           onClone={handleClone}
+        />
+      )}
+
+      {promptModal && (
+        <PromptModal
+          open={promptModal.open}
+          title="Feldname umbenennen:"
+          initialValue={promptModal.initialValue}
+          onConfirm={(newName) => {
+            if (newName && newName.trim() !== '') {
+              updateField(promptModal.fieldId, { name: newName.trim(), label: newName.trim() });
+            }
+            setPromptModal(null);
+          }}
+          onCancel={() => setPromptModal(null)}
         />
       )}
     </div>
