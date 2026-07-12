@@ -46,12 +46,15 @@ export interface EditorState {
   snapToGrid: boolean;
   /** Template for dynamic JSON export filename */
   filenameTemplate: string;
+  /** Global UI scaling factor */
+  uiScale: number;
 }
 
 export interface EditorActions {
   setAppMode: (mode: AppMode) => void;
   setSidebarPosition: (pos: 'left' | 'right') => void;
   setTheme: (theme: 'dark' | 'light') => void;
+  setUiScale: (scale: number) => void;
   setSnapToGrid: (snap: boolean) => void;
   setFilenameTemplate: (template: string) => void;
   setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
@@ -100,7 +103,7 @@ function ensureSequentialTabIndices(fields: FieldDef[]): FieldDef[] {
 // ─── Persisted slice (fields + page metas + tool) ────────────────────────────
 // pdfBuffer is intentionally NOT in the persisted state.
 
-type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid' | 'filenameTemplate'>;
+type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid' | 'filenameTemplate' | 'uiScale'>;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -121,11 +124,13 @@ export const useEditorStore = create<EditorStore>()(
         theme: 'dark',
         snapToGrid: true,
         filenameTemplate: '',
+        uiScale: 1,
 
         // ── Actions ───────────────────────────────────────────────────────
         setAppMode: (mode) => set({ appMode: mode }),
         setSidebarPosition: (pos) => set({ sidebarPosition: pos }),
         setTheme: (theme) => set({ theme }),
+        setUiScale: (scale) => set({ uiScale: scale }),
         setSnapToGrid: (snap) => set({ snapToGrid: snap }),
         setFilenameTemplate: (template) => set({ filenameTemplate: template }),
         
@@ -247,6 +252,7 @@ export const useEditorStore = create<EditorStore>()(
           theme: state.theme,
           snapToGrid: state.snapToGrid,
           filenameTemplate: state.filenameTemplate,
+          uiScale: state.uiScale,
         }),
         limit: 100,
       },
@@ -263,6 +269,7 @@ export const useEditorStore = create<EditorStore>()(
         theme: state.theme,
         snapToGrid: state.snapToGrid,
         filenameTemplate: state.filenameTemplate,
+        uiScale: state.uiScale,
       }),
       // Re-hydrate without crashing if IDB is unavailable
       onRehydrateStorage: () => (_state, error) => {

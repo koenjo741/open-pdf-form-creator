@@ -6,6 +6,7 @@ import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { ThemeToggle } from './ThemeToggle';
+import { UIScaleToggle } from './UIScaleToggle';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
@@ -227,6 +228,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
               <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Am Raster ausrichten</span>
               <button
                 onClick={() => setSnapToGrid(!snapToGrid)}
+                aria-label={snapToGrid ? 'Snap to grid enabled' : 'Snap to grid disabled'}
                 className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${
                   snapToGrid ? 'bg-cyan-600' : 'bg-slate-400 dark:bg-slate-600'
                 }`}
@@ -291,6 +293,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
               <button
                 onClick={handleUndo}
                 disabled={!canUndo}
+                aria-label="Undo"
                 className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-30 transition-colors"
               >
                 <Undo2 className="w-4 h-4" />
@@ -298,6 +301,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
               <button
                 onClick={handleRedo}
                 disabled={!canRedo}
+                aria-label="Redo"
                 className="flex-1 flex items-center justify-center gap-2 h-9 rounded-lg bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-30 transition-colors"
               >
                 <Redo2 className="w-4 h-4" />
@@ -310,6 +314,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
       {/* Footer Settings */}
       <div className="mt-auto px-4 py-4 border-t border-slate-300 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0">
         <ThemeToggle />
+        <UIScaleToggle />
         
         <div className="relative flex-1">
           <button

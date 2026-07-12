@@ -17,7 +17,12 @@ export default function App() {
   const appMode = useEditorStore((s) => s.appMode);
   const sidebarPosition = useEditorStore((s) => s.sidebarPosition);
   const theme = useEditorStore((s) => s.theme);
+  const uiScale = useEditorStore((s) => s.uiScale);
   const [flattenModalOpen, setFlattenModalOpen] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${uiScale * 100}%`;
+  }, [uiScale]);
 
   useEffect(() => {
     if (theme === 'dark') {

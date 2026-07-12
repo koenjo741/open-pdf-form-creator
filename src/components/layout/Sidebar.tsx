@@ -153,6 +153,7 @@ export function Sidebar() {
           onClick={() => setSidebarPosition(sidebarPosition === 'right' ? 'left' : 'right')}
           data-tooltip={sidebarPosition === 'right' ? t('sidebar.moveToLeft') : t('sidebar.moveToRight')}
           data-tooltip-pos="top"
+          aria-label={sidebarPosition === 'right' ? t('sidebar.moveToLeft') : t('sidebar.moveToRight')}
           className="p-2 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
         >
           {sidebarPosition === 'right' ? <ArrowLeft className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
