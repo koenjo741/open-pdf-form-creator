@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { ThemeToggle } from './ThemeToggle';
 import { UIScaleToggle } from './UIScaleToggle';
+import { FieldListPanel } from './FieldListPanel';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
@@ -241,6 +242,11 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
               </button>
             </div>
           </section>
+        )}
+
+        {/* Fields Order Section */}
+        {isLoaded && appMode === 'edit' && (
+          <FieldListPanel />
         )}
 
         {/* Action Buttons Section */}

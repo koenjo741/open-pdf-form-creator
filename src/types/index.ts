@@ -49,6 +49,9 @@ export interface FieldDef {
 
   // ── Tab Order ──
   tabIndex?: number;
+
+  // ── Validation ──
+  isRequired?: boolean;
 }
 
 // ─── Page Metadata ───────────────────────────────────────────────────────────

@@ -53,6 +53,35 @@ export function FieldCommonInputs({ field }: Props) {
         />
       </div>
 
+      {/* Required Checkbox */}
+      <div className="flex items-center mt-3 mb-2">
+        <label className="flex items-center gap-2 cursor-pointer group">
+          <div className="relative flex items-center justify-center">
+            <input
+              type="checkbox"
+              checked={field.isRequired || false}
+              onChange={(e) => updateField(field.id, { isRequired: e.target.checked })}
+              className="sr-only"
+            />
+            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors
+              ${field.isRequired
+                ? 'bg-blue-500 border-blue-500 text-white'
+                : 'border-slate-500 group-hover:border-slate-400'
+              }`}
+            >
+              {field.isRequired && (
+                <svg viewBox="0 0 14 14" className="w-3 h-3 fill-current" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.667 3.5L5.25 9.917l-2.917-2.917" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                </svg>
+              )}
+            </div>
+          </div>
+          <span className="text-sm text-zinc-300 group-hover:text-zinc-100 transition-colors">
+            {t('sidebar.required')}
+          </span>
+        </label>
+      </div>
+
       {/* Tab Order */}
       <div>
         <label className="block text-xs font-medium text-zinc-400 mb-1.5">

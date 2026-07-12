@@ -31,7 +31,7 @@ interface FieldOverlayProps {
  *  - Renders draggable/resizable FieldBox components for fields on this page
  */
 export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverlayProps) {
-  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, clearSelection, appMode } = useEditorStore();
+  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, updateFields, clearSelection, appMode } = useEditorStore();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
@@ -76,17 +76,19 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       }
 
       e.preventDefault(); // Prevent scrolling
-      selectedFieldsOnPage.forEach((field) => {
-        updateField(field.id, {
+      const updates = selectedFieldsOnPage.map((field) => ({
+        id: field.id,
+        patch: {
           pdfX: field.pdfX + dx,
           pdfY: field.pdfY + dy,
-        });
-      });
+        }
+      }));
+      updateFields(updates);
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField, appMode]);
+  }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField, updateFields, appMode]);
 
   // Click outside to close context menu
   useEffect(() => {
@@ -436,7 +438,7 @@ interface FieldBoxInnerProps {
 }
 
 function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields, onGuidesChange, onContextMenu, globalDrag, setGlobalDrag, globalResize, setGlobalResize }: FieldBoxInnerProps) {
-  const { selectedFieldIds, selectField, updateField, activeTool, fields, snapToGrid } = useEditorStore();
+  const { selectedFieldIds, selectField, updateField, updateFields, activeTool, fields, snapToGrid } = useEditorStore();
   const isSelected = selectedFieldIds.includes(field.id);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const isResizingRef = useRef(false);
@@ -525,7 +527,12 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
           h: webH,
         };
 
-        const otherRects: Rect[] = otherFields.map((f) => {
+        // Do not snap to other fields in the same selection group, because they are moving with us!
+        const snappingCandidates = isSelected 
+          ? otherFields.filter(f => !selectedFieldIds.includes(f.id))
+          : otherFields;
+
+        const otherRects: Rect[] = snappingCandidates.map((f) => {
           // Pass top edge to pdfToWeb
           const { webX: ox, webY: oy } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
           const ow = (f.pdfWidth / pageMeta.widthPt) * canvasWidth;
@@ -555,12 +562,14 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         // Move ALL selected fields if this is a selected field
         if (isSelected) {
           const selectedFields = fields.filter((f) => selectedFieldIds.includes(f.id));
-          selectedFields.forEach((f) => {
-            updateField(f.id, {
+          const updates = selectedFields.map((f) => ({
+            id: f.id,
+            patch: {
               pdfX: f.pdfX + dxPdf,
               pdfY: f.pdfY - dyPdf, // web Y is inverted
-            });
-          });
+            }
+          }));
+          updateFields(updates);
         } else {
           updateField(field.id, {
             pdfX: field.pdfX + dxPdf,

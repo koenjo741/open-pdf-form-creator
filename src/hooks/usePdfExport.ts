@@ -138,6 +138,9 @@ export function usePdfExport() {
                 if (field.value) {
                   tf.setText(field.value);
                 }
+
+                if (field.isRequired) tf.enableRequired();
+                else tf.disableRequired();
                 
                 // Handle calculation
                 if (field.calculation) {
@@ -188,6 +191,8 @@ export function usePdfExport() {
                     dd.select(field.defaultOption);
                   }
                 }
+                if (field.isRequired) dd.enableRequired();
+                else dd.disableRequired();
               }
               try { dd.updateAppearances(font); } catch { /* ignore */ }
               break;
@@ -208,6 +213,8 @@ export function usePdfExport() {
                 } else if (field.checkedByDefault) {
                   cb.check();
                 }
+                if (field.isRequired) cb.enableRequired();
+                else cb.disableRequired();
               }
               // checkbox.updateAppearances() signature varies by pdf-lib version
               try { (cb as unknown as { updateAppearances: () => void }).updateAppearances(); } catch { /* ignore */ }
@@ -229,6 +236,8 @@ export function usePdfExport() {
               } else if (!field.value && field.checkedByDefault) {
                 radioGroup.select(optionValue);
               }
+              if (field.isRequired) radioGroup.enableRequired();
+              else radioGroup.disableRequired();
               try { radioGroup.updateAppearances(); } catch { /* ignore */ }
               break;
             }

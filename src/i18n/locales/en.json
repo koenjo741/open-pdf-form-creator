@@ -31,6 +31,7 @@
     "name": "Field Name",
     "namePlaceholder": "unique_field_name",
     "nameError": "Name already in use",
+    "required": "Required field",
     "label": "Label",
     "labelPlaceholder": "Display label",
     "fontSize": "Font Size",

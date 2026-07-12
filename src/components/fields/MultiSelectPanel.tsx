@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 export function MultiSelectPanel() {
   const { t } = useTranslation();
-  const { fields, selectedFieldIds, updateField } = useEditorStore();
+  const { fields, selectedFieldIds, updateFields } = useEditorStore();
 
   const selectedFields = selectedFieldIds
     .map(id => fields.find(f => f.id === id))
@@ -14,14 +14,13 @@ export function MultiSelectPanel() {
   if (selectedFields.length < 2) return null;
 
   const handleMatchWidth = () => {
-    // Match width to the first selected field
     const targetWidth = selectedFields[0].pdfWidth;
-    selectedFields.forEach(f => updateField(f.id, { pdfWidth: targetWidth }));
+    updateFields(selectedFields.map(f => ({ id: f.id, patch: { pdfWidth: targetWidth } })));
   };
 
   const handleMatchHeight = () => {
     const targetHeight = selectedFields[0].pdfHeight;
-    selectedFields.forEach(f => updateField(f.id, { pdfHeight: targetHeight }));
+    updateFields(selectedFields.map(f => ({ id: f.id, patch: { pdfHeight: targetHeight } })));
   };
 
   const handleAlign = (type: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
@@ -33,28 +32,30 @@ export function MultiSelectPanel() {
     const minY = Math.min(...selectedFields.map(f => f.pdfY - f.pdfHeight));
     const maxY = Math.max(...selectedFields.map(f => f.pdfY));
 
+    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
     selectedFields.forEach(f => {
       switch (type) {
         case 'left':
-          updateField(f.id, { pdfX: minX });
+          updates.push({ id: f.id, patch: { pdfX: minX } });
           break;
         case 'center':
-          updateField(f.id, { pdfX: (minX + maxX) / 2 - f.pdfWidth / 2 });
+          updates.push({ id: f.id, patch: { pdfX: (minX + maxX) / 2 - f.pdfWidth / 2 } });
           break;
         case 'right':
-          updateField(f.id, { pdfX: maxX - f.pdfWidth });
+          updates.push({ id: f.id, patch: { pdfX: maxX - f.pdfWidth } });
           break;
         case 'top':
-          updateField(f.id, { pdfY: maxY });
+          updates.push({ id: f.id, patch: { pdfY: maxY } });
           break;
         case 'middle':
-          updateField(f.id, { pdfY: (minY + maxY) / 2 + f.pdfHeight / 2 });
+          updates.push({ id: f.id, patch: { pdfY: (minY + maxY) / 2 + f.pdfHeight / 2 } });
           break;
         case 'bottom':
-          updateField(f.id, { pdfY: minY + f.pdfHeight });
+          updates.push({ id: f.id, patch: { pdfY: minY + f.pdfHeight } });
           break;
       }
     });
+    updateFields(updates);
   };
 
   const handleDistributeHorizontally = () => {
@@ -68,11 +69,13 @@ export function MultiSelectPanel() {
     const totalGapSpace = (maxX - minX) - totalFieldWidth;
     const gap = totalGapSpace / (sorted.length - 1);
 
+    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
     let currentX = minX;
     sorted.forEach((f) => {
-      updateField(f.id, { pdfX: currentX });
+      updates.push({ id: f.id, patch: { pdfX: currentX } });
       currentX += f.pdfWidth + gap;
     });
+    updateFields(updates);
   };
 
   const handleDistributeVertically = () => {
@@ -86,19 +89,21 @@ export function MultiSelectPanel() {
     const totalGapSpace = (topY - bottomY) - totalFieldHeight;
     const gap = totalGapSpace / (sorted.length - 1);
 
+    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
     let currentY = topY;
     sorted.forEach((f) => {
-      updateField(f.id, { pdfY: currentY });
+      updates.push({ id: f.id, patch: { pdfY: currentY } });
       currentY -= (f.pdfHeight + gap);
     });
+    updateFields(updates);
   };
 
   const handleAdjustWidth = (delta: number) => {
-    selectedFields.forEach(f => updateField(f.id, { pdfWidth: Math.max(5, f.pdfWidth + delta) }));
+    updateFields(selectedFields.map(f => ({ id: f.id, patch: { pdfWidth: Math.max(5, f.pdfWidth + delta) } })));
   };
 
   const handleAdjustHeight = (delta: number) => {
-    selectedFields.forEach(f => updateField(f.id, { pdfHeight: Math.max(5, f.pdfHeight + delta) }));
+    updateFields(selectedFields.map(f => ({ id: f.id, patch: { pdfHeight: Math.max(5, f.pdfHeight + delta) } })));
   };
 
   const handleDistributeHorizontallyAdjust = (delta: number) => {
@@ -110,11 +115,13 @@ export function MultiSelectPanel() {
     const currentGap = ((maxX - minX) - totalFieldWidth) / (sorted.length - 1);
     
     const newGap = currentGap + delta;
+    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
     let currentX = minX;
     sorted.forEach((f) => {
-      updateField(f.id, { pdfX: currentX });
+      updates.push({ id: f.id, patch: { pdfX: currentX } });
       currentX += f.pdfWidth + newGap;
     });
+    updateFields(updates);
   };
 
   const handleDistributeVerticallyAdjust = (delta: number) => {
@@ -126,24 +133,53 @@ export function MultiSelectPanel() {
     const currentGap = ((topY - bottomY) - totalFieldHeight) / (sorted.length - 1);
 
     const newGap = currentGap + delta;
+    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
     let currentY = topY;
     sorted.forEach((f) => {
-      updateField(f.id, { pdfY: currentY });
+      updates.push({ id: f.id, patch: { pdfY: currentY } });
       currentY -= (f.pdfHeight + newGap);
     });
+    updateFields(updates);
   };
 
   const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'dropdown' || f.type === 'date');
 
   const handleBulkUpdate = (patch: Partial<FieldDef>) => {
-    textFields.forEach(f => updateField(f.id, patch));
+    updateFields(textFields.map(f => ({ id: f.id, patch })));
   };
 
   return (
     <div className="space-y-6">
+      <div className="space-y-4 pb-4 border-b border-zinc-800/60">
+        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.fieldProperties')}</h3>
+        
+        {/* Required Toggle */}
+        <div>
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div
+              className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                selectedFields.every(f => f.isRequired)
+                  ? 'bg-blue-600 border-blue-600'
+                  : 'bg-zinc-800 border-zinc-600 group-hover:border-blue-500'
+              }`}
+              onClick={() => {
+                const allRequired = selectedFields.every(f => f.isRequired);
+                updateFields(selectedFields.map(f => ({ id: f.id, patch: { isRequired: !allRequired } })));
+              }}
+            >
+              {selectedFields.every(f => f.isRequired) && (
+                <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <span className="text-[10px] font-medium text-zinc-500">{t('sidebar.required')}</span>
+          </label>
+        </div>
+      </div>
+
       {textFields.length > 0 && (
         <div className="space-y-4 pb-4 border-b border-zinc-800/60">
-          <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t('sidebar.fieldProperties')}</h3>
           
           {/* Font Size */}
           <div>
@@ -249,16 +285,18 @@ export function MultiSelectPanel() {
                 onClick={() => {
                   const checkToggleFields = selectedFields.filter(f => f.type === 'checkbox' || f.type === 'radio');
                   const allChecked = checkToggleFields.every(f => f.checkedByDefault);
+                  const updates: { id: string; patch: Partial<FieldDef> }[] = [];
                   checkToggleFields.forEach(f => {
                     if (f.type === 'radio' && !allChecked) {
-                      // If checking a radio by default, uncheck others in the same group (excluding ones we are also updating)
+                      // If checking a radio by default, uncheck others in the same group
                       const sameGroup = fields.filter(
                         other => other.type === 'radio' && (other.groupName ?? other.name) === (f.groupName ?? f.name) && !checkToggleFields.find(cf => cf.id === other.id)
                       );
-                      sameGroup.forEach(other => updateField(other.id, { checkedByDefault: false }));
+                      sameGroup.forEach(other => updates.push({ id: other.id, patch: { checkedByDefault: false } }));
                     }
-                    updateField(f.id, { checkedByDefault: !allChecked });
+                    updates.push({ id: f.id, patch: { checkedByDefault: !allChecked } });
                   });
+                  updateFields(updates);
                 }}
               >
                 {selectedFields.filter(f => f.type === 'checkbox' || f.type === 'radio').every(f => f.checkedByDefault) && (

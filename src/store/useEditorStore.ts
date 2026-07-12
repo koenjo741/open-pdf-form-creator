@@ -62,6 +62,7 @@ export interface EditorActions {
   setPageMetas: (metas: PageMeta[]) => void;
   addField: (field: FieldDef) => void;
   updateField: (id: string, patch: Partial<FieldDef>) => void;
+  updateFields: (updates: { id: string; patch: Partial<FieldDef> }[]) => void;
   deleteField: (id?: string) => void;
   selectField: (id: string | null, multi?: boolean) => void;
   clearSelection: () => void;
@@ -71,6 +72,8 @@ export interface EditorActions {
   isNameTaken: (name: string, excludeId?: string) => boolean;
   /** Sets tabIndex and swaps if duplicate */
   setTabIndex: (fieldId: string, newIndex: number | undefined) => void;
+  /** Reorders fields via drag and drop */
+  reorderFields: (activeId: string, overId: string) => void;
   /** Enforces 1..N tab indices for all fields */
   normalizeTabIndices: () => void;
 }
@@ -167,6 +170,17 @@ export const useEditorStore = create<EditorStore>()(
             ),
           })),
 
+        updateFields: (updates) =>
+          set((state) => {
+            const updateMap = new Map(updates.map(u => [u.id, u.patch]));
+            return {
+              fields: state.fields.map((f) => {
+                const patch = updateMap.get(f.id);
+                return patch ? { ...f, ...patch } : f;
+              }),
+            };
+          }),
+
         deleteField: (id) =>
           set((state) => {
             let nextFields = state.fields;
@@ -240,6 +254,24 @@ export const useEditorStore = create<EditorStore>()(
               return f;
             });
             return { fields: ensureSequentialTabIndices(mapped) };
+          }),
+          
+        reorderFields: (activeId, overId) =>
+          set((state) => {
+            const oldIndex = state.fields.findIndex(f => f.id === activeId);
+            const newIndex = state.fields.findIndex(f => f.id === overId);
+            if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return state;
+
+            const newFields = [...state.fields];
+            const [movedItem] = newFields.splice(oldIndex, 1);
+            newFields.splice(newIndex, 0, movedItem);
+            
+            // Reassign tab indices based on the new array order
+            newFields.forEach((f, idx) => {
+              f.tabIndex = idx + 1;
+            });
+            
+            return { fields: newFields };
           }),
       }),
       {

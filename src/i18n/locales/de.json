@@ -31,6 +31,7 @@
     "name": "Feldname",
     "namePlaceholder": "eindeutiger_feldname",
     "nameError": "Name bereits vergeben",
+    "required": "Pflichtfeld",
     "label": "Beschriftung",
     "labelPlaceholder": "Anzeigebeschriftung",
     "fontSize": "Schriftgröße",
