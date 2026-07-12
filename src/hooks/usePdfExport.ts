@@ -6,6 +6,7 @@ import { useEditorStore } from '../store/useEditorStore';
 import { loadInterRegular, loadInterBold } from '../utils/fontLoader';
 import { toast } from '../components/common/Toast';
 import type { ExportMode } from '../types';
+import bwipjs from 'bwip-js/browser';
 
 function triggerDownload(bytes: Uint8Array, filename: string) {
   const blob = new Blob([bytes as any], { type: 'application/pdf' });
@@ -312,6 +313,70 @@ export function usePdfExport() {
                   width: rect.width,
                   height: rect.height,
                   color: rgb(0.95, 0.95, 0.95), // Very light gray fill
+                  borderColor: rgb(0.8, 0.8, 0.8),
+                  borderWidth: 1,
+                });
+              }
+              break;
+            }
+            case 'barcode': {
+              if (mode === 'flattened') {
+                try {
+                  // Gather all field data, excluding scribble, signature and the barcode itself
+                  const formData: Record<string, any> = {};
+                  for (const f of fields) {
+                    if (f.type === 'scribble' || f.type === 'signature' || f.type === 'barcode') {
+                      continue;
+                    }
+                    if (f.type === 'checkbox') formData[f.name] = f.checked ?? f.checkedByDefault ?? false;
+                    else if (f.type === 'radio') {
+                      if (f.checked) formData[f.groupName || f.name] = f.radioValue || f.value;
+                    }
+                    else formData[f.name] = f.value || '';
+                  }
+                  
+                  const jsonString = JSON.stringify(formData);
+                  
+                  // Generate barcode using bwip-js
+                  const canvas = document.createElement('canvas');
+                  bwipjs.toCanvas(canvas, {
+                    bcid: field.barcodeFormat === 'pdf417' ? 'pdf417' : 'qrcode',
+                    text: jsonString,
+                    scale: 3, 
+                    includetext: false,
+                  });
+                  
+                  const dataUrl = canvas.toDataURL('image/png');
+                  const imgBytes = Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0));
+                  const embeddedImg = await pdfDoc.embedPng(imgBytes);
+                  
+                  const imgWidth = embeddedImg.width;
+                  const imgHeight = embeddedImg.height;
+                  const scale = Math.min(rect.width / imgWidth, rect.height / imgHeight);
+                  
+                  const drawWidth = imgWidth * scale;
+                  const drawHeight = imgHeight * scale;
+                  const drawX = rect.x + (rect.width - drawWidth) / 2;
+                  const drawY = rect.y + (rect.height - drawHeight) / 2;
+
+                  page.drawImage(embeddedImg, {
+                    x: drawX,
+                    y: drawY,
+                    width: drawWidth,
+                    height: drawHeight,
+                  });
+                } catch (err) {
+                  console.error('Failed to generate barcode for PDF export:', err);
+                  toast.error(`Barcode konnte nicht generiert werden: ${err}`);
+                }
+              } else {
+                // In editable mode, just draw a placeholder box
+                page.drawRectangle({
+                  x: rect.x,
+                  y: rect.y,
+                  width: rect.width,
+                  height: rect.height,
+                  color: rgb(0.95, 0.95, 0.95),
                   borderColor: rgb(0.8, 0.8, 0.8),
                   borderWidth: 1,
                 });

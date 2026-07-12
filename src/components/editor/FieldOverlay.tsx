@@ -11,6 +11,7 @@ import { TextValidationModal } from '../modals/TextValidationModal';
 import { FieldActionModal } from '../modals/FieldActionModal';
 import { ScribbleModal } from '../modals/ScribbleModal';
 import { PromptModal } from '../modals/PromptModal';
+import { QrCode } from 'lucide-react';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -21,6 +22,7 @@ const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
   radio:    { w: 16,  h: 16 },
   signature:{ w: 144, h: 48 },
   scribble: { w: 144, h: 48 },
+  barcode:  { w: 100, h: 100 },
 };
 
 interface FieldOverlayProps {
@@ -619,7 +621,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         touchAction: 'none',
       }}
       className={`
-        rounded border-2 transition-shadow
+        rounded border-[1px] transition-shadow
         ${typeColors[field.type] ?? 'border-zinc-400 bg-zinc-500/10'}
         ${isSelected ? 'shadow-lg shadow-blue-500/20' : ''}
       `}
@@ -1185,6 +1187,17 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           />
         )}
       </>
+    );
+  }
+
+  if (field.type === 'barcode') {
+    return (
+      <div style={{ ...baseStyle, backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <QrCode className="w-8 h-8 text-slate-300 mb-1" />
+        <span className="text-[10px] text-slate-400 font-medium px-2 text-center leading-tight">
+          Barcode generiert<br/>beim Flatten
+        </span>
+      </div>
     );
   }
 

@@ -1,6 +1,6 @@
 // ─── Field Types ─────────────────────────────────────────────────────────────
 
-export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble';
+export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble' | 'barcode';
 export type FontWeight = 'regular' | 'bold';
 
 export interface FieldDef {
@@ -46,6 +46,9 @@ export interface FieldDef {
   // ── Date-specific ──
   /** 'auto' to use navigator.language, or explicitly 'DD.MM.YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD' */
   dateFormat?: string;
+
+  // ── Barcode-specific ──
+  barcodeFormat?: 'qrcode' | 'pdf417';
 
   // ── Tab Order ──
   tabIndex?: number;

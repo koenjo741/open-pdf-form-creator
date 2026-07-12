@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -201,6 +201,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
                       { id: 'radio', label: 'Radio', icon: Circle },
                       { id: 'signature', label: 'Signatur (Zertifikat)', icon: BadgeCheck },
                       { id: 'scribble', label: 'Signatur (Zeichnung)', icon: PenTool },
+                      { id: 'barcode', label: '2D-Barcode', icon: QrCode },
                     ].map((tool) => {
                       const Icon = tool.icon;
                       return (

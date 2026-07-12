@@ -5,6 +5,7 @@ import { DropdownFieldPanel } from '../fields/DropdownFieldPanel';
 import { DateFieldPanel } from '../fields/DateFieldPanel';
 import { CheckboxFieldPanel } from '../fields/CheckboxFieldPanel';
 import { RadioFieldPanel } from '../fields/RadioFieldPanel';
+import { BarcodeFieldPanel } from '../fields/BarcodeFieldPanel';
 import { Trash2, MousePointerClick, ArrowLeft, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { FieldDef } from '../../types';
@@ -114,6 +115,7 @@ export function Sidebar() {
                   {selected.type === 'date' && <DateFieldPanel field={selected} />}
                   {selected.type === 'checkbox' && <CheckboxFieldPanel field={selected} />}
                   {selected.type === 'radio' && <RadioFieldPanel field={selected} />}
+                  {selected.type === 'barcode' && <BarcodeFieldPanel field={selected} />}
                 </>
               ) : null}
 

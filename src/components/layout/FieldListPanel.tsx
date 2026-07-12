@@ -15,7 +15,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Type, ChevronDown, Calendar, CheckSquare, Circle, Hash, Banknote, CreditCard, AtSign, Link } from 'lucide-react';
+import { GripVertical, Type, ChevronDown, Calendar, CheckSquare, Circle, Hash, Banknote, CreditCard, AtSign, Link, QrCode } from 'lucide-react';
 import type { FieldDef } from '../../types';
 
 const FIELD_ICONS: Record<string, React.ElementType> = {
@@ -29,6 +29,7 @@ const FIELD_ICONS: Record<string, React.ElementType> = {
   iban: CreditCard,
   email: AtSign,
   url: Link,
+  barcode: QrCode,
 };
 
 function SortableFieldItem({ field, isSelected, onSelect }: { field: FieldDef; isSelected: boolean; onSelect: (e: React.MouseEvent) => void }) {
