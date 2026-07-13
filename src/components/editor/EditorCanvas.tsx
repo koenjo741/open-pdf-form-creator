@@ -133,7 +133,7 @@ export function EditorCanvas() {
     try {
       const buffer = new Uint8Array(await file.arrayBuffer());
       const { buffer: strippedBuffer, extractedFields } = await extractAndStripFormFields(buffer);
-      setPdfBuffer(strippedBuffer, file.name, extractedFields);
+      setPdfBuffer(strippedBuffer, file.name, file.size, extractedFields);
       if (extractedFields.length > 0) {
         toast.success(`Imported ${extractedFields.length} existing fields.`);
       }

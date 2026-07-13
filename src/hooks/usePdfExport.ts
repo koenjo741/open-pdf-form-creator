@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { PDFDocument, PDFName, PDFBool, PDFString, StandardFonts, TextAlignment, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
-import { saveAs } from 'file-saver';
 import { useEditorStore } from '../store/useEditorStore';
 import { loadInterRegular, loadInterBold } from '../utils/fontLoader';
 import { toast } from '../components/common/Toast';
@@ -27,7 +26,7 @@ export function usePdfExport() {
   const exportPdfBuffer = async (mode: ExportMode): Promise<Uint8Array | null> => {
     if (!pdfBuffer || pdfBuffer.length === 0) {
       toast.error('No PDF loaded.');
-      return;
+      return null;
     }
 
     setIsExporting(true);
@@ -43,7 +42,7 @@ export function usePdfExport() {
       } catch {
         toast.error('Inter font files missing from /public/fonts/. See README.');
         setIsExporting(false);
-        return;
+        return null;
       }
 
       // 2. Load the original PDF — slice to a clean ArrayBuffer

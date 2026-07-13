@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { Upload, X, ChevronLeft, ChevronRight, Download, Link as LinkIcon } from 'lucide-react';
