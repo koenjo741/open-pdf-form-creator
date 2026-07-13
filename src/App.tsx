@@ -5,6 +5,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { EditorCanvas } from './components/editor/EditorCanvas';
 import { DataExtractor } from './components/extract/DataExtractor';
 import { ConsentModal } from './components/modals/ConsentModal';
+import { BulkImportModal } from './components/modals/BulkImportModal';
 import { FlattenConfirmModal } from './components/modals/FlattenConfirmModal';
 import { ToastContainer } from './components/common/Toast';
 import { TooltipLayer } from './components/common/TooltipLayer';
@@ -67,6 +68,7 @@ export default function App() {
 
       {/* Modals */}
       <ConsentModal />
+      <BulkImportModal />
       <FlattenConfirmModal
         open={flattenModalOpen}
         onConfirm={handleFlattenConfirm}

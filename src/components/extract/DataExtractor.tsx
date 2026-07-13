@@ -3,6 +3,7 @@ import { PDFDocument } from 'pdf-lib';
 import { Download, UploadCloud, FileJson, AlertCircle, X } from 'lucide-react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { generateFilename } from '../../utils/dynamicFilename';
+import { saveFileWithPicker } from '../../utils/fileSystem';
 import { useTranslation, Trans } from 'react-i18next';
 import { toast } from '../common/Toast';
 
@@ -111,37 +112,11 @@ export function DataExtractor() {
     const jsonString = JSON.stringify(extractedData, null, 2);
 
     try {
-      // Modern File System Access API
-      if ('showSaveFilePicker' in window) {
-        const handle = await (window as any).showSaveFilePicker({
-          suggestedName,
-          types: [{
-            description: 'JSON Files',
-            accept: { 'application/json': ['.json'] },
-          }],
-        });
-        const writable = await handle.createWritable();
-        await writable.write(jsonString);
-        await writable.close();
-        toast.success(t('extract.toastSaveSuccess'));
-      } else {
-        // Fallback for older browsers
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = suggestedName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success(t('extract.toastDownloadSuccess'));
-      }
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        console.error('Save failed', err);
-        toast.error(t('extract.toastSaveError'));
-      }
+      await saveFileWithPicker(jsonString, suggestedName, 'JSON Files', { 'application/json': ['.json'] });
+      toast.success(t('extract.toastSaveSuccess'));
+    } catch (err) {
+      console.error(err);
+      toast.error(t('extract.toastSaveError'));
     }
   };
 

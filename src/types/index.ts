@@ -29,9 +29,11 @@ export interface FieldDef {
   fontWeight?: FontWeight; // default 'regular'
   fontFamily?: 'proportional' | 'monospace'; // default 'proportional'
   textAlign?: 'left' | 'center' | 'right'; // default 'left'
-  textSubType?: 'text' | 'number' | 'email' | 'currency' | 'iban' | 'url'; // subtype for text fields
+  textSubType?: 'text' | 'number' | 'email' | 'currency' | 'iban' | 'url' | 'regex'; // subtype for text fields
   currencySymbol?: string; // Optional currency symbol for currency fields
   calculation?: string; // Optional formula (e.g., "[Feld1] + [Feld2]")
+  customRegex?: string; // regex string (e.g., "^[A-Z]{2}-\d{4}$") for regex text fields
+  regexErrorMsg?: string; // custom error message if regex validation fails
 
   // ── Dropdown-specific ──
   options?: string[];
@@ -94,7 +96,7 @@ export type ExportMode = 'editable' | 'flattened';
 
 // ─── Tool Mode ───────────────────────────────────────────────────────────────
 
-export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url';
+export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex';
 
 // ─── App Mode ────────────────────────────────────────────────────────────────
 

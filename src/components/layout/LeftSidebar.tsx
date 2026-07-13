@@ -25,7 +25,7 @@ interface LeftSidebarProps {
 export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }: LeftSidebarProps) {
   const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, appMode, setAppMode, sidebarPosition, filenameTemplate, setFilenameTemplate } = useEditorStore();
+  const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, pdfFileSize, appMode, setAppMode, sidebarPosition, filenameTemplate, setFilenameTemplate } = useEditorStore();
   const temporalStore = useTemporalStore();
   const [langOpen, setLangOpen] = useState(false);
   const [addFieldOpen, setAddFieldOpen] = useState(false);
@@ -49,7 +49,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
       const buffer = new Uint8Array(await file.arrayBuffer());
       const { buffer: strippedBuffer, extractedFields } = await extractAndStripFormFields(buffer);
       
-      setPdfBuffer(strippedBuffer, file.name, extractedFields);
+      setPdfBuffer(strippedBuffer, file.name, file.size, extractedFields);
       if (extractedFields.length > 0) {
         toast.success(`Imported ${extractedFields.length} existing fields.`);
       } else {
@@ -110,6 +110,16 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
           {pdfFileName && (
             <div className="text-xs text-slate-500 truncate mt-1" data-tooltip={pdfFileName}>
               {pdfFileName}
+            </div>
+          )}
+
+          {pdfFileSize > 1500000 && (
+            <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-md flex gap-2">
+              <Info className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+              <p className="text-[10px] text-yellow-600 dark:text-yellow-500 leading-tight">
+                <strong>Hinweis:</strong> Dieses Dokument ist recht groß ({(pdfFileSize / 1024 / 1024).toFixed(1)} MB). 
+                Beim Seriendruck kann dies zu sehr großen ZIP-Dateien führen. Komprimiere das PDF idealerweise vorab.
+              </p>
             </div>
           )}
 
@@ -257,6 +267,15 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
           <section className="flex flex-col gap-3">
             <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</h3>
             
+            <button
+              onClick={() => useEditorStore.getState().setBulkImportModalOpen(true)}
+              disabled={isExporting}
+              className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium transition-colors mb-2"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Seriendruck (CSV)</span>
+            </button>
+
             <button
               onClick={() => onExportEditable()}
               disabled={isExporting}

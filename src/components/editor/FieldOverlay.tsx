@@ -271,7 +271,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         canvasWidth, canvasHeight,
       );
 
-      const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url'].includes(activeTool);
+      const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url', 'regex'].includes(activeTool);
       const type = isTextSubtype ? 'text' : activeTool as any;
       const sizes = DEFAULT_SIZES[type] || {w: 144, h: 24};
       const id = crypto.randomUUID();
@@ -1008,6 +1008,15 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         } else if (field.textSubType === 'url') {
           if (!isValidURL(val)) {
             setValidationModal({ open: true, title: 'Ungültige URL', message: 'Die eingegebene URL ist nicht korrekt.' });
+          }
+        } else if (field.textSubType === 'regex' && field.customRegex) {
+          try {
+            const re = new RegExp(field.customRegex);
+            if (!re.test(val)) {
+              setValidationModal({ open: true, title: 'Ungültiges Format', message: field.regexErrorMsg || 'Die Eingabe entspricht nicht dem erforderlichen Format.' });
+            }
+          } catch (e) {
+            console.warn('Invalid regex in field', e);
           }
         }
       }, 250);

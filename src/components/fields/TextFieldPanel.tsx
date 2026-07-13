@@ -26,6 +26,7 @@ export function TextFieldPanel({ field }: Props) {
           <option value="iban">IBAN</option>
           <option value="email">E-Mail</option>
           <option value="url">URL</option>
+          <option value="regex">Regulärer Ausdruck (Regex)</option>
         </select>
       </div>
 
@@ -51,6 +52,37 @@ export function TextFieldPanel({ field }: Props) {
             <option value="R$">R$ (Brazilian Real)</option>
             <option value="₽">₽ (Russian Ruble)</option>
           </select>
+        </div>
+      )}
+
+      {field.textSubType === 'regex' && (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-1.5 mt-3">
+              Regulärer Ausdruck (Regex)
+            </label>
+            <input
+              type="text"
+              value={field.customRegex || ''}
+              onChange={(e) => updateField(field.id, { customRegex: e.target.value })}
+              placeholder="z.B. ^[A-Z]{2}-\d{4}$"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
+                text-sm text-zinc-100 outline-none transition-colors font-mono"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-1.5">
+              Fehlermeldung (Optional)
+            </label>
+            <input
+              type="text"
+              value={field.regexErrorMsg || ''}
+              onChange={(e) => updateField(field.id, { regexErrorMsg: e.target.value })}
+              placeholder="z.B. Ungültiges Aktenzeichen-Format"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
+                text-sm text-zinc-100 outline-none transition-colors"
+            />
+          </div>
         </div>
       )}
 

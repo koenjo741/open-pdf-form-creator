@@ -1,7 +1,7 @@
 {
   "name": "open-pdf-form-creator",
   "private": true,
-  "version": "1.5.0",
+  "version": "1.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,7 +21,9 @@
     "framer-motion": "^11.18.0",
     "i18next": "^24.2.0",
     "idb-keyval": "^6.2.2",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.511.0",
+    "papaparse": "^5.5.4",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.9.155",
     "react": "^19.1.0",
@@ -33,6 +35,8 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",
     "@types/bwip-js": "^3.2.3",
+    "@types/jszip": "^3.4.0",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.4.0",

@@ -48,6 +48,11 @@ export interface EditorState {
   filenameTemplate: string;
   /** Global UI scaling factor */
   uiScale: number;
+  /** Whether the bulk import modal is open */
+  /** Whether the bulk import modal is open */
+  bulkImportModalOpen: boolean;
+  /** The size of the originally uploaded PDF in bytes */
+  pdfFileSize: number;
 }
 
 export interface EditorActions {
@@ -57,7 +62,8 @@ export interface EditorActions {
   setUiScale: (scale: number) => void;
   setSnapToGrid: (snap: boolean) => void;
   setFilenameTemplate: (template: string) => void;
-  setPdfBuffer: (buffer: Uint8Array, fileName: string, initialFields?: FieldDef[]) => void;
+  setBulkImportModalOpen: (open: boolean) => void;
+  setPdfBuffer: (buffer: Uint8Array, fileName: string, fileSize: number, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
   addField: (field: FieldDef) => void;
@@ -117,6 +123,7 @@ export const useEditorStore = create<EditorStore>()(
         // ── Initial state ──────────────────────────────────────────────────
         pdfBuffer: null,
         pdfFileName: null,
+        pdfFileSize: 0,
         fields: [],
         selectedFieldIds: [],
         pageMetas: [],
@@ -128,6 +135,7 @@ export const useEditorStore = create<EditorStore>()(
         snapToGrid: true,
         filenameTemplate: '',
         uiScale: 1,
+        bulkImportModalOpen: false,
 
         // ── Actions ───────────────────────────────────────────────────────
         setAppMode: (mode) => set({ appMode: mode }),
@@ -136,11 +144,13 @@ export const useEditorStore = create<EditorStore>()(
         setUiScale: (scale) => set({ uiScale: scale }),
         setSnapToGrid: (snap) => set({ snapToGrid: snap }),
         setFilenameTemplate: (template) => set({ filenameTemplate: template }),
+        setBulkImportModalOpen: (open) => set({ bulkImportModalOpen: open }),
         
-        setPdfBuffer: (buffer, fileName, initialFields) =>
+        setPdfBuffer: (buffer, fileName, fileSize, initialFields) =>
           set((state) => ({ 
             pdfBuffer: buffer, 
             pdfFileName: fileName, 
+            pdfFileSize: fileSize,
             isLoaded: true,
             fields: ensureSequentialTabIndices(initialFields ? initialFields : state.fields)
           })),
@@ -149,6 +159,7 @@ export const useEditorStore = create<EditorStore>()(
           set({
             pdfBuffer: null,
             pdfFileName: null,
+            pdfFileSize: 0,
             fields: [],
             selectedFieldIds: [],
             pageMetas: [],

@@ -8,9 +8,10 @@ import { toast } from '../components/common/Toast';
 import type { ExportMode } from '../types';
 import bwipjs from 'bwip-js/browser';
 
-function triggerDownload(bytes: Uint8Array, filename: string) {
-  const blob = new Blob([bytes as any], { type: 'application/pdf' });
-  saveAs(blob, filename);
+import { saveFileWithPicker } from '../utils/fileSystem';
+
+async function triggerDownload(bytes: Uint8Array, filename: string) {
+  await saveFileWithPicker(bytes, filename, 'PDF Document', { 'application/pdf': ['.pdf'] });
 }
 
 /** Generate a safe output filename */
@@ -23,7 +24,7 @@ export function usePdfExport() {
   const [isExporting, setIsExporting] = useState(false);
   const { pdfBuffer, fields, pdfFileName } = useEditorStore();
 
-  const exportPdf = async (mode: ExportMode) => {
+  const exportPdfBuffer = async (mode: ExportMode): Promise<Uint8Array | null> => {
     if (!pdfBuffer || pdfBuffer.length === 0) {
       toast.error('No PDF loaded.');
       return;
@@ -143,6 +144,16 @@ export function usePdfExport() {
                 if (field.isRequired) tf.enableRequired();
                 else tf.disableRequired();
                 
+                // Setup AA (Additional Actions) dictionary if needed
+                let aaDict: any = null;
+                const getOrCreateAA = () => {
+                  if (!aaDict) {
+                    aaDict = pdfDoc.context.obj({});
+                    tf.acroField.dict.set(PDFName.of('AA'), aaDict);
+                  }
+                  return aaDict;
+                };
+
                 // Handle calculation
                 if (field.calculation) {
                   const isNumber = field.textSubType === 'number';
@@ -160,12 +171,29 @@ export function usePdfExport() {
                     JS: PDFString.of(jsCode)
                   });
                   
-                  const aaDict = pdfDoc.context.obj({
-                    C: jsAction
+                  getOrCreateAA().set(PDFName.of('C'), jsAction);
+                  coArray.push(tf.acroField.ref);
+                }
+
+                // Handle Regex validation
+                if (field.textSubType === 'regex' && field.customRegex) {
+                  // Escape backslashes and double quotes for PDF JavaScript string literal
+                  const safeRegex = field.customRegex.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                  const errorMsg = (field.regexErrorMsg || 'Ungültiges Format.').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                  const jsCode = `
+var re = new RegExp("${safeRegex}");
+if (event.value && !re.test(event.value)) {
+  app.alert("${errorMsg}");
+  event.rc = false;
+}
+`;
+                  const jsAction = pdfDoc.context.obj({
+                    Type: 'Action',
+                    S: 'JavaScript',
+                    JS: PDFString.of(jsCode)
                   });
                   
-                  tf.acroField.dict.set(PDFName.of('AA'), aaDict);
-                  coArray.push(tf.acroField.ref);
+                  getOrCreateAA().set(PDFName.of('V'), jsAction);
                 }
               }
 
@@ -485,19 +513,27 @@ if (ctrl_${idSafe} && dep_${idSafe}) {
         pdfDoc.catalog.set(PDFName.of('OpenPdfFormCreatorState'), arrayObj);
       }
 
-      // 8. Save & download
+      // 8. Save
       const rawBytes = await pdfDoc.save();
-      triggerDownload(rawBytes, buildFilename(pdfFileName, mode));
-      toast.success(mode === 'editable' ? 'Editable PDF downloaded!' : 'Finalized PDF downloaded!');
+      return rawBytes;
     } catch (err) {
       console.error('[PDF Export]', err);
       toast.error('PDF generation failed. Check the console for details.');
+      return null;
     } finally {
       setIsExporting(false);
     }
   };
 
-  return { exportPdf, isExporting };
+  const exportPdf = async (mode: ExportMode) => {
+    const rawBytes = await exportPdfBuffer(mode);
+    if (rawBytes) {
+      await triggerDownload(rawBytes, buildFilename(pdfFileName, mode));
+      toast.success(mode === 'editable' ? 'Editable PDF downloaded!' : 'Finalized PDF downloaded!');
+    }
+  };
+
+  return { exportPdf, exportPdfBuffer, isExporting };
 }
 
 /** Try to get an existing radio group, return null if not found */
