@@ -2,6 +2,13 @@ import { useEditorStore } from '../../store/useEditorStore';
 import { AlignLeft, AlignCenter, AlignRight, ArrowUpDown, Maximize2, ArrowUpToLine, ArrowDownToLine, GripHorizontal, GripVertical } from 'lucide-react';
 import type { FieldDef } from '../../types';
 import { useTranslation } from 'react-i18next';
+import {
+  calculateAlignUpdates,
+  calculateDistributeHorizontallyUpdates,
+  calculateDistributeVerticallyUpdates,
+  calculateMatchWidthUpdates,
+  calculateMatchHeightUpdates
+} from '../../utils/alignmentUtils';
 
 export function MultiSelectPanel() {
   const { t } = useTranslation();
@@ -14,88 +21,23 @@ export function MultiSelectPanel() {
   if (selectedFields.length < 2) return null;
 
   const handleMatchWidth = () => {
-    const targetWidth = selectedFields[0].pdfWidth;
-    updateFields(selectedFields.map(f => ({ id: f.id, patch: { pdfWidth: targetWidth } })));
+    updateFields(calculateMatchWidthUpdates(selectedFields));
   };
 
   const handleMatchHeight = () => {
-    const targetHeight = selectedFields[0].pdfHeight;
-    updateFields(selectedFields.map(f => ({ id: f.id, patch: { pdfHeight: targetHeight } })));
+    updateFields(calculateMatchHeightUpdates(selectedFields));
   };
 
   const handleAlign = (type: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
-    if (selectedFields.length === 0) return;
-
-    // Find bounding box for alignments
-    const minX = Math.min(...selectedFields.map(f => f.pdfX));
-    const maxX = Math.max(...selectedFields.map(f => f.pdfX + f.pdfWidth));
-    const minY = Math.min(...selectedFields.map(f => f.pdfY - f.pdfHeight));
-    const maxY = Math.max(...selectedFields.map(f => f.pdfY));
-
-    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
-    selectedFields.forEach(f => {
-      switch (type) {
-        case 'left':
-          updates.push({ id: f.id, patch: { pdfX: minX } });
-          break;
-        case 'center':
-          updates.push({ id: f.id, patch: { pdfX: (minX + maxX) / 2 - f.pdfWidth / 2 } });
-          break;
-        case 'right':
-          updates.push({ id: f.id, patch: { pdfX: maxX - f.pdfWidth } });
-          break;
-        case 'top':
-          updates.push({ id: f.id, patch: { pdfY: maxY } });
-          break;
-        case 'middle':
-          updates.push({ id: f.id, patch: { pdfY: (minY + maxY) / 2 + f.pdfHeight / 2 } });
-          break;
-        case 'bottom':
-          updates.push({ id: f.id, patch: { pdfY: minY + f.pdfHeight } });
-          break;
-      }
-    });
-    updateFields(updates);
+    updateFields(calculateAlignUpdates(selectedFields, type));
   };
 
   const handleDistributeHorizontally = () => {
-    if (selectedFields.length < 3) return;
-    const sorted = [...selectedFields].sort((a, b) => a.pdfX - b.pdfX);
-    const minX = sorted[0].pdfX;
-    const maxX = sorted[sorted.length - 1].pdfX + sorted[sorted.length - 1].pdfWidth;
-    
-    // Total width consumed by fields themselves
-    const totalFieldWidth = sorted.reduce((sum, f) => sum + f.pdfWidth, 0);
-    const totalGapSpace = (maxX - minX) - totalFieldWidth;
-    const gap = totalGapSpace / (sorted.length - 1);
-
-    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
-    let currentX = minX;
-    sorted.forEach((f) => {
-      updates.push({ id: f.id, patch: { pdfX: currentX } });
-      currentX += f.pdfWidth + gap;
-    });
-    updateFields(updates);
+    updateFields(calculateDistributeHorizontallyUpdates(selectedFields, 0));
   };
 
   const handleDistributeVertically = () => {
-    if (selectedFields.length < 3) return;
-    // Sort top to bottom (highest pdfY first)
-    const sorted = [...selectedFields].sort((a, b) => b.pdfY - a.pdfY);
-    const topY = sorted[0].pdfY;
-    const bottomY = sorted[sorted.length - 1].pdfY - sorted[sorted.length - 1].pdfHeight;
-    
-    const totalFieldHeight = sorted.reduce((sum, f) => sum + f.pdfHeight, 0);
-    const totalGapSpace = (topY - bottomY) - totalFieldHeight;
-    const gap = totalGapSpace / (sorted.length - 1);
-
-    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
-    let currentY = topY;
-    sorted.forEach((f) => {
-      updates.push({ id: f.id, patch: { pdfY: currentY } });
-      currentY -= (f.pdfHeight + gap);
-    });
-    updateFields(updates);
+    updateFields(calculateDistributeVerticallyUpdates(selectedFields, 0));
   };
 
   const handleAdjustWidth = (delta: number) => {
@@ -107,39 +49,11 @@ export function MultiSelectPanel() {
   };
 
   const handleDistributeHorizontallyAdjust = (delta: number) => {
-    if (selectedFields.length < 3) return;
-    const sorted = [...selectedFields].sort((a, b) => a.pdfX - b.pdfX);
-    const minX = sorted[0].pdfX;
-    const maxX = sorted[sorted.length - 1].pdfX + sorted[sorted.length - 1].pdfWidth;
-    const totalFieldWidth = sorted.reduce((sum, f) => sum + f.pdfWidth, 0);
-    const currentGap = ((maxX - minX) - totalFieldWidth) / (sorted.length - 1);
-    
-    const newGap = currentGap + delta;
-    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
-    let currentX = minX;
-    sorted.forEach((f) => {
-      updates.push({ id: f.id, patch: { pdfX: currentX } });
-      currentX += f.pdfWidth + newGap;
-    });
-    updateFields(updates);
+    updateFields(calculateDistributeHorizontallyUpdates(selectedFields, delta));
   };
 
   const handleDistributeVerticallyAdjust = (delta: number) => {
-    if (selectedFields.length < 3) return;
-    const sorted = [...selectedFields].sort((a, b) => b.pdfY - a.pdfY);
-    const topY = sorted[0].pdfY;
-    const bottomY = sorted[sorted.length - 1].pdfY - sorted[sorted.length - 1].pdfHeight;
-    const totalFieldHeight = sorted.reduce((sum, f) => sum + f.pdfHeight, 0);
-    const currentGap = ((topY - bottomY) - totalFieldHeight) / (sorted.length - 1);
-
-    const newGap = currentGap + delta;
-    const updates: { id: string; patch: Partial<FieldDef> }[] = [];
-    let currentY = topY;
-    sorted.forEach((f) => {
-      updates.push({ id: f.id, patch: { pdfY: currentY } });
-      currentY -= (f.pdfHeight + newGap);
-    });
-    updateFields(updates);
+    updateFields(calculateDistributeVerticallyUpdates(selectedFields, delta));
   };
 
   const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'dropdown' || f.type === 'date');

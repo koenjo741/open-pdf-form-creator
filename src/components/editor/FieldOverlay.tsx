@@ -5,13 +5,19 @@ import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
 import type { FieldDef, PageMeta } from '../../types';
 import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from '../../utils/snapping';
 
-import { useTranslation } from 'react-i18next';
-import { DateValidationModal } from '../modals/DateValidationModal';
-import { TextValidationModal } from '../modals/TextValidationModal';
-import { FieldActionModal } from '../modals/FieldActionModal';
-import { ScribbleModal } from '../modals/ScribbleModal';
 import { PromptModal } from '../modals/PromptModal';
-import { QrCode } from 'lucide-react';
+import { FieldActionModal } from '../modals/FieldActionModal';
+import { useFieldContextMenu } from './fields/useFieldContextMenu';
+import {
+  TextFieldRenderer,
+  DateFieldRenderer,
+  DropdownRenderer,
+  CheckboxRenderer,
+  RadioRenderer,
+  SignatureRenderer,
+  ScribbleRenderer,
+  BarcodeRenderer
+} from './fields/FieldRenderers';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -43,8 +49,8 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
   const isPlacingMode = activeTool !== 'select';
 
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; fieldId: string } | null>(null);
-  const [promptModal, setPromptModal] = useState<{ open: boolean; fieldId: string; initialValue: string } | null>(null);
+  const { contextMenu, setContextMenu, promptModal, setPromptModal, handleRename, handleDuplicate, handleClone } = useFieldContextMenu(fields, pageFields, addField, selectField);
+
   const [activeGuides, setActiveGuides] = useState<GuideLine[]>([]);
   const [marquee, setMarquee] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
 
@@ -97,79 +103,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField, updateFields, appMode]);
 
-  // Click outside to close context menu
-  useEffect(() => {
-    const handleClickOutside = () => setContextMenu(null);
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, []);
 
-  const handleRename = () => {
-    if (!contextMenu) return;
-    const currentField = pageFields.find(f => f.id === contextMenu.fieldId);
-    if (currentField) {
-      setPromptModal({ open: true, fieldId: contextMenu.fieldId, initialValue: currentField.name });
-      setContextMenu(null);
-    }
-  };
-
-  const handleDuplicate = () => {
-    if (!contextMenu) return;
-    const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
-    if (!sourceField) return;
-
-    if (sourceField.label.includes(' (nicht editierbar)')) {
-      return handleClone();
-    }
-
-    let prefix = sourceField.name.split(' -- ')[0] || sourceField.type;
-    // ensure prefix is capitalized if it was e.g. text
-    prefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-
-    let counter = 1;
-    let baseName = '';
-    while (true) {
-      baseName = `${prefix} -- ${counter}`;
-      if (!fields.some(f => f.name === baseName)) break;
-      counter++;
-    }
-
-    const id = crypto.randomUUID();
-    const newField: FieldDef = {
-      ...sourceField,
-      id,
-      name: baseName,
-      label: baseName,
-      pdfY: sourceField.pdfY - sourceField.pdfHeight - 10, // place 10pt below
-    };
-    
-    if (newField.type === 'radio') {
-      // Set a new unique Exportwert visible to the user instead of leaving it empty
-      newField.radioValue = newField.id.slice(0, 8);
-    }
-    
-    addField(newField);
-    selectField(id);
-  };
-
-  const handleClone = () => {
-    if (!contextMenu) return;
-    const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
-    if (!sourceField) return;
-
-    const id = crypto.randomUUID();
-    const newField: FieldDef = {
-      ...sourceField,
-      id,
-      // Name stays exactly the same so it acts as a mirror/clone
-      label: sourceField.label.includes(' (nicht editierbar)') 
-        ? sourceField.label 
-        : `${sourceField.label} (nicht editierbar)`,
-      pdfY: sourceField.pdfY - sourceField.pdfHeight - 10,
-    };
-    addField(newField);
-    selectField(id);
-  };
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -434,7 +368,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
           open={promptModal.open}
           title="Feldname umbenennen:"
           initialValue={promptModal.initialValue}
-          onConfirm={(newName) => {
+          onConfirm={(newName: string) => {
             if (newName && newName.trim() !== '') {
               updateField(promptModal.fieldId, { name: newName.trim(), label: newName.trim() });
             }
@@ -814,95 +748,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   );
 }
 
-// ─── Date Parsing Utility ────────────────────────────────────────────────────
 
-function parseDateString(input: string, format: string, locale: string): Date | null {
-  let resolvedFormat = format;
-
-  if (!resolvedFormat || resolvedFormat === 'auto') {
-    if (input.includes('.')) {
-      resolvedFormat = 'DD.MM.YYYY';
-    } else if (input.includes('/')) {
-      if (locale.startsWith('en') && !locale.startsWith('en-GB')) {
-        resolvedFormat = 'MM/DD/YYYY';
-      } else {
-        resolvedFormat = 'DD/MM/YYYY';
-      }
-    } else if (input.includes('-')) {
-      resolvedFormat = 'YYYY-MM-DD';
-    } else {
-      if (locale.startsWith('de')) resolvedFormat = 'DD.MM.YYYY';
-      else if (locale.startsWith('en')) resolvedFormat = 'MM/DD/YYYY';
-      else if (locale.startsWith('fr') || locale.startsWith('es')) resolvedFormat = 'DD/MM/YYYY';
-      else resolvedFormat = 'YYYY-MM-DD';
-    }
-  }
-
-  const parts = input.match(/\d+/g);
-  if (!parts || parts.length < 3) return null;
-
-  let year, month, day;
-  if (resolvedFormat === 'DD.MM.YYYY' || resolvedFormat === 'DD/MM/YYYY') {
-    day = parseInt(parts[0], 10); month = parseInt(parts[1], 10); year = parseInt(parts[2], 10);
-  } else if (resolvedFormat === 'MM/DD/YYYY') {
-    month = parseInt(parts[0], 10); day = parseInt(parts[1], 10); year = parseInt(parts[2], 10);
-  } else if (resolvedFormat === 'YYYY-MM-DD') {
-    year = parseInt(parts[0], 10); month = parseInt(parts[1], 10); day = parseInt(parts[2], 10);
-  } else {
-    return null;
-  }
-
-  if (year < 100) {
-    year += year > 50 ? 1900 : 2000;
-  }
-
-  const d = new Date(year, month - 1, day);
-  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) {
-    return null;
-  }
-  return d;
-}
-
-function isValidIBAN(iban: string) {
-  const str = iban.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-  if (str.length < 15 || str.length > 34) return false;
-  const reordered = str.substring(4) + str.substring(0, 4);
-  const numeric = reordered.split('').map(c => {
-    const code = c.charCodeAt(0);
-    return code >= 65 && code <= 90 ? (code - 55).toString() : c;
-  }).join('');
-  let remainder = numeric;
-  let block;
-  while (remainder.length > 2) {
-    block = remainder.slice(0, 9);
-    remainder = (parseInt(block, 10) % 97) + remainder.slice(block.length);
-  }
-  return parseInt(remainder, 10) % 97 === 1;
-}
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function isValidURL(url: string) {
-  const pattern = new RegExp(
-    '^([a-zA-Z]+:\\/\\/)?' + // protocol
-    '((([a-zA-Z\\d]([a-zA-Z\\d-]*[a-zA-Z\\d])*)\\.)+[a-zA-Z]{2,}|' + // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-zA-Z\\d%_.~+]*)*' + // port and path
-    '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' + // query string
-    '(\\#[-a-zA-Z\\d_]*)?$', 'i'
-  );
-  return !!pattern.test(url);
-}
-
-function parseNumberStrict(val: string) {
-  if (!val) return NaN;
-  if (val.includes(',') && (!val.includes('.') || val.indexOf('.') < val.indexOf(','))) {
-     return parseFloat(val.replace(/\./g, '').replace(',', '.'));
-  }
-  return parseFloat(val.replace(/,/g, ''));
-}
 
 // ─── Preview Field Box ───────────────────────────────────────────────────────
 
@@ -915,7 +761,6 @@ interface PreviewFieldBoxProps {
 
 function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
   const { updateField, fields } = useEditorStore();
-  const { i18n } = useTranslation();
 
   // Find if this is a duplicate (i.e. not the first field with this name)
   const isDuplicate = fields.find(f => f.name === field.name)?.id !== field.id;
@@ -1014,264 +859,25 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     }
   };
 
-  if (field.type === 'text') {
-    const [validationModal, setValidationModal] = useState<{ open: boolean; title: string; message: string }>({ open: false, title: '', message: '' });
-    const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleTextBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      if (validationModal.open) return;
-      const val = e.target.value.trim();
-      if (!val) return;
-
-      setTimeout(() => {
-        if (field.textSubType === 'currency') {
-          const num = parseNumberStrict(val.replace(/[^\d.,\-]/g, ''));
-          if (!isNaN(num)) {
-            const symbol = field.currencySymbol || '€';
-            const formatted = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num) + ' ' + symbol;
-            updateField(field.id, { value: formatted });
-          }
-        } else if (field.textSubType === 'iban') {
-          if (!isValidIBAN(val)) {
-            setValidationModal({ open: true, title: 'Ungültige IBAN', message: 'Die eingegebene IBAN ist nicht korrekt.' });
-          }
-        } else if (field.textSubType === 'email') {
-          if (!isValidEmail(val)) {
-            setValidationModal({ open: true, title: 'Ungültige E-Mail', message: 'Die eingegebene E-Mail-Adresse ist nicht korrekt.' });
-          }
-        } else if (field.textSubType === 'url') {
-          if (!isValidURL(val)) {
-            setValidationModal({ open: true, title: 'Ungültige URL', message: 'Die eingegebene URL ist nicht korrekt.' });
-          }
-        } else if (field.textSubType === 'regex' && field.customRegex) {
-          try {
-            const re = new RegExp(field.customRegex);
-            if (!re.test(val)) {
-              setValidationModal({ open: true, title: 'Ungültiges Format', message: field.regexErrorMsg || 'Die Eingabe entspricht nicht dem erforderlichen Format.' });
-            }
-          } catch (e) {
-            console.warn('Invalid regex in field', e);
-          }
-        }
-      }, 250);
-    };
-
-    const handleCorrect = () => {
-      setValidationModal({ open: false, title: '', message: '' });
-      setTimeout(() => inputRef.current?.focus(), 200);
-    };
-
-    return (
-      <>
-        <input
-          ref={inputRef}
-          type="text"
-          style={baseStyle}
-          value={field.value || ''}
-          onChange={handleChange}
-          onBlur={handleTextBlur}
-          readOnly={isDisabled}
-          tabIndex={field.tabIndex}
-          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDisabled ? 'bg-slate-100/50 cursor-not-allowed text-slate-400' : 'bg-white'}`}
-        />
-        <TextValidationModal
-          open={validationModal.open}
-          title={validationModal.title}
-          message={validationModal.message}
-          onCorrect={handleCorrect}
-        />
-      </>
-    );
+  switch (field.type) {
+    case 'text':
+      return <TextFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'date':
+      return <DateFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'dropdown':
+      return <DropdownRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'checkbox':
+      return <CheckboxRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} />;
+    case 'radio':
+      return <RadioRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} />;
+    case 'signature':
+      return <SignatureRenderer baseStyle={baseStyle} />;
+    case 'scribble':
+      return <ScribbleRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} />;
+    case 'barcode':
+      return <BarcodeRenderer field={field} baseStyle={baseStyle} />;
+    default:
+      return null;
   }
-
-  if (field.type === 'date') {
-    const [validationModal, setValidationModal] = useState<{ open: boolean; type: 'invalid' | 'history' | 'future' | null }>({ open: false, type: null });
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    const runValidation = (val: string) => {
-      const parsedDate = parseDateString(val, field.dateFormat || 'auto', i18n.language);
-      
-      if (!parsedDate) {
-        setValidationModal({ open: true, type: 'invalid' });
-      } else {
-        const year = parsedDate.getFullYear();
-        if (year < 1900) {
-          setValidationModal({ open: true, type: 'history' });
-        } else if (year > 2199) {
-          setValidationModal({ open: true, type: 'future' });
-        }
-      }
-    };
-
-    // Use a longer timeout (250ms) to let the browser finish any scroll/focus reflows before opening the modal
-    const handleDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      // Prevent blurring if modal is already open
-      if (validationModal.open) return;
-
-      const val = e.target.value.trim();
-      if (!val) return;
-
-      setTimeout(() => {
-        runValidation(val);
-      }, 250);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.currentTarget.blur();
-      }
-    };
-
-    const handleConfirm = () => {
-      setValidationModal({ open: false, type: null });
-      // Keep value
-    };
-
-    const handleCorrect = () => {
-      setValidationModal({ open: false, type: null });
-      // Wait for the exit animation (approx 150ms) before refocusing to avoid layout shifts
-      setTimeout(() => inputRef.current?.focus(), 200);
-    };
-
-    return (
-      <>
-        <input
-          ref={inputRef}
-          type="text"
-          style={baseStyle}
-          value={field.value || ''}
-          onChange={handleChange}
-          onBlur={handleDateBlur}
-          onKeyDown={handleKeyDown}
-          readOnly={isDisabled}
-          tabIndex={field.tabIndex}
-          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDisabled ? 'bg-slate-100/50 cursor-not-allowed text-slate-400' : 'bg-white'}`}
-        />
-        <DateValidationModal
-          open={validationModal.open}
-          type={validationModal.type}
-          onConfirm={handleConfirm}
-          onCorrect={handleCorrect}
-        />
-      </>
-    );
-  }
-
-  if (field.type === 'dropdown') {
-    return (
-      <select
-        style={baseStyle}
-        value={field.value || field.defaultOption || ''}
-        onChange={handleChange}
-        disabled={isDisabled}
-        tabIndex={field.tabIndex}
-        className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDisabled ? 'bg-slate-100/50 cursor-not-allowed text-slate-400' : 'bg-white'}`}
-      >
-        <option value=""></option>
-        {field.options?.map((opt, i) => (
-          <option key={i} value={opt}>{opt}</option>
-        ))}
-      </select>
-    );
-  }
-
-  if (field.type === 'checkbox') {
-    const isChecked = field.checked ?? field.checkedByDefault ?? false;
-    return (
-      <div 
-        style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}
-        onClick={() => { 
-          if (!isDisabled) updateField(field.id, { checked: !isChecked }); 
-        }}
-      >
-        <div className={`w-full h-full border-[3px] border-zinc-800 rounded-md flex items-center justify-center bg-white shadow-sm ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-          {isChecked && (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="w-[80%] h-[80%]">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (field.type === 'radio') {
-    const isChecked = field.checked ?? false;
-    return (
-      <div 
-        style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}
-        onClick={() => {
-          if (!isDisabled && !isChecked) {
-            fields.forEach(f => {
-              if (f.type === 'radio' && (f.groupName || f.name) === (field.groupName || field.name)) {
-                updateField(f.id, { checked: f.id === field.id });
-              }
-            });
-          }
-        }}
-      >
-        <div className={`w-full h-full border-[3px] border-zinc-800 rounded-full flex items-center justify-center bg-white shadow-sm ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-          {isChecked && (
-            <div className="w-[60%] h-[60%] bg-blue-600 rounded-full"></div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (field.type === 'signature') {
-    return (
-      <div style={{ ...baseStyle, backgroundColor: '#f1f5f9', border: '1px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span className="text-[10px] text-slate-400 font-medium px-2 text-center leading-tight">
-          Kryptografische Signatur<br/>(Acrobat)
-        </span>
-      </div>
-    );
-  }
-
-  if (field.type === 'scribble') {
-    const [modalOpen, setModalOpen] = useState(false);
-    return (
-      <>
-        <button
-          style={{ ...baseStyle, backgroundColor: field.value ? 'transparent' : '#f8fafc', border: field.value ? 'none' : '1px dashed #cbd5e1', cursor: isDisabled ? 'not-allowed' : 'pointer', padding: 0 }}
-          onClick={() => !isDisabled && setModalOpen(true)}
-          disabled={isDisabled}
-          tabIndex={field.tabIndex}
-        >
-          {field.value ? (
-            <img src={field.value} alt="Signature" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          ) : (
-            <span className="text-[10px] text-slate-400 font-medium px-2 text-center">
-              Klicken zum Signieren
-            </span>
-          )}
-        </button>
-        {modalOpen && (
-          <ScribbleModal
-            open={modalOpen}
-            onClose={() => setModalOpen(false)}
-            onSave={(dataUri) => {
-              updateField(field.id, { value: dataUri });
-              setModalOpen(false);
-            }}
-            initialValue={field.value}
-          />
-        )}
-      </>
-    );
-  }
-
-  if (field.type === 'barcode') {
-    return (
-      <div style={{ ...baseStyle, backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <QrCode className="w-8 h-8 text-slate-300 mb-1" />
-        <span className="text-[10px] text-slate-400 font-medium px-2 text-center leading-tight">
-          Barcode generiert<br/>beim Flatten
-        </span>
-      </div>
-    );
-  }
-
-  return null;
 }
