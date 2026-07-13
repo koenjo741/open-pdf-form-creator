@@ -3,6 +3,12 @@
 export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble' | 'barcode';
 export type FontWeight = 'regular' | 'bold';
 
+export interface FieldCondition {
+  targetFieldId: string;
+  condition: 'isChecked' | 'hasValue';
+  value?: string;
+}
+
 export interface FieldDef {
   id: string;           // uuid v4
   pageIndex: number;    // 0-based page index
@@ -55,6 +61,9 @@ export interface FieldDef {
 
   // ── Validation ──
   isRequired?: boolean;
+
+  // ── Conditional Logic ──
+  enableCondition?: FieldCondition;
 }
 
 // ─── Page Metadata ───────────────────────────────────────────────────────────

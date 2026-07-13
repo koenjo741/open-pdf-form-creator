@@ -31,7 +31,7 @@ export function FieldDirectionalPad() {
         <div />
         <button
           onClick={(e) => handleMove(0, 1, e)}
-          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-300 hover:text-zinc-200 transition-colors"
         >
           <ArrowUp className="w-4 h-4" />
         </button>
@@ -39,7 +39,7 @@ export function FieldDirectionalPad() {
         
         <button
           onClick={(e) => handleMove(-1, 0, e)}
-          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-300 hover:text-zinc-200 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
@@ -48,7 +48,7 @@ export function FieldDirectionalPad() {
         </div>
         <button
           onClick={(e) => handleMove(1, 0, e)}
-          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-300 hover:text-zinc-200 transition-colors"
         >
           <ArrowRight className="w-4 h-4" />
         </button>
@@ -56,7 +56,7 @@ export function FieldDirectionalPad() {
         <div />
         <button
           onClick={(e) => handleMove(0, -1, e)}
-          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="p-2 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-300 hover:text-zinc-200 transition-colors"
         >
           <ArrowDown className="w-4 h-4" />
         </button>

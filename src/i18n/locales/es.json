@@ -59,7 +59,13 @@
     "infoDisclaimerTitle": "Descargo de responsabilidad",
     "infoDisclaimerText": "Úselo bajo su propio riesgo. Sin responsabilidad por mal funcionamiento o pérdida de datos.",
     "deleteNFields": "Eliminar {{count}} campos",
-    "filenameTemplateTip": "Sintaxis: [Nombre, N] para los primeros N caracteres, o -N para los últimos.\n\nEj: [Date -- 1, -4] → 15.09.1957 devuelve '1957'."
+    "filenameTemplateTip": "Sintaxis: [Nombre, N] para los primeros N caracteres, o -N para los últimos.\n\nEj: [Date -- 1, -4] → 15.09.1957 devuelve '1957'.",
+    "conditionTitle": "Lógica Condicional",
+    "conditionNone": "Siempre activo",
+    "conditionOnlyIf": "Habilitar solo si...",
+    "conditionFieldLabel": "Depende del campo",
+    "conditionIsChecked": "está marcado",
+    "conditionHasValue": "tiene el valor:"
   },
   "editor": {
     "uploadPrompt": "Suba un PDF para comenzar",

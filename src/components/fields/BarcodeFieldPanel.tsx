@@ -10,7 +10,7 @@ export function BarcodeFieldPanel({ field }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-slate-500 dark:text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-slate-500 dark:text-zinc-300 mb-1.5">
           Barcode Format
         </label>
         <select
@@ -22,7 +22,7 @@ export function BarcodeFieldPanel({ field }: Props) {
           <option value="qrcode">QR Code</option>
           <option value="pdf417">PDF417 (Behörden-Standard)</option>
         </select>
-        <p className="mt-2 text-xs text-slate-500 dark:text-zinc-400">
+        <p className="mt-2 text-xs text-slate-500 dark:text-zinc-300">
           Der Barcode encodiert automatisch alle Formulardaten. Er wird erst beim finalen (Flattened) PDF-Export generiert.
         </p>
       </div>

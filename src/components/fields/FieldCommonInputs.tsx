@@ -7,14 +7,14 @@ interface Props { field: FieldDef; }
 /** Shared name + label inputs used by all field panels */
 export function FieldCommonInputs({ field }: Props) {
   const { t } = useTranslation();
-  const { updateField, isNameTaken } = useEditorStore();
+  const { updateField, isNameTaken, fields } = useEditorStore();
   const nameTaken = isNameTaken(field.name, field.id);
 
   return (
     <>
       {/* Field Name */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
           {t('sidebar.name')}
         </label>
         <input
@@ -31,14 +31,14 @@ export function FieldCommonInputs({ field }: Props) {
         {nameTaken && (
           <p className="text-red-400 text-xs mt-1">{t('sidebar.nameError')}</p>
         )}
-        <p className="text-zinc-500 text-[10px] mt-1.5 leading-tight">
+        <p className="text-zinc-400 text-[10px] mt-1.5 leading-tight">
           <b>Tipp:</b> Wenn du zwei Feldern exakt denselben Namen gibst, werden ihre Werte im fertigen PDF automatisch in Echtzeit gespiegelt.
         </p>
       </div>
 
       {/* Label */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
           {t('sidebar.label')}
         </label>
         <input
@@ -82,9 +82,64 @@ export function FieldCommonInputs({ field }: Props) {
         </label>
       </div>
 
+      {/* Conditional Logic */}
+      <div className="pt-3 border-t border-zinc-700/50 mt-3 mb-2">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
+          {t('sidebar.conditionTitle')}
+        </label>
+        
+        <select
+          value={field.enableCondition?.targetFieldId || ''}
+          onChange={(e) => {
+            if (!e.target.value) {
+              updateField(field.id, { enableCondition: undefined });
+            } else {
+              const target = fields.find(f => f.id === e.target.value);
+              const isCb = target?.type === 'checkbox';
+              updateField(field.id, { 
+                enableCondition: { 
+                  targetFieldId: e.target.value, 
+                  condition: isCb ? 'isChecked' : 'hasValue',
+                  value: isCb ? undefined : ''
+                } 
+              });
+            }
+          }}
+          className="w-full px-3 py-2 mb-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
+            text-sm text-zinc-100 outline-none transition-colors"
+        >
+          <option value="">{t('sidebar.conditionNone')}</option>
+          {fields.filter(f => f.id !== field.id && f.name).map(f => (
+            <option key={f.id} value={f.id}>{t('sidebar.conditionOnlyIf')} {f.name}</option>
+          ))}
+        </select>
+
+        {field.enableCondition && (
+          <div className="flex gap-2 items-center bg-zinc-900/50 p-2 rounded-lg border border-zinc-700/30">
+            <span className="text-xs text-zinc-400 whitespace-nowrap">
+              {fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type === 'checkbox' 
+                ? t('sidebar.conditionIsChecked') 
+                : t('sidebar.conditionHasValue')}
+            </span>
+            
+            {fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type !== 'checkbox' && (
+              <input
+                type="text"
+                value={field.enableCondition.value || ''}
+                onChange={(e) => updateField(field.id, {
+                  enableCondition: { ...field.enableCondition!, value: e.target.value }
+                })}
+                placeholder="..."
+                className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
+              />
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Tab Order */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
           Tab-Reihenfolge
         </label>
         <input
@@ -106,12 +161,12 @@ export function FieldCommonInputs({ field }: Props) {
 
       {/* Geometry Settings */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5 mt-2">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5 mt-2">
           Position & Größe (pt)
         </label>
         <div className="grid grid-cols-2 gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 w-3">X:</span>
+            <span className="text-xs text-zinc-400 w-3">X:</span>
             <input
               type="number"
               value={Math.round(field.pdfX)}
@@ -120,7 +175,7 @@ export function FieldCommonInputs({ field }: Props) {
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 w-3">Y:</span>
+            <span className="text-xs text-zinc-400 w-3">Y:</span>
             <input
               type="number"
               value={Math.round(field.pdfY)}
@@ -129,7 +184,7 @@ export function FieldCommonInputs({ field }: Props) {
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 w-3">B:</span>
+            <span className="text-xs text-zinc-400 w-3">B:</span>
             <input
               type="number"
               value={Math.round(field.pdfWidth)}
@@ -138,7 +193,7 @@ export function FieldCommonInputs({ field }: Props) {
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 w-3">H:</span>
+            <span className="text-xs text-zinc-400 w-3">H:</span>
             <input
               type="number"
               value={Math.round(field.pdfHeight)}

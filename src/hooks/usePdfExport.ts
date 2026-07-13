@@ -200,7 +200,12 @@ export function usePdfExport() {
             }
             case 'checkbox': {
               const cb = existingField ? form.getCheckBox(field.name) : form.createCheckBox(field.name);
-              cb.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
+              cb.addToPage(page, { 
+                ...rect, 
+                borderWidth: mode === 'flattened' ? 0 : 3,
+                borderColor: rgb(0.15, 0.15, 0.15),
+                textColor: rgb(0.086, 0.64, 0.29)
+              });
               
               if (isDuplicate) {
                 const widgets = cb.acroField.getWidgets();
@@ -386,6 +391,69 @@ export function usePdfExport() {
           }
         } catch (fieldErr) {
           console.warn(`[PDF Export] Could not add field "${field.name}":`, fieldErr);
+        }
+      }
+
+      // 6.5 Add Conditional Logic Script
+      let conditionJs = '';
+      for (const field of sortedFields) {
+        if (field.enableCondition) {
+          const ctrlField = sortedFields.find(f => f.id === field.enableCondition!.targetFieldId);
+          if (ctrlField && ctrlField.name && field.name) {
+            const ctrlName = ctrlField.name;
+            const depName = field.name;
+            const idSafe = field.id.replace(/-/g, '');
+            if (field.enableCondition.condition === 'isChecked') {
+              conditionJs += `
+var ctrl_${idSafe} = this.getField("${ctrlName}");
+var dep_${idSafe} = this.getField("${depName}");
+if (ctrl_${idSafe} && dep_${idSafe}) {
+  if (ctrl_${idSafe}.value === "Off") {
+    dep_${idSafe}.readonly = true;
+    dep_${idSafe}.fillColor = ["G", 0.9];
+  } else {
+    dep_${idSafe}.readonly = false;
+    dep_${idSafe}.fillColor = ["T"];
+  }
+}
+`;
+            } else {
+              const val = field.enableCondition.value || '';
+              conditionJs += `
+var ctrl_${idSafe} = this.getField("${ctrlName}");
+var dep_${idSafe} = this.getField("${depName}");
+if (ctrl_${idSafe} && dep_${idSafe}) {
+  if (ctrl_${idSafe}.value !== "${val}") {
+    dep_${idSafe}.readonly = true;
+    dep_${idSafe}.fillColor = ["G", 0.9];
+  } else {
+    dep_${idSafe}.readonly = false;
+    dep_${idSafe}.fillColor = ["T"];
+  }
+}
+`;
+            }
+          }
+        }
+      }
+
+      if (conditionJs && mode === 'editable') {
+        try {
+          const hiddenTf = form.createTextField('_OPEN_PDF_CONDITIONS_');
+          hiddenTf.acroField.getWidgets()[0].setFlags(2); // Hidden
+          const jsAction = pdfDoc.context.obj({
+            Type: 'Action',
+            S: 'JavaScript',
+            JS: PDFString.of(conditionJs)
+          });
+          const aaDict = pdfDoc.context.obj({ C: jsAction });
+          hiddenTf.acroField.dict.set(PDFName.of('AA'), aaDict);
+          coArray.push(hiddenTf.acroField.ref);
+          
+          // Execute the same script on open to initialize the state
+          pdfDoc.catalog.set(PDFName.of('OpenAction'), jsAction);
+        } catch (e) {
+          console.warn('[PDF Export] Could not add conditional logic field:', e);
         }
       }
 

@@ -14,7 +14,7 @@ export function FieldTextStyling({ field }: Props) {
       {/* Font Size */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-medium text-zinc-400">{t('sidebar.fontSize')}</label>
+          <label className="text-xs font-medium text-zinc-300">{t('sidebar.fontSize')}</label>
           <span className="text-xs text-blue-400 font-mono">{field.fontSize ?? 12}pt</span>
         </div>
         <input
@@ -27,14 +27,14 @@ export function FieldTextStyling({ field }: Props) {
           onChange={(e) => updateField(field.id, { fontSize: Number(e.target.value) })}
           className="w-full accent-blue-500"
         />
-        <div className="flex justify-between text-zinc-600 text-xs mt-1">
+        <div className="flex justify-between text-zinc-500 text-xs mt-1">
           <span>6</span><span>72</span>
         </div>
       </div>
 
       {/* Font Family */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">{t('sidebar.fontFamily')}</label>
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">{t('sidebar.fontFamily')}</label>
         <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
           {(['proportional', 'monospace'] as const).map((f) => (
             <button
@@ -44,7 +44,7 @@ export function FieldTextStyling({ field }: Props) {
               className={`flex-1 py-2 text-sm transition-colors ${
                 (field.fontFamily ?? 'proportional') === f
                   ? 'bg-blue-600 text-white font-medium'
-                  : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  : 'bg-zinc-800 text-zinc-300 hover:text-zinc-100'
               }`}
             >
               {t(`sidebar.${f}` as const)}
@@ -55,7 +55,7 @@ export function FieldTextStyling({ field }: Props) {
 
       {/* Font Weight */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">{t('sidebar.fontWeight')}</label>
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">{t('sidebar.fontWeight')}</label>
         <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
           {(['regular', 'bold'] as FontWeight[]).map((w) => (
             <button
@@ -66,7 +66,7 @@ export function FieldTextStyling({ field }: Props) {
               className={`flex-1 py-2 text-sm transition-colors ${
                 (field.fontWeight ?? 'regular') === w
                   ? 'bg-blue-600 text-white font-medium'
-                  : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  : 'bg-zinc-800 text-zinc-300 hover:text-zinc-100'
               }`}
             >
               {t(`sidebar.${w}` as const)}
@@ -77,7 +77,7 @@ export function FieldTextStyling({ field }: Props) {
 
       {/* Text Align */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">{t('sidebar.textAlign')}</label>
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">{t('sidebar.textAlign')}</label>
         <div className="flex rounded-lg overflow-hidden border border-zinc-700/60">
           {(['left', 'center', 'right'] as const).map((align) => {
             let Icon = null;
@@ -94,7 +94,7 @@ export function FieldTextStyling({ field }: Props) {
                 className={`flex-1 flex justify-center items-center py-2 text-sm transition-colors ${
                   (field.textAlign ?? 'left') === align
                     ? 'bg-blue-600 text-white'
-                    : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    : 'bg-zinc-800 text-zinc-300 hover:text-zinc-100'
                 }`}
               >
                 {Icon && <Icon className="w-4 h-4" />}

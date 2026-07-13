@@ -15,7 +15,7 @@ export function RadioFieldPanel({ field }: Props) {
 
       {/* Group Name */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
           {t('sidebar.groupName')}
         </label>
         <input
@@ -25,17 +25,17 @@ export function RadioFieldPanel({ field }: Props) {
           onChange={(e) => updateField(field.id, { groupName: e.target.value })}
           placeholder={t('sidebar.groupNamePlaceholder')}
           className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
-            text-sm text-zinc-100 placeholder:text-zinc-600 outline-none
+            text-sm text-zinc-100 placeholder:text-zinc-500 outline-none
             focus:ring-2 focus:ring-blue-500/50 transition-colors"
         />
-        <p className="text-zinc-600 text-xs mt-1">
+        <p className="text-zinc-500 text-xs mt-1">
           Radio buttons with the same group name form one AcroForm radio group.
         </p>
       </div>
 
       {/* Export Value */}
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
           {t('sidebar.radioValue')}
         </label>
         <input
@@ -45,7 +45,7 @@ export function RadioFieldPanel({ field }: Props) {
           onChange={(e) => updateField(field.id, { radioValue: e.target.value })}
           placeholder={t('sidebar.radioValuePlaceholder')}
           className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
-            text-sm text-zinc-100 placeholder:text-zinc-600 outline-none
+            text-sm text-zinc-100 placeholder:text-zinc-500 outline-none
             focus:ring-2 focus:ring-blue-500/50 transition-colors"
         />
       </div>

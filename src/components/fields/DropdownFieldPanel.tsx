@@ -44,7 +44,7 @@ export function DropdownFieldPanel({ field }: Props) {
       {/* Options */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-medium text-zinc-400">{t('sidebar.options')}</label>
+          <label className="text-xs font-medium text-zinc-300">{t('sidebar.options')}</label>
 
           {/* Presets button */}
           <div className="relative">
@@ -95,11 +95,11 @@ export function DropdownFieldPanel({ field }: Props) {
                 exit={{ opacity: 0, height: 0 }}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/40 group"
               >
-                <GripVertical className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                <GripVertical className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                 <span className="flex-1 text-xs text-zinc-300 truncate">{opt}</span>
                 <button
                   onClick={() => removeOption(opt)}
-                  className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 transition-all"
+                  className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-all"
                   aria-label={`Remove ${opt}`}
                 >
                   <X className="w-3.5 h-3.5" />
@@ -108,7 +108,7 @@ export function DropdownFieldPanel({ field }: Props) {
             ))}
           </AnimatePresence>
           {options.length === 0 && (
-            <p className="text-zinc-600 text-xs text-center py-3">No options yet</p>
+            <p className="text-zinc-500 text-xs text-center py-3">No options yet</p>
           )}
         </div>
 

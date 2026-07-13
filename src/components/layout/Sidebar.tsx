@@ -31,7 +31,7 @@ export function Sidebar() {
   return (
     <aside className={`w-72 shrink-0 flex flex-col bg-slate-200 dark:bg-slate-900/95 ${sidebarPosition === 'right' ? 'border-l' : 'border-r'} border-slate-200 dark:border-slate-800 overflow-hidden relative z-20`}>
       <div className="px-4 h-12 flex items-center bg-slate-400/40 dark:bg-slate-800/40 border-b border-slate-300 dark:border-slate-800">
-        <h2 className="text-xs font-semibold text-slate-600 dark:text-zinc-500 uppercase tracking-wider">
+        <h2 className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">
           INFO
         </h2>
       </div>
@@ -48,16 +48,16 @@ export function Sidebar() {
             <div className="space-y-6">
               <div className="flex flex-col items-center justify-center gap-3 text-center mb-8">
                 <div className="w-12 h-12 rounded-2xl bg-slate-300 dark:bg-slate-800 flex items-center justify-center">
-                  <MousePointerClick className="w-6 h-6 text-slate-500 dark:text-slate-600" />
+                  <MousePointerClick className="w-6 h-6 text-slate-500 dark:text-slate-500" />
                 </div>
-                <p className="text-zinc-500 text-sm leading-relaxed">{t('sidebar.noSelectionHint')}</p>
+                <p className="text-slate-500 dark:text-zinc-400 text-sm leading-relaxed">{t('sidebar.noSelectionHint')}</p>
               </div>
 
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                <h3 className="text-xs font-semibold text-slate-800 dark:text-slate-300 mb-4">{t('sidebar.infoTitle')}</h3>
-                <div className="space-y-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <h3 className="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-4">{t('sidebar.infoTitle')}</h3>
+                <div className="space-y-4 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                   <div>
-                    <strong className="text-slate-800 dark:text-slate-300 block mb-1">{t('sidebar.infoFunctionTitle')}:</strong>
+                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">{t('sidebar.infoFunctionTitle')}:</strong>
                     {t('sidebar.infoFunctionText')}
                     <ul className="list-disc pl-4 mt-2 space-y-1.5">
                       <li>{t('sidebar.infoFunctionPoint1')}</li>
@@ -66,15 +66,15 @@ export function Sidebar() {
                     </ul>
                   </div>
                   <div>
-                    <strong className="text-slate-800 dark:text-slate-300 block mb-1">{t('sidebar.infoPrivacyTitle')}:</strong>
+                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">{t('sidebar.infoPrivacyTitle')}:</strong>
                     {t('sidebar.infoPrivacyText')}
                   </div>
                   <div>
-                    <strong className="text-slate-800 dark:text-slate-300 block mb-1">{t('sidebar.infoLicenseTitle')}:</strong>
+                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">{t('sidebar.infoLicenseTitle')}:</strong>
                     {t('sidebar.infoLicenseText')}
                   </div>
                   <div>
-                    <strong className="text-slate-800 dark:text-slate-300 block mb-1">{t('sidebar.infoDisclaimerTitle')}:</strong>
+                    <strong className="text-slate-800 dark:text-slate-200 block mb-1">{t('sidebar.infoDisclaimerTitle')}:</strong>
                     {t('sidebar.infoDisclaimerText')}
                   </div>
                   

@@ -15,7 +15,7 @@ export function DateFieldPanel({ field }: Props) {
       <FieldCommonInputs field={field} />
       
       <div className="space-y-1.5">
-        <label htmlFor={`dateFormat-${field.id}`} className="block text-xs font-medium text-zinc-400">
+        <label htmlFor={`dateFormat-${field.id}`} className="block text-xs font-medium text-zinc-300">
           {t('fields.dateFormat')}
         </label>
         <select
@@ -37,7 +37,7 @@ export function DateFieldPanel({ field }: Props) {
       <FieldTextStyling field={field} />
 
       <div className="pt-4 border-t border-zinc-700/50">
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5 flex justify-between items-center">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex justify-between items-center">
           <span>Berechnetes Feld (Zeitdifferenz)</span>
         </label>
         <div className="space-y-2">
@@ -48,7 +48,7 @@ export function DateFieldPanel({ field }: Props) {
             className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
               text-sm text-zinc-100 outline-none transition-colors font-mono resize-y min-h-[60px]"
           />
-          <div className="text-[10px] text-zinc-500 leading-tight">
+          <div className="text-[10px] text-zinc-400 leading-tight">
             <b>Syntax:</b> Datumsfelder in eckige Klammern setzen <code>[Name]</code>.<br />
             <b>Format:</b> Das Ergebnis wird berechnet und im Feld ausgegeben.
           </div>

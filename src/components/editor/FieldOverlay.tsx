@@ -914,6 +914,23 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
   // Find if this is a duplicate (i.e. not the first field with this name)
   const isDuplicate = fields.find(f => f.name === field.name)?.id !== field.id;
 
+  let isGreyedOut = false;
+  if (field.enableCondition) {
+    const ctrlField = fields.find(f => f.id === field.enableCondition!.targetFieldId);
+    if (ctrlField) {
+      if (field.enableCondition.condition === 'isChecked') {
+        const isChecked = ctrlField.checked ?? ctrlField.checkedByDefault ?? false;
+        if (!isChecked) isGreyedOut = true;
+      } else {
+        const val = field.enableCondition.value || '';
+        const ctrlVal = ctrlField.value || '';
+        if (ctrlVal !== val) isGreyedOut = true;
+      }
+    }
+  }
+
+  const isDisabled = isDuplicate || isGreyedOut;
+
   const { webX, webY } = pdfToWeb(
     field.pdfX, field.pdfY + field.pdfHeight,
     pageMeta.widthPt, pageMeta.heightPt,
@@ -1010,9 +1027,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           value={field.value || ''}
           onChange={handleChange}
           onBlur={handleTextBlur}
-          readOnly={isDuplicate}
+          readOnly={isDisabled}
           tabIndex={field.tabIndex}
-          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
+          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDisabled ? 'bg-slate-100/50 cursor-not-allowed text-slate-400' : 'bg-white'}`}
         />
         <TextValidationModal
           open={validationModal.open}
@@ -1083,9 +1100,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           onChange={handleChange}
           onBlur={handleDateBlur}
           onKeyDown={handleKeyDown}
-          readOnly={isDuplicate}
+          readOnly={isDisabled}
           tabIndex={field.tabIndex}
-          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
+          className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDisabled ? 'bg-slate-100/50 cursor-not-allowed text-slate-400' : 'bg-white'}`}
         />
         <DateValidationModal
           open={validationModal.open}
@@ -1103,9 +1120,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         style={baseStyle}
         value={field.value || field.defaultOption || ''}
         onChange={handleChange}
-        disabled={isDuplicate}
+        disabled={isDisabled}
         tabIndex={field.tabIndex}
-        className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDuplicate ? 'bg-slate-100/50 cursor-not-allowed' : 'bg-white'}`}
+        className={`px-1 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDisabled ? 'bg-slate-100/50 cursor-not-allowed text-slate-400' : 'bg-white'}`}
       >
         <option value=""></option>
         {field.options?.map((opt, i) => (
@@ -1116,16 +1133,21 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
   }
 
   if (field.type === 'checkbox') {
+    const isChecked = field.checked ?? field.checkedByDefault ?? false;
     return (
-      <div style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}>
-        <input
-          type="checkbox"
-          checked={field.checked ?? field.checkedByDefault ?? false}
-          onChange={handleChange}
-          disabled={isDuplicate}
-          tabIndex={field.tabIndex}
-          className={`w-full h-full accent-blue-600 ${isDuplicate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-        />
+      <div 
+        style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}
+        onClick={() => { 
+          if (!isDisabled) updateField(field.id, { checked: !isChecked }); 
+        }}
+      >
+        <div className={`w-full h-full border-[3px] border-zinc-800 rounded-md flex items-center justify-center bg-white shadow-sm ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
+          {isChecked && (
+            <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" className="w-[80%] h-[80%]">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          )}
+        </div>
       </div>
     );
   }
@@ -1139,9 +1161,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           value={field.radioValue}
           checked={field.checked ?? false}
           onChange={handleChange}
-          disabled={isDuplicate}
+          disabled={isDisabled}
           tabIndex={field.tabIndex}
-          className={`w-full h-full accent-blue-600 ${isDuplicate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          className={`w-full h-full accent-blue-600 ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
         />
       </div>
     );
@@ -1162,9 +1184,9 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     return (
       <>
         <button
-          style={{ ...baseStyle, backgroundColor: field.value ? 'transparent' : '#f8fafc', border: field.value ? 'none' : '1px dashed #cbd5e1', cursor: isDuplicate ? 'not-allowed' : 'pointer', padding: 0 }}
-          onClick={() => !isDuplicate && setModalOpen(true)}
-          disabled={isDuplicate}
+          style={{ ...baseStyle, backgroundColor: field.value ? 'transparent' : '#f8fafc', border: field.value ? 'none' : '1px dashed #cbd5e1', cursor: isDisabled ? 'not-allowed' : 'pointer', padding: 0 }}
+          onClick={() => !isDisabled && setModalOpen(true)}
+          disabled={isDisabled}
           tabIndex={field.tabIndex}
         >
           {field.value ? (

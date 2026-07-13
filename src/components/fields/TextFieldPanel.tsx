@@ -11,7 +11,7 @@ export function TextFieldPanel({ field }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">
           Feld-Typ (Textfeld)
         </label>
         <select
@@ -31,7 +31,7 @@ export function TextFieldPanel({ field }: Props) {
 
       {field.textSubType === 'currency' && (
         <div>
-          <label className="block text-xs font-medium text-zinc-400 mb-1.5 mt-3">
+          <label className="block text-xs font-medium text-zinc-300 mb-1.5 mt-3">
             Währungssymbol
           </label>
           <select
@@ -54,11 +54,25 @@ export function TextFieldPanel({ field }: Props) {
         </div>
       )}
 
+      <div>
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5 mt-3">
+          Standardwert (Vorausgefüllt)
+        </label>
+        <input
+          type="text"
+          value={field.value || ''}
+          onChange={(e) => updateField(field.id, { value: e.target.value })}
+          placeholder="Optional"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
+            text-sm text-zinc-100 outline-none transition-colors"
+        />
+      </div>
+
       <FieldCommonInputs field={field} />
       <FieldTextStyling field={field} />
 
       <div className="pt-4 border-t border-zinc-700/50">
-        <label className="block text-xs font-medium text-zinc-400 mb-1.5 flex justify-between items-center">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex justify-between items-center">
           <span>Berechnetes Feld (Formel)</span>
         </label>
         <div className="space-y-2">
@@ -69,7 +83,7 @@ export function TextFieldPanel({ field }: Props) {
             className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/60 focus:border-blue-500/50
               text-sm text-zinc-100 outline-none transition-colors font-mono resize-y min-h-[60px]"
           />
-          <div className="text-[10px] text-zinc-500 leading-tight">
+          <div className="text-[10px] text-zinc-400 leading-tight">
             <b>Syntax:</b> Andere Felder in eckige Klammern setzen <code>[Name]</code>.<br />
             <b>Operatoren:</b> <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>Math.sqrt(x)</code>, <code>Math.pow(x, y)</code>
           </div>
