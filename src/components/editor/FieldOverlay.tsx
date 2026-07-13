@@ -142,6 +142,12 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       label: baseName,
       pdfY: sourceField.pdfY - sourceField.pdfHeight - 10, // place 10pt below
     };
+    
+    if (newField.type === 'radio') {
+      // Set a new unique Exportwert visible to the user instead of leaving it empty
+      newField.radioValue = newField.id.slice(0, 8);
+    }
+    
     addField(newField);
     selectField(id);
   };
@@ -922,9 +928,29 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
         const isChecked = ctrlField.checked ?? ctrlField.checkedByDefault ?? false;
         if (!isChecked) isGreyedOut = true;
       } else {
-        const val = field.enableCondition.value || '';
-        const ctrlVal = ctrlField.value || '';
-        if (ctrlVal !== val) isGreyedOut = true;
+        let val = field.enableCondition.value || '';
+        if (ctrlField.type === 'radio') {
+          val = ctrlField.radioValue || ctrlField.id.slice(0, 8);
+        }
+        let ctrlVal = ctrlField.value || '';
+        if (ctrlField.type === 'radio') {
+          // If the control field is a radio button, its value is its radioValue if checked, otherwise it's 'Off' or empty.
+          // But actually, the PDF uses the group value. For the preview, if THIS radio button is checked, 
+          // we treat its ctrlVal as its radioValue. If it's not checked, we check if another radio in the group is checked.
+          if (ctrlField.checked) {
+            ctrlVal = ctrlField.radioValue || ctrlField.id.slice(0, 8);
+          } else {
+            // Check if any other radio in the same group is checked
+            const groupChecked = fields.find(f => f.type === 'radio' && (f.groupName || f.name) === (ctrlField.groupName || ctrlField.name) && f.checked);
+            ctrlVal = groupChecked ? (groupChecked.radioValue || groupChecked.id.slice(0, 8)) : 'Off';
+          }
+        }
+        
+        if (val === '*') {
+          if (!ctrlVal || ctrlVal === 'Off') isGreyedOut = true;
+        } else {
+          if (ctrlVal !== val) isGreyedOut = true;
+        }
       }
     }
   }
@@ -962,7 +988,15 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
       updateField(field.id, { checked: target.checked });
     } else if (field.type === 'radio') {
       const target = e.target as HTMLInputElement;
-      updateField(field.id, { checked: target.checked });
+      if (target.checked) {
+        fields.forEach(f => {
+          if (f.type === 'radio' && (f.groupName || f.name) === (field.groupName || field.name)) {
+            updateField(f.id, { checked: f.id === field.id });
+          }
+        });
+      } else {
+        updateField(field.id, { checked: false });
+      }
     } else {
       let val = e.target.value;
       if (field.type === 'text') {
@@ -1162,18 +1196,25 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
   }
 
   if (field.type === 'radio') {
+    const isChecked = field.checked ?? false;
     return (
-      <div style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}>
-        <input
-          type="radio"
-          name={field.groupName}
-          value={field.radioValue}
-          checked={field.checked ?? false}
-          onChange={handleChange}
-          disabled={isDisabled}
-          tabIndex={field.tabIndex}
-          className={`w-full h-full accent-blue-600 ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-        />
+      <div 
+        style={{ ...baseStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', border: 'none' }}
+        onClick={() => {
+          if (!isDisabled && !isChecked) {
+            fields.forEach(f => {
+              if (f.type === 'radio' && (f.groupName || f.name) === (field.groupName || field.name)) {
+                updateField(f.id, { checked: f.id === field.id });
+              }
+            });
+          }
+        }}
+      >
+        <div className={`w-full h-full border-[3px] border-zinc-800 rounded-full flex items-center justify-center bg-white shadow-sm ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
+          {isChecked && (
+            <div className="w-[60%] h-[60%] bg-blue-600 rounded-full"></div>
+          )}
+        </div>
       </div>
     );
   }

@@ -428,7 +428,7 @@ if (event.value && !re.test(event.value)) {
         if (field.enableCondition) {
           const ctrlField = sortedFields.find(f => f.id === field.enableCondition!.targetFieldId);
           if (ctrlField && ctrlField.name && field.name) {
-            const ctrlName = ctrlField.name;
+            const ctrlName = ctrlField.type === 'radio' ? (ctrlField.groupName || ctrlField.name) : ctrlField.name;
             const depName = field.name;
             const idSafe = field.id.replace(/-/g, '');
             if (field.enableCondition.condition === 'isChecked') {
@@ -446,8 +446,27 @@ if (ctrl_${idSafe} && dep_${idSafe}) {
 }
 `;
             } else {
-              const val = field.enableCondition.value || '';
-              conditionJs += `
+              let val = field.enableCondition.value || '';
+              if (ctrlField.type === 'radio') {
+                val = ctrlField.radioValue || ctrlField.id.slice(0, 8);
+              }
+              
+              if (val === '*') {
+                conditionJs += `
+var ctrl_${idSafe} = this.getField("${ctrlName}");
+var dep_${idSafe} = this.getField("${depName}");
+if (ctrl_${idSafe} && dep_${idSafe}) {
+  if (!ctrl_${idSafe}.value) {
+    dep_${idSafe}.readonly = true;
+    dep_${idSafe}.fillColor = ["G", 0.9];
+  } else {
+    dep_${idSafe}.readonly = false;
+    dep_${idSafe}.fillColor = ["T"];
+  }
+}
+`;
+              } else {
+                conditionJs += `
 var ctrl_${idSafe} = this.getField("${ctrlName}");
 var dep_${idSafe} = this.getField("${depName}");
 if (ctrl_${idSafe} && dep_${idSafe}) {
@@ -460,6 +479,7 @@ if (ctrl_${idSafe} && dep_${idSafe}) {
   }
 }
 `;
+              }
             }
           }
         }

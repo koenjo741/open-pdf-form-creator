@@ -115,22 +115,26 @@ export function FieldCommonInputs({ field }: Props) {
         </select>
 
         {field.enableCondition && (
-          <div className="flex gap-2 items-center bg-zinc-900/50 p-2 rounded-lg border border-zinc-700/30">
-            <span className="text-xs text-zinc-400 whitespace-nowrap">
-              {fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type === 'checkbox' 
-                ? t('sidebar.conditionIsChecked') 
-                : t('sidebar.conditionHasValue')}
+          <div className="flex flex-col gap-2 bg-zinc-900/50 p-2 rounded-lg border border-zinc-700/30">
+            <span className="text-xs text-zinc-400">
+              {(() => {
+                const targetType = fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type;
+                if (targetType === 'checkbox') return t('sidebar.conditionIsChecked');
+                if (targetType === 'radio') return t('sidebar.conditionIsSelected');
+                return t('sidebar.conditionHasValue');
+              })()}
             </span>
             
-            {fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type !== 'checkbox' && (
+            {(fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type !== 'checkbox' && 
+              fields.find(f => f.id === field.enableCondition?.targetFieldId)?.type !== 'radio') && (
               <input
                 type="text"
                 value={field.enableCondition.value || ''}
                 onChange={(e) => updateField(field.id, {
                   enableCondition: { ...field.enableCondition!, value: e.target.value }
                 })}
-                placeholder="..."
-                className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
+                placeholder={t('sidebar.conditionValuePlaceholder')}
+                className="w-full px-2 py-1.5 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
               />
             )}
           </div>
