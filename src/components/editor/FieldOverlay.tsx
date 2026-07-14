@@ -49,7 +49,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
   const isPlacingMode = activeTool !== 'select';
 
-  const { contextMenu, setContextMenu, promptModal, setPromptModal, handleRename, handleDuplicate, handleClone } = useFieldContextMenu(fields, pageFields, addField, selectField);
+  const { contextMenu, setContextMenu, promptModal, setPromptModal, handleRename, handleDuplicate, handleClone, handleConvert } = useFieldContextMenu(fields, pageFields, addField, selectField, updateField);
 
   const [activeGuides, setActiveGuides] = useState<GuideLine[]>([]);
   const [marquee, setMarquee] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
@@ -360,6 +360,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
           onRename={handleRename}
           onDuplicate={handleDuplicate}
           onClone={handleClone}
+          onConvert={handleConvert}
         />
       )}
 

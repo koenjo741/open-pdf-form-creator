@@ -7,9 +7,11 @@ interface Props {
   onRename: () => void;
   onDuplicate: () => void;
   onClone: () => void;
+  onConvert: (type: FieldDef['type'], subType?: string) => void;
 }
 
-export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClone }: Props) {
+export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClone, onConvert }: Props) {
+  const isText = field.type === 'text';
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div 
@@ -72,6 +74,68 @@ export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClon
               </div>
             </div>
           </button>
+        </div>
+
+        <div className="mt-6 border-t border-zinc-700 pt-6">
+          <div className="font-medium text-white mb-3">Feld umwandeln in...</div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => onConvert('text')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'text' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'text' && (!field.textSubType || field.textSubType === 'text')}
+            >
+              Textfeld
+            </button>
+            <button
+              onClick={() => onConvert('date')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'date' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'date'}
+            >
+              Datum
+            </button>
+            <button
+              onClick={() => onConvert('dropdown')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'dropdown' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'dropdown'}
+            >
+              Dropdown
+            </button>
+            <button
+              onClick={() => onConvert('checkbox')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'checkbox' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'checkbox'}
+            >
+              Kontrollkästchen
+            </button>
+            <button
+              onClick={() => onConvert('radio')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'radio' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'radio'}
+            >
+              Radio-Button
+            </button>
+            <button
+              onClick={() => onConvert('text', 'number')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'number' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'text' && field.textSubType === 'number'}
+            >
+              Zahlen
+            </button>
+            <button
+              onClick={() => onConvert('text', 'currency')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'currency' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'text' && field.textSubType === 'currency'}
+            >
+              Währung
+            </button>
+            <button
+              onClick={() => onConvert('text', 'iban')}
+              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'iban' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+              disabled={field.type === 'text' && field.textSubType === 'iban'}
+            >
+              IBAN
+            </button>
+          </div>
         </div>
       </div>
     </div>

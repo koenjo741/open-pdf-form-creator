@@ -5,7 +5,8 @@ export function useFieldContextMenu(
   fields: FieldDef[],
   pageFields: FieldDef[],
   addField: (field: FieldDef) => void,
-  selectField: (id: string) => void
+  selectField: (id: string) => void,
+  updateField: (id: string, patch: Partial<FieldDef>) => void
 ) {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; fieldId: string } | null>(null);
   const [promptModal, setPromptModal] = useState<{ open: boolean; fieldId: string; initialValue: string } | null>(null);
@@ -86,6 +87,49 @@ export function useFieldContextMenu(
     setContextMenu(null);
   };
 
+  const handleConvert = (newType: FieldDef['type'], newSubType?: string) => {
+    if (!contextMenu) return;
+    const currentField = fields.find(f => f.id === contextMenu.fieldId);
+    if (!currentField) return;
+
+    const patch: Partial<FieldDef> = { type: newType };
+    
+    if (newType === 'text') {
+      patch.textSubType = newSubType as FieldDef['textSubType'] || 'text';
+      patch.options = undefined;
+      patch.checkedByDefault = undefined;
+      patch.groupName = undefined;
+      patch.radioValue = undefined;
+    } else if (newType === 'dropdown') {
+      patch.options = [];
+      patch.textSubType = undefined;
+      patch.checkedByDefault = undefined;
+      patch.groupName = undefined;
+      patch.radioValue = undefined;
+    } else if (newType === 'checkbox') {
+      patch.checkedByDefault = false;
+      patch.textSubType = undefined;
+      patch.options = undefined;
+      patch.groupName = undefined;
+      patch.radioValue = undefined;
+    } else if (newType === 'radio') {
+      patch.groupName = 'group1';
+      patch.radioValue = currentField.id.slice(0, 4);
+      patch.textSubType = undefined;
+      patch.options = undefined;
+      patch.checkedByDefault = undefined;
+    } else {
+      patch.textSubType = undefined;
+      patch.options = undefined;
+      patch.checkedByDefault = undefined;
+      patch.groupName = undefined;
+      patch.radioValue = undefined;
+    }
+
+    updateField(currentField.id, patch);
+    setContextMenu(null);
+  };
+
   return {
     contextMenu,
     setContextMenu,
@@ -93,6 +137,7 @@ export function useFieldContextMenu(
     setPromptModal,
     handleRename,
     handleDuplicate,
-    handleClone
+    handleClone,
+    handleConvert
   };
 }

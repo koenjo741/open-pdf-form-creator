@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
+import { autoDetectFields } from '../../utils/autoDetectFields';
 import { ThemeToggle } from './ThemeToggle';
 import { UIScaleToggle } from './UIScaleToggle';
 import { FieldListPanel } from './FieldListPanel';
@@ -30,6 +31,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
   const [langOpen, setLangOpen] = useState(false);
   const [addFieldOpen, setAddFieldOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isAutoDetecting, setIsAutoDetecting] = useState(false);
 
   const canUndo = temporalStore.getState().pastStates.length > 0;
   const canRedo = temporalStore.getState().futureStates.length > 0;
@@ -60,6 +62,38 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
       toast.error(t('errors.unknown'));
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  const handleAutoDetect = async () => {
+    const { pdfBuffer, addFields, fields } = useEditorStore.getState();
+    if (!pdfBuffer) return;
+
+    setIsAutoDetecting(true);
+    try {
+      const detected = await autoDetectFields(pdfBuffer);
+      if (detected.length === 0) {
+        toast.info('Keine Platzhalter (Unterstriche) im Dokument gefunden.');
+        return;
+      }
+      
+      // Prevent duplicates by checking name
+      const newFields = detected.filter(df => !fields.some(f => f.name === df.name)).map(df => ({
+        ...df,
+        id: crypto.randomUUID()
+      }));
+
+      if (newFields.length > 0) {
+        addFields(newFields);
+        toast.success(`${newFields.length} Felder automatisch erkannt und hinzugefügt!`);
+      } else {
+        toast.info('Felder wurden bereits hinzugefügt.');
+      }
+    } catch (err) {
+      console.error('Failed to auto-detect fields:', err);
+      toast.error('Fehler bei der Felderkennung.');
+    } finally {
+      setIsAutoDetecting(false);
     }
   };
 
@@ -254,6 +288,19 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
                 />
               </button>
             </div>
+          </section>
+        )}
+
+        {/* Auto Detect Section */}
+        {isLoaded && appMode === 'edit' && (
+          <section className="flex flex-col gap-3">
+            <button
+              onClick={handleAutoDetect}
+              disabled={isAutoDetecting}
+              className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-slate-900 text-sm font-semibold transition-colors shadow-sm"
+            >
+              <span>{isAutoDetecting ? 'Analysiere...' : '✨ Felder automatisch erkennen'}</span>
+            </button>
           </section>
         )}
 

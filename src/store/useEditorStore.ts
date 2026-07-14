@@ -67,6 +67,7 @@ export interface EditorActions {
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
   addField: (field: FieldDef) => void;
+  addFields: (newFields: FieldDef[]) => void;
   updateField: (id: string, patch: Partial<FieldDef>) => void;
   updateFields: (updates: { id: string; patch: Partial<FieldDef> }[]) => void;
   deleteField: (id?: string) => void;
@@ -172,6 +173,12 @@ export const useEditorStore = create<EditorStore>()(
           set((state) => {
             const newFields = [...state.fields, { ...field, tabIndex: state.fields.length + 1 }];
             return { fields: ensureSequentialTabIndices(newFields) };
+          }),
+
+        addFields: (newFields) =>
+          set((state) => {
+            const added = newFields.map((f, i) => ({ ...f, tabIndex: state.fields.length + 1 + i }));
+            return { fields: ensureSequentialTabIndices([...state.fields, ...added]) };
           }),
 
         updateField: (id, patch) =>
