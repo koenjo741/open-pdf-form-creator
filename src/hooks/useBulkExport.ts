@@ -15,7 +15,8 @@ export function useBulkExport() {
   const generateZip = async (
     data: any[], 
     mapping: Record<string, string>, 
-    format: 'pdf' | 'xfdf' | 'json'
+    format: 'pdf' | 'xfdf' | 'json',
+    readOnlyMapping?: Record<string, boolean>
   ) => {
     setIsExportingBulk(true);
     setExportProgress(0);
@@ -61,8 +62,12 @@ export function useBulkExport() {
           xfdf += `</fields>\n</xfdf>`;
           zip.file(`${filename}.xfdf`, xfdf);
         } else {
-          // PDF Format - Must remain editable as per user request
-          const buffer = await exportPdfBuffer('editable');
+          // PDF Format
+          const readOnlyFieldNames = fields
+            .filter(f => readOnlyMapping?.[f.id] && mapping[f.id])
+            .map(f => f.name);
+
+          const buffer = await exportPdfBuffer('editable', readOnlyFieldNames);
           if (buffer) {
              zip.file(`${filename}.pdf`, buffer);
           }

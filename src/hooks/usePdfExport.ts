@@ -32,7 +32,7 @@ export function usePdfExport() {
   const [isExporting, setIsExporting] = useState(false);
   const { pdfBuffer, fields, pdfFileName } = useEditorStore();
 
-  const exportPdfBuffer = async (mode: ExportMode): Promise<Uint8Array | null> => {
+  const exportPdfBuffer = async (mode: ExportMode, readOnlyFieldNames?: string[]): Promise<Uint8Array | null> => {
     if (!pdfBuffer || pdfBuffer.length === 0) {
       toast.error('No PDF loaded.');
       return null;
@@ -153,6 +153,15 @@ export function usePdfExport() {
         } catch (fieldErr) {
           console.warn(`[PDF Export] Could not add field "${field.name}":`, fieldErr);
         }
+      }
+
+      if (readOnlyFieldNames && readOnlyFieldNames.length > 0) {
+        readOnlyFieldNames.forEach(name => {
+          const field = form.getFieldMaybe(name);
+          if (field) {
+            field.enableReadOnly();
+          }
+        });
       }
 
       // 6.5 Add Conditional Logic Script

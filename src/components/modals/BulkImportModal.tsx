@@ -14,6 +14,7 @@ export function BulkImportModal() {
   const [data, setData] = useState<any[] | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({}); // field.id -> csv column
+  const [readOnlyMapping, setReadOnlyMapping] = useState<Record<string, boolean>>({}); // field.id -> boolean
   const [step, setStep] = useState<'upload' | 'mapping' | 'preview'>('upload');
   const [previewIndex, setPreviewIndex] = useState(0);
   const [exportFormat, setExportFormat] = useState<'pdf' | 'xfdf' | 'json'>('pdf');
@@ -85,6 +86,7 @@ export function BulkImportModal() {
       setData(null);
       setColumns([]);
       setMapping({});
+      setReadOnlyMapping({});
       setStep('upload');
       setPreviewIndex(0);
       setOriginalValues([]);
@@ -94,8 +96,27 @@ export function BulkImportModal() {
   const handleExport = async () => {
     if (!data) return;
     // useBulkExport will handle restoring original values internally after export
-    await generateZip(data, mapping, exportFormat);
+    await generateZip(data, mapping, exportFormat, readOnlyMapping);
     handleClose();
+  };
+
+  const generateJsonPreview = () => {
+    const formData: Record<string, any> = {};
+    fields.forEach(f => {
+      if (f.type === 'checkbox') formData[f.name] = f.checked;
+      else formData[f.name] = f.value || '';
+    });
+    return JSON.stringify(formData, null, 2);
+  };
+
+  const generateXfdfPreview = () => {
+    let xfdf = `<?xml version="1.0" encoding="UTF-8"?>\n<xfdf xmlns="http://ns.adobe.com/xfdf/" xml:space="preserve">\n<fields>\n`;
+    fields.forEach(f => {
+      const val = f.type === 'checkbox' ? (f.checked ? 'Yes' : 'Off') : (f.value || '');
+      xfdf += `  <field name="${f.name}"><value>${val}</value></field>\n`;
+    });
+    xfdf += `</fields>\n</xfdf>`;
+    return xfdf;
   };
 
   if (!bulkImportModalOpen && step === 'upload') return null;
@@ -108,7 +129,9 @@ export function BulkImportModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/60 will-change-opacity"
+            className={`fixed inset-0 z-[100] will-change-opacity transition-colors duration-300 ${
+              step === 'preview' && exportFormat === 'pdf' ? 'bg-black/10' : 'bg-black/80'
+            }`}
             onClick={handleClose}
           />
           <motion.div
@@ -118,9 +141,11 @@ export function BulkImportModal() {
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none will-change-transform"
           >
-            <div
-              className={`bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-xl w-full pointer-events-auto flex flex-col max-h-[85vh] ${
-                step === 'preview' ? 'max-w-xl' : 'max-w-2xl'
+            <motion.div
+              drag={step === 'preview'}
+              dragMomentum={false}
+              className={`bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl w-full pointer-events-auto flex flex-col max-h-[85vh] ${
+                step === 'preview' ? 'max-w-xl cursor-move' : 'max-w-2xl'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
@@ -170,8 +195,9 @@ export function BulkImportModal() {
                       <table className="w-full text-left text-sm">
                         <thead className="bg-zinc-800/50">
                           <tr>
-                            <th className="px-4 py-3 font-medium text-zinc-300 w-1/2">PDF Feld</th>
-                            <th className="px-4 py-3 font-medium text-zinc-300 w-1/2">CSV Spalte</th>
+                            <th className="px-4 py-3 font-medium text-zinc-300 w-5/12">PDF Feld</th>
+                            <th className="px-4 py-3 font-medium text-zinc-300 w-5/12">CSV Spalte</th>
+                            <th className="px-4 py-3 font-medium text-zinc-300 w-2/12 text-center">Gesperrt</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
@@ -189,6 +215,15 @@ export function BulkImportModal() {
                                     <option key={col} value={col}>{col}</option>
                                   ))}
                                 </select>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <input
+                                  type="checkbox"
+                                  disabled={!mapping[field.id]}
+                                  checked={!!readOnlyMapping[field.id]}
+                                  onChange={(e) => setReadOnlyMapping({ ...readOnlyMapping, [field.id]: e.target.checked })}
+                                  className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-blue-500 focus:ring-blue-500 focus:ring-offset-zinc-800 disabled:opacity-50"
+                                />
                               </td>
                             </tr>
                           ))}
@@ -252,6 +287,30 @@ export function BulkImportModal() {
                       </div>
                     </div>
 
+                    <AnimatePresence mode="wait">
+                      {exportFormat !== 'pdf' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-4 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-inner">
+                            <div className="bg-zinc-800/50 px-4 py-2 border-b border-zinc-800 flex justify-between items-center">
+                              <span className="text-xs font-mono text-zinc-400">
+                                {exportFormat === 'json' ? 'data.json' : 'data.xfdf'}
+                              </span>
+                            </div>
+                            <div className="p-4 max-h-[30vh] overflow-y-auto">
+                              <pre className="text-[11px] leading-relaxed font-mono text-blue-300/80 whitespace-pre-wrap">
+                                {exportFormat === 'json' ? generateJsonPreview() : generateXfdfPreview()}
+                              </pre>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
                     <button
                       onClick={handleExport}
                       disabled={isExportingBulk}
@@ -277,7 +336,7 @@ export function BulkImportModal() {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </>
       )}
