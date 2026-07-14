@@ -17,6 +17,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Type, ChevronDown, Calendar, CheckSquare, Circle, Hash, Banknote, CreditCard, AtSign, Link, QrCode } from 'lucide-react';
 import type { FieldDef } from '../../types';
+import { DateFieldPanel } from '../fields/DateFieldPanel';
 
 const FIELD_ICONS: Record<string, React.ElementType> = {
   text: Type,
@@ -81,6 +82,7 @@ function SortableFieldItem({ field, isSelected, onSelect }: { field: FieldDef; i
 
 export function FieldListPanel() {
   const { fields, selectedFieldIds, selectField, reorderFields } = useEditorStore();
+  const selectedField = fields.find(f => f.id === selectedFieldIds[0]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -134,6 +136,9 @@ export function FieldListPanel() {
           </SortableContext>
         </DndContext>
       </div>
+
+      {selectedField?.type === 'dropdown' && <DropdownFieldPanel field={selectedField} />}
+      {selectedField?.type === 'date' && <DateFieldPanel field={selectedField} />}
     </section>
   );
 }

@@ -1,6 +1,6 @@
 // ─── Field Types ─────────────────────────────────────────────────────────────
 
-export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble' | 'barcode';
+export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble' | 'barcode' | 'button';
 export type FontWeight = 'regular' | 'bold';
 
 export interface FieldCondition {
@@ -57,6 +57,9 @@ export interface FieldDef {
 
   // ── Barcode-specific ──
   barcodeFormat?: 'qrcode' | 'pdf417';
+
+  // ── Button-specific (Submit) ──
+  submitUrl?: string;
 
   // ── Tab Order ──
   tabIndex?: number;

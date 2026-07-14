@@ -275,3 +275,26 @@ export function BarcodeRenderer({ field, baseStyle }: { field: FieldDef; baseSty
     </div>
   );
 }
+
+export function ButtonRenderer({ field, baseStyle }: { field: FieldDef; baseStyle: React.CSSProperties }) {
+  return (
+    <button
+      style={{
+        ...baseStyle,
+        backgroundColor: '#e2e8f0',
+        border: '1px solid #94a3b8',
+        borderRadius: '4px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        fontSize: `${field.fontSize || 12}px`,
+        fontWeight: field.fontWeight === 'bold' ? 'bold' : 'normal',
+        fontFamily: field.fontFamily === 'monospace' ? 'monospace' : 'sans-serif',
+      }}
+      disabled
+    >
+      {field.value || field.name || 'Senden'}
+    </button>
+  );
+}

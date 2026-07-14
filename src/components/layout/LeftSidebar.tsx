@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, MousePointer2, CheckCircle2, Image, List } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -98,6 +98,8 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
   };
 
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
+
+
 
   return (
     <aside className={`w-64 shrink-0 flex flex-col bg-slate-200 dark:bg-slate-900/95 ${sidebarPosition === 'right' ? 'border-r' : 'border-l'} border-slate-200 dark:border-slate-800 overflow-hidden relative z-20`}>
@@ -246,6 +248,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
                       { id: 'signature', label: 'Signatur (Zertifikat)', icon: BadgeCheck },
                       { id: 'scribble', label: 'Signatur (Zeichnung)', icon: PenTool },
                       { id: 'barcode', label: '2D-Barcode', icon: QrCode },
+                      { id: 'button', label: 'Sende-Button', icon: Send },
                     ].map((tool) => {
                       const Icon = tool.icon;
                       return (

@@ -230,3 +230,38 @@ export async function generateBarcodeField(field: FieldDef, rect: {x:number, y:n
     });
   }
 }
+
+export function generateButtonField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext) {
+  const { form, page, pdfDoc, mode } = ctx;
+  const existingField = form.getFieldMaybe(field.name);
+  const btn = existingField ? form.getButton(field.name) : form.createButton(field.name);
+  
+  btn.addToPage(field.label || field.name || 'Senden', page, {
+    ...rect,
+    borderWidth: mode === 'flattened' ? 0 : 1,
+    backgroundColor: rgb(0.9, 0.9, 0.9),
+    textColor: rgb(0, 0, 0)
+  });
+
+  if (mode === 'editable' && field.submitUrl) {
+    const submitAction = pdfDoc.context.obj({
+      Type: 'Action',
+      S: 'SubmitForm',
+      F: {
+        Type: 'Filespec',
+        F: PDFString.of(field.submitUrl),
+        FS: PDFName.of('URL')
+      },
+      // Flags (bit 3 = ExportFormat (HTML), bit 1 = Include/Exclude, bit 2 = IncludeNoValueFields)
+      // We'll set Flags to 0 (FDF) or 4 (HTML format) or 256 (Submit PDF). 
+      // Most generic is HTML format (bit 3) which sends form data as POST
+      Flags: 4
+    });
+
+    const widgets = btn.acroField.getWidgets();
+    if (widgets.length > 0) {
+      const widget = widgets[widgets.length - 1];
+      widget.dict.set(PDFName.of('A'), submitAction);
+    }
+  }
+}

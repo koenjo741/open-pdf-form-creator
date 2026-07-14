@@ -16,19 +16,21 @@ import {
   RadioRenderer,
   SignatureRenderer,
   ScribbleRenderer,
-  BarcodeRenderer
+  BarcodeRenderer,
+  ButtonRenderer
 } from './fields/FieldRenderers';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
-  text:     { w: 144, h: 24 },
-  dropdown: { w: 144, h: 24 },
-  date:     { w: 144, h: 24 },
+  text:     { w: 120, h: 24 },
+  dropdown: { w: 100, h: 24 },
+  date:     { w: 120, h: 24 },
   checkbox: { w: 16,  h: 16 },
   radio:    { w: 16,  h: 16 },
-  signature:{ w: 144, h: 48 },
-  scribble: { w: 144, h: 48 },
+  signature:{ w: 150, h: 50 },
+  scribble: { w: 150, h: 50 },
   barcode:  { w: 100, h: 100 },
+  button:   { w: 120, h: 36 },
 };
 
 interface FieldOverlayProps {
@@ -457,12 +459,15 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   const currentWebH = webH + rh;
 
   const typeColors: Record<string, string> = {
-    text:     'border-blue-400 bg-blue-500/10',
-    dropdown: 'border-violet-400 bg-violet-500/10',
-    checkbox: 'border-emerald-400 bg-emerald-500/10',
-    radio:    'border-amber-400 bg-amber-500/10',
-    signature:'border-purple-400 bg-purple-500/10',
-    scribble: 'border-fuchsia-400 bg-fuchsia-500/10',
+    text:      'bg-blue-500/20 border-blue-500',
+    dropdown:  'bg-orange-500/20 border-orange-500',
+    checkbox:  'bg-green-500/20 border-green-500',
+    radio:     'bg-emerald-500/20 border-emerald-500',
+    date:      'bg-purple-500/20 border-purple-500',
+    signature: 'bg-red-500/20 border-red-500',
+    scribble:  'bg-pink-500/20 border-pink-500',
+    barcode:   'bg-indigo-500/20 border-indigo-500',
+    button:    'bg-cyan-500/20 border-cyan-500',
   };
 
   return (
@@ -878,6 +883,8 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
       return <ScribbleRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} />;
     case 'barcode':
       return <BarcodeRenderer field={field} baseStyle={baseStyle} />;
+    case 'button':
+      return <ButtonRenderer field={field} baseStyle={baseStyle} />;
     default:
       return null;
   }

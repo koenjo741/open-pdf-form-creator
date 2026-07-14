@@ -15,6 +15,7 @@ import {
   generateSignatureField,
   generateScribbleField,
   generateBarcodeField,
+  generateButtonField,
   type FieldGeneratorContext
 } from '../utils/pdfFieldGenerators';
 
@@ -148,6 +149,9 @@ export function usePdfExport() {
                 break;
               case 'barcode':
                 await generateBarcodeField(field, rect, ctx);
+                break;
+              case 'button':
+                generateButtonField(field, rect, ctx);
                 break;
             }
         } catch (fieldErr) {
