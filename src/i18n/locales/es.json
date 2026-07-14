@@ -118,7 +118,7 @@
   "fields": {
     "dateFormat": "Formato de fecha",
     "dateFormatAuto": "Automático (Idioma)",
-    "lockButtonTooltip": "Haga clic en este botón para completar la entrada de datos en el formulario. Advertencia: ¡Después de esto, definitivamente no serán posibles más cambios!"
+    "lockButtonTooltip": "Haga clic en este botón para completar la entrada de datos en el formulario.\nAdvertencia: ¡Después de esto, definitivamente no serán posibles más cambios!"
   },
   "extract": {
     "title": "Extracción de datos",
