@@ -276,8 +276,8 @@ export function BarcodeRenderer({ field, baseStyle }: { field: FieldDef; baseSty
   );
 }
 
-export function ButtonRenderer({ field, baseStyle }: { field: FieldDef; baseStyle: React.CSSProperties }) {
-  return (
+export function ButtonRenderer({ field, baseStyle, isDisabled, onClick }: { field: FieldDef; baseStyle: React.CSSProperties; isDisabled?: boolean; onClick?: (e: React.MouseEvent) => void }) {
+  const content = (
     <button
       style={{
         ...baseStyle,
@@ -287,14 +287,25 @@ export function ButtonRenderer({ field, baseStyle }: { field: FieldDef; baseStyl
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: 'pointer',
+        cursor: isDisabled ? 'not-allowed' : 'pointer',
         fontSize: `${field.fontSize || 12}px`,
         fontWeight: field.fontWeight === 'bold' ? 'bold' : 'normal',
         fontFamily: field.fontFamily === 'monospace' ? 'monospace' : 'sans-serif',
       }}
-      disabled
+      onClick={(e) => {
+        if (!isDisabled && onClick) onClick(e);
+      }}
     >
-      {field.value || field.name || 'Senden'}
+      {field.label || field.name || (field.buttonAction === 'lock' ? 'Sperren' : 'Senden')}
     </button>
   );
+
+  if (field.tooltip) {
+    return (
+      <div title={field.tooltip} style={{ position: 'absolute', left: baseStyle.left, top: baseStyle.top, width: baseStyle.width, height: baseStyle.height }}>
+        {content}
+      </div>
+    );
+  }
+  return content;
 }

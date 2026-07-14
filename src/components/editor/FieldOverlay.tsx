@@ -20,6 +20,7 @@ import {
   BarcodeRenderer,
   ButtonRenderer
 } from './fields/FieldRenderers';
+import { toast } from '../common/Toast';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
@@ -889,7 +890,17 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     case 'barcode':
       return <BarcodeRenderer field={field} baseStyle={baseStyle} />;
     case 'button':
-      return <ButtonRenderer field={field} baseStyle={baseStyle} />;
+      return (
+        <ButtonRenderer 
+          field={field} 
+          baseStyle={baseStyle} 
+          isDisabled={isDisabled}
+          onClick={() => {
+            // Triggering a toast notification to simulate the button action in preview mode
+            toast.info(`Vorschau: Hier würde die Aktion '${field.buttonAction === 'lock' ? 'Formular Sperren' : 'Submit Webhook'}' ausgeführt werden.`);
+          }}
+        />
+      );
     default:
       return null;
   }
