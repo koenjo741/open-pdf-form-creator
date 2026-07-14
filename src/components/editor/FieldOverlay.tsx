@@ -835,7 +835,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     color: '#111827',
     fontFamily: field.fontFamily === 'monospace' ? 'monospace' : 'Inter, sans-serif',
     textAlign: field.textAlign || 'left',
-    fontSize: field.fontSize ? `${field.fontSize}px` : '12px',
+    fontSize: `${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt)}px`,
     fontWeight: field.fontWeight === 'bold' ? 'bold' : 'normal',
   };
 
