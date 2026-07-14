@@ -17,7 +17,12 @@ export function generateTextField(field: FieldDef, rect: { x: number, y: number,
   const { form, page, pdfDoc, font, coArray, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   const tf = existingField ? form.getTextField(field.name) : form.createTextField(field.name);
-  tf.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
+  tf.addToPage(page, { 
+    ...rect, 
+    borderWidth: mode === 'flattened' ? 0 : 1,
+    backgroundColor: rgb(0.92, 0.95, 0.99),
+    borderColor: rgb(0.62, 0.75, 0.98),
+  });
 
   if (isDuplicate) {
     const widgets = tf.acroField.getWidgets();
@@ -69,7 +74,12 @@ export function generateDropdownField(field: FieldDef, rect: { x: number, y: num
   const { form, page, font, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   const dd = existingField ? form.getDropdown(field.name) : form.createDropdown(field.name);
-  dd.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
+  dd.addToPage(page, { 
+    ...rect, 
+    borderWidth: mode === 'flattened' ? 0 : 1,
+    backgroundColor: rgb(0.92, 0.95, 0.99),
+    borderColor: rgb(0.62, 0.75, 0.98),
+  });
 
   if (isDuplicate) {
     const widgets = dd.acroField.getWidgets();
