@@ -214,7 +214,8 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       );
 
       const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url', 'regex'].includes(activeTool);
-      const type = isTextSubtype ? 'text' : activeTool as any;
+      const isButtonSubtype = activeTool === 'lockButton';
+      const type = isTextSubtype ? 'text' : (isButtonSubtype ? 'button' : activeTool as any);
       const sizes = DEFAULT_SIZES[type] || {w: 144, h: 24};
       const id = crypto.randomUUID();
       
@@ -246,6 +247,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         checkedByDefault: activeTool === 'checkbox' ? false : undefined,
         groupName: activeTool === 'radio' ? 'group1' : undefined,
         radioValue: activeTool === 'radio' ? id.slice(0, 4) : undefined,
+        buttonAction: activeTool === 'lockButton' ? 'lock' : (type === 'button' ? 'submit' : undefined),
       };
 
       addField(newField);

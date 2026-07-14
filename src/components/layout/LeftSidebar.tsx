@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, MousePointer2, CheckCircle2, Image, List } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, MousePointer2, CheckCircle2, Image, List, Lock } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -249,6 +249,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
                       { id: 'scribble', label: 'Signatur (Zeichnung)', icon: PenTool },
                       { id: 'barcode', label: '2D-Barcode', icon: QrCode },
                       { id: 'button', label: 'Sende-Button', icon: Send },
+                      { id: 'lockButton', label: 'Sperren-Button', icon: Lock },
                     ].map((tool) => {
                       const Icon = tool.icon;
                       return (

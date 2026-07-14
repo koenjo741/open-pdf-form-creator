@@ -60,6 +60,7 @@ export interface FieldDef {
 
   // ── Button-specific (Submit) ──
   submitUrl?: string;
+  buttonAction?: 'submit' | 'lock';
 
   // ── Tab Order ──
   tabIndex?: number;
@@ -99,7 +100,7 @@ export type ExportMode = 'editable' | 'flattened';
 
 // ─── Tool Mode ───────────────────────────────────────────────────────────────
 
-export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex';
+export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex' | 'lockButton';
 
 // ─── App Mode ────────────────────────────────────────────────────────────────
 
