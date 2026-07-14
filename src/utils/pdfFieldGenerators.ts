@@ -254,7 +254,13 @@ export function generateButtonField(field: FieldDef, rect: { x: number, y: numbe
           var f = this.getField(this.getNthFieldName(i));
           if (f != null) { f.readonly = true; }
         }
+        event.target.userName = "";
         event.target.display = display.hidden;
+        try {
+          app.execMenuItem("SaveAs");
+        } catch(e) {
+          app.execMenuItem("Save");
+        }
       `;
       const lockAction = pdfDoc.context.obj({
         Type: 'Action',
