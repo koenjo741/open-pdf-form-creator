@@ -24,11 +24,10 @@ export function ButtonFieldPanel({ field }: Props) {
         />
         <div className="p-3 mt-2 bg-blue-900/20 border border-blue-500/20 rounded-lg">
           <h4 className="text-[11px] font-semibold text-blue-400 mb-1">Wie funktioniert das?</h4>
-          <p className="text-[10px] text-blue-300/80 leading-snug">
-            Beim Klick im PDF werden alle Formulardaten (als HTML-Form-Daten) an diese URL geschickt. 
-            Nutzen Sie Automatisierungsdienste wie <b>Zapier</b>, <b>Make.com</b> oder <b>n8n</b>. 
-            Erstellen Sie dort einen Webhook, kopieren Sie die URL hierher, und lassen Sie 
-            Zapier die Daten in Google Sheets, Ninox oder 5.000+ andere Apps weiterleiten!
+          <p className="text-[10px] text-blue-300/80 leading-snug space-y-1">
+            Beim Klick im PDF werden alle Formulardaten (als HTML-Form-Daten) an diese URL geschickt. <br />
+            <b>Variante A:</b> Sende die Daten direkt an eine eigene API (z.B. NINOX), sofern diese Standard-Formulardaten ohne komplexe Header-Authentifizierung akzeptiert.<br />
+            <b>Variante B:</b> Nutze Automatisierungsdienste wie <b>Zapier</b>, <b>Make.com</b> oder <b>n8n</b> als "Übersetzer", um die Daten in Google Sheets, Ninox oder 5.000+ andere Apps weiterzuleiten!
           </p>
         </div>
       </div>
