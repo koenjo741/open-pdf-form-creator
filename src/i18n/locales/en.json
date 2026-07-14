@@ -130,7 +130,8 @@
   },
   "fields": {
     "dateFormat": "Date format",
-    "dateFormatAuto": "Auto (Language)"
+    "dateFormatAuto": "Auto (Language)",
+    "lockButtonTooltip": "Click this button to complete the data entry in the form. Warning: After this, no further changes are possible!"
   },
   "extract": {
     "title": "Data Extraction",

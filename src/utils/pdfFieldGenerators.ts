@@ -13,12 +13,12 @@ export interface FieldGeneratorContext {
   allFields: FieldDef[];
 }
 
-export function generateTextField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext, isDuplicate: boolean) {
+export function generateTextField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext, isDuplicate: boolean) {
   const { form, page, pdfDoc, font, coArray, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   const tf = existingField ? form.getTextField(field.name) : form.createTextField(field.name);
   tf.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-  
+
   if (isDuplicate) {
     const widgets = tf.acroField.getWidgets();
     if (widgets.length > 0) {
@@ -37,7 +37,7 @@ export function generateTextField(field: FieldDef, rect: {x:number, y:number, wi
 
     if (field.isRequired) tf.enableRequired();
     else tf.disableRequired();
-    
+
     let aaDict: any = null;
     const getOrCreateAA = () => {
       if (!aaDict) {
@@ -65,12 +65,12 @@ export function generateTextField(field: FieldDef, rect: {x:number, y:number, wi
   try { tf.updateAppearances(font); } catch { /* ignore */ }
 }
 
-export function generateDropdownField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext, isDuplicate: boolean) {
+export function generateDropdownField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext, isDuplicate: boolean) {
   const { form, page, font, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   const dd = existingField ? form.getDropdown(field.name) : form.createDropdown(field.name);
   dd.addToPage(page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-  
+
   if (isDuplicate) {
     const widgets = dd.acroField.getWidgets();
     if (widgets.length > 0) {
@@ -90,17 +90,17 @@ export function generateDropdownField(field: FieldDef, rect: {x:number, y:number
   try { dd.updateAppearances(font); } catch { /* ignore */ }
 }
 
-export function generateCheckboxField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext, isDuplicate: boolean) {
+export function generateCheckboxField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext, isDuplicate: boolean) {
   const { form, page, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   const cb = existingField ? form.getCheckBox(field.name) : form.createCheckBox(field.name);
-  cb.addToPage(page, { 
-    ...rect, 
+  cb.addToPage(page, {
+    ...rect,
     borderWidth: mode === 'flattened' ? 0 : 3,
     borderColor: rgb(0.15, 0.15, 0.15),
     textColor: rgb(0.086, 0.64, 0.29)
   });
-  
+
   if (isDuplicate) {
     const widgets = cb.acroField.getWidgets();
     if (widgets.length > 0) {
@@ -123,25 +123,25 @@ function tryGetRadioGroup(form: ReturnType<PDFDocument['getForm']>, name: string
   try { return form.getRadioGroup(name); } catch { return null; }
 }
 
-export function generateRadioField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext) {
+export function generateRadioField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { form, page, mode } = ctx;
   const groupName = field.groupName ?? field.name;
   let radioGroup = tryGetRadioGroup(form, groupName);
   if (!radioGroup) radioGroup = form.createRadioGroup(groupName);
-  
+
   const optionValue = field.radioValue ?? field.id.slice(0, 8);
   radioGroup.addOptionToPage(optionValue, page, { ...rect, borderWidth: mode === 'flattened' ? 0 : 1 });
-  
+
   if (field.value === optionValue) radioGroup.select(optionValue);
   else if (!field.value && field.checkedByDefault) radioGroup.select(optionValue);
-  
+
   if (field.isRequired) radioGroup.enableRequired();
   else radioGroup.disableRequired();
-  
+
   try { radioGroup.updateAppearances(); } catch { /* ignore */ }
 }
 
-export function generateSignatureField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext) {
+export function generateSignatureField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { form, page, pdfDoc, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   if (mode === 'flattened') {
@@ -163,7 +163,7 @@ export function generateSignatureField(field: FieldDef, rect: {x:number, y:numbe
   }
 }
 
-export async function generateScribbleField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext) {
+export async function generateScribbleField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { page, pdfDoc, mode } = ctx;
   if (field.value && field.value.startsWith('data:image/')) {
     const isPng = field.value.startsWith('data:image/png');
@@ -171,7 +171,7 @@ export async function generateScribbleField(field: FieldDef, rect: {x:number, y:
     if (isPng || isJpg) {
       const imgBytes = Uint8Array.from(atob(field.value.split(',')[1]), c => c.charCodeAt(0));
       const embeddedImg = isPng ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
-      
+
       const scale = Math.min(rect.width / embeddedImg.width, rect.height / embeddedImg.height);
       const drawWidth = embeddedImg.width * scale;
       const drawHeight = embeddedImg.height * scale;
@@ -188,7 +188,7 @@ export async function generateScribbleField(field: FieldDef, rect: {x:number, y:
   }
 }
 
-export async function generateBarcodeField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext) {
+export async function generateBarcodeField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { page, pdfDoc, mode, allFields } = ctx;
   if (mode === 'flattened') {
     try {
@@ -200,18 +200,18 @@ export async function generateBarcodeField(field: FieldDef, rect: {x:number, y:n
           if (f.checked) formData[f.groupName || f.name] = f.radioValue || f.value;
         } else formData[f.name] = f.value || '';
       }
-      
+
       const jsonString = JSON.stringify(formData);
       const canvas = document.createElement('canvas');
       bwipjs.toCanvas(canvas, {
         bcid: (field as any).barcodeType === 'pdf417' ? 'pdf417' : 'qrcode',
         text: jsonString, scale: 3, includetext: false,
       });
-      
+
       const dataUrl = canvas.toDataURL('image/png');
       const imgBytes = Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0));
       const embeddedImg = await pdfDoc.embedPng(imgBytes);
-      
+
       const scale = Math.min(rect.width / embeddedImg.width, rect.height / embeddedImg.height);
       const drawWidth = embeddedImg.width * scale;
       const drawHeight = embeddedImg.height * scale;
@@ -231,55 +231,37 @@ export async function generateBarcodeField(field: FieldDef, rect: {x:number, y:n
   }
 }
 
-export function generateButtonField(field: FieldDef, rect: {x:number, y:number, width:number, height:number}, ctx: FieldGeneratorContext) {
+export function generateButtonField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { form, page, pdfDoc, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
   const btn = existingField ? form.getButton(field.name) : form.createButton(field.name);
-  
-  btn.addToPage(field.label || field.name || (field.buttonAction === 'lock' ? 'Sperren' : 'Senden'), page, {
+
+  btn.addToPage(field.label || field.name || 'Senden', page, {
     ...rect,
     borderWidth: mode === 'flattened' ? 0 : 1,
     backgroundColor: rgb(0.9, 0.9, 0.9),
     textColor: rgb(0, 0, 0)
   });
 
-  if (mode === 'editable') {
-    if (field.buttonAction === 'lock') {
-      const jsCode = `
-        for (var i = 0; i < this.numFields; i++) {
-          var f = this.getField(this.getNthFieldName(i));
-          if (f != null) { f.readonly = true; }
-        }
-        event.target.display = display.hidden;
-      `;
-      const lockAction = pdfDoc.context.obj({
-        Type: 'Action',
-        S: 'JavaScript',
-        JS: PDFString.of(jsCode)
-      });
-      const widgets = btn.acroField.getWidgets();
-      if (widgets.length > 0) {
-        const widget = widgets[widgets.length - 1];
-        const aaDict = pdfDoc.context.obj({ U: lockAction }); // Mouse Up
-        widget.dict.set(PDFName.of('AA'), aaDict);
-      }
-    } else if (field.submitUrl) {
-      const submitAction = pdfDoc.context.obj({
-        Type: 'Action',
-        S: 'SubmitForm',
-        F: {
-          Type: 'Filespec',
-          F: PDFString.of(field.submitUrl),
-          FS: PDFName.of('URL')
-        },
-        Flags: 4
-      });
+  if (mode === 'editable' && field.submitUrl) {
+    const submitAction = pdfDoc.context.obj({
+      Type: 'Action',
+      S: 'SubmitForm',
+      F: {
+        Type: 'Filespec',
+        F: PDFString.of(field.submitUrl),
+        FS: PDFName.of('URL')
+      },
+      // Flags (bit 3 = ExportFormat (HTML), bit 1 = Include/Exclude, bit 2 = IncludeNoValueFields)
+      // We'll set Flags to 0 (FDF) or 4 (HTML format) or 256 (Submit PDF). 
+      // Most generic is HTML format (bit 3) which sends form data as POST
+      Flags: 4
+    });
 
-      const widgets = btn.acroField.getWidgets();
-      if (widgets.length > 0) {
-        const widget = widgets[widgets.length - 1];
-        widget.dict.set(PDFName.of('A'), submitAction);
-      }
+    const widgets = btn.acroField.getWidgets();
+    if (widgets.length > 0) {
+      const widget = widgets[widgets.length - 1];
+      widget.dict.set(PDFName.of('A'), submitAction);
     }
   }
 }

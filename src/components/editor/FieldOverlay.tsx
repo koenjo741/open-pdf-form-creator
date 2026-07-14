@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useState, useEffect } from 'react';
 import { useEditorStore } from '../../store/useEditorStore';
 import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
@@ -45,6 +46,7 @@ interface FieldOverlayProps {
  *  - Renders draggable/resizable FieldBox components for fields on this page
  */
 export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverlayProps) {
+  const { t } = useTranslation();
   const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, updateFields, clearSelection, appMode } = useEditorStore();
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -248,6 +250,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         groupName: activeTool === 'radio' ? 'group1' : undefined,
         radioValue: activeTool === 'radio' ? id.slice(0, 4) : undefined,
         buttonAction: activeTool === 'lockButton' ? 'lock' : (type === 'button' ? 'submit' : undefined),
+        tooltip: activeTool === 'lockButton' ? t('fields.lockButtonTooltip') : undefined,
       };
 
       addField(newField);
