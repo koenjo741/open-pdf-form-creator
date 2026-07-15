@@ -14,7 +14,7 @@ import { useAutoSave } from './hooks/useAutoSave';
 import { useEditorStore } from './store/useEditorStore';
 
 export default function App() {
-  const { exportPdf, isExporting } = usePdfExport();
+  const { exportPdf, exportPdfBuffer, isExporting } = usePdfExport();
   const appMode = useEditorStore((s) => s.appMode);
   const sidebarPosition = useEditorStore((s) => s.sidebarPosition);
   const theme = useEditorStore((s) => s.theme);
@@ -44,6 +44,33 @@ export default function App() {
     void exportPdf('flattened');
   };
 
+  const handlePrint = async () => {
+    // Open a blank window immediately to bypass popup blocker
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write('<div style="font-family: sans-serif; padding: 20px;">PDF wird für den Druck vorbereitet...</div>');
+    }
+
+    const rawBytes = await exportPdfBuffer('flattened');
+    if (!rawBytes) {
+      if (printWindow) printWindow.close();
+      return;
+    }
+    
+    const blob = new Blob([rawBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    
+    if (printWindow) {
+      printWindow.location.href = url;
+    } else {
+      // Fallback if popup blocker still caught it
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.click();
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-slate-300 text-slate-700 dark:bg-slate-800 dark:text-slate-50 overflow-hidden transition-colors duration-200">
 
@@ -52,6 +79,7 @@ export default function App() {
         <LeftSidebar 
           onExportEditable={handleExportEditable}
           onExportFlattened={handleExportFlattened}
+          onPrint={handlePrint}
           isExporting={isExporting}
         />
         {appMode === 'extract' ? (

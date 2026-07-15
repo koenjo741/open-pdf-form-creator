@@ -20,10 +20,11 @@ const LANGUAGES = [
 interface LeftSidebarProps {
   onExportEditable: () => void;
   onExportFlattened: () => void;
+  onPrint: () => void;
   isExporting: boolean;
 }
 
-export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }: LeftSidebarProps) {
+export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isExporting }: LeftSidebarProps) {
   const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { setPdfBuffer, clearPdf, isLoaded, pdfFileName, pdfFileSize, appMode, setAppMode, sidebarPosition, filenameTemplate, setFilenameTemplate } = useEditorStore();
@@ -324,7 +325,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
               className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium transition-colors mb-2"
             >
               <Upload className="w-4 h-4" />
-              <span>Seriendruck (CSV)</span>
+              <span>Import CSV</span>
             </button>
 
             <button
@@ -346,7 +347,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
             </button>
 
             <button
-              onClick={() => window.print()}
+              onClick={onPrint}
               disabled={isExporting}
               className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-slate-300 dark:bg-slate-800 hover:bg-slate-400 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors"
             >
@@ -424,7 +425,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, isExporting }
                         : 'text-slate-600 hover:bg-slate-200 dark:text-zinc-300 dark:hover:bg-zinc-800'
                     }`}
                   >
-                    {lang.label} - {lang.name}
+                    {lang.label}
                   </button>
                 ))}
               </motion.div>

@@ -172,7 +172,7 @@ export function BulkImportModal() {
                     <Upload className="w-12 h-12 text-zinc-500 mb-4" />
                     <p className="text-zinc-300 font-medium mb-2">CSV Datei auswählen</p>
                     <p className="text-zinc-500 text-sm mb-6 text-center max-w-sm">
-                      Lade eine CSV-Datei mit deinen Datensätzen hoch, um automatisch mehrere PDFs zu generieren.
+                      Lade eine CSV-Datei mit deinen Datensätzen hoch. Mit dieser Funktion kannst du für jeden Datensatz (Zeile) automatisch ein ausgefülltes PDF generieren.
                     </p>
                     <label className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium cursor-pointer transition-colors shadow-sm">
                       Datei durchsuchen
