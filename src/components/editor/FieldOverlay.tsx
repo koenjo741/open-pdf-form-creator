@@ -18,21 +18,29 @@ import {
   SignatureRenderer,
   ScribbleRenderer,
   BarcodeRenderer,
-  ButtonRenderer
+  ButtonRenderer,
+  TimeFieldRenderer,
+  ScaleRatingFieldRenderer,
+  InputTableFieldRenderer,
+  YesNoFieldRenderer
 } from './fields/FieldRenderers';
 import { toast } from '../common/Toast';
 
 // Default field dimensions in PDF points
 const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
-  text:     { w: 120, h: 24 },
-  dropdown: { w: 100, h: 24 },
-  date:     { w: 120, h: 24 },
-  checkbox: { w: 16,  h: 16 },
-  radio:    { w: 16,  h: 16 },
-  signature:{ w: 150, h: 50 },
-  scribble: { w: 150, h: 50 },
-  barcode:  { w: 100, h: 100 },
-  button:   { w: 120, h: 36 },
+  text:        { w: 120, h: 24 },
+  dropdown:    { w: 100, h: 24 },
+  date:        { w: 120, h: 24 },
+  time:        { w: 100, h: 24 },
+  scaleRating: { w: 250, h: 50 },
+  inputTable:  { w: 350, h: 150 },
+  yesNo:       { w: 120, h: 30 },
+  checkbox:    { w: 16,  h: 16 },
+  radio:       { w: 16,  h: 16 },
+  signature:   { w: 150, h: 50 },
+  scribble:    { w: 150, h: 50 },
+  barcode:     { w: 100, h: 100 },
+  button:      { w: 120, h: 36 },
 };
 
 interface FieldOverlayProps {
@@ -250,6 +258,11 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         checkedByDefault: activeTool === 'checkbox' ? false : undefined,
         groupName: activeTool === 'radio' ? 'group1' : undefined,
         radioValue: activeTool === 'radio' ? id.slice(0, 4) : undefined,
+        ...(activeTool === 'barcode' ? { barcodeFormat: 'qrcode' } : {}),
+        ...(activeTool === 'time' ? { timeFormat: '24h' } : {}),
+        ...(activeTool === 'scaleRating' ? { scaleMin: 1, scaleMax: 5, scaleMinLabel: 'Worst', scaleMaxLabel: 'Best' } : {}),
+        ...(activeTool === 'inputTable' ? { tableRows: ['Row 1', 'Row 2'], tableCols: ['Col 1', 'Col 2'], tableInputType: 'textbox' } : {}),
+        ...(activeTool === 'yesNo' ? { yesLabel: 'JA', noLabel: 'NEIN' } : {}),
         buttonAction: activeTool === 'lockButton' ? 'lock' : (type === 'button' ? 'submit' : undefined),
         tooltip: activeTool === 'lockButton' ? t('fields.lockButtonTooltip') : undefined,
       };
@@ -839,7 +852,8 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     fontWeight: field.fontWeight === 'bold' ? 'bold' : 'normal',
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (isDisabled) return;
     if (field.type === 'checkbox') {
       const target = e.target as HTMLInputElement;
       updateField(field.id, { checked: target.checked });
@@ -883,6 +897,14 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
       return <CheckboxRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} />;
     case 'radio':
       return <RadioRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} />;
+    case 'time':
+      return <TimeFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'scaleRating':
+      return <ScaleRatingFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'inputTable':
+      return <InputTableFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'yesNo':
+      return <YesNoFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
     case 'signature':
       return <SignatureRenderer baseStyle={baseStyle} />;
     case 'scribble':

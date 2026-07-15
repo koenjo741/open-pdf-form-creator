@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { Upload, X, ChevronLeft, ChevronRight, Download, Link as LinkIcon } from 'lucide-react';
 import Papa from 'papaparse';
+import { formatTableValues } from '../../utils/tableExportUtils';
 import { useEditorStore } from '../../store/useEditorStore';
 import { useBulkExport } from '../../hooks/useBulkExport';
 import type { FieldDef } from '../../types';
@@ -104,6 +105,7 @@ export function BulkImportModal() {
     const formData: Record<string, any> = {};
     fields.forEach(f => {
       if (f.type === 'checkbox') formData[f.name] = f.checked;
+      else if (f.type === 'inputTable') formData[f.name] = formatTableValues(f);
       else formData[f.name] = f.value || '';
     });
     return JSON.stringify(formData, null, 2);

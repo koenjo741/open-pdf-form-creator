@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, MousePointer2, CheckCircle2, Image, List, Lock } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, Lock, Clock, BarChart, Table, ToggleLeft } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -244,6 +244,10 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
                       { id: 'url', label: 'URL', icon: Link },
                       { id: 'dropdown', label: 'Dropdown', icon: ChevronDown },
                       { id: 'date', label: 'Datum', icon: Calendar },
+                      { id: 'time', label: 'Uhrzeit', icon: Clock },
+                      { id: 'scaleRating', label: 'Bewertungsskala', icon: BarChart },
+                      { id: 'inputTable', label: 'Eingabetabelle', icon: Table },
+                      { id: 'yesNo', label: 'JA / NEIN', icon: ToggleLeft },
                       { id: 'checkbox', label: 'Kontrollkästchen', icon: CheckSquare },
                       { id: 'radio', label: 'Radio', icon: Circle },
                       { id: 'signature', label: 'Signatur (Zertifikat)', icon: BadgeCheck },

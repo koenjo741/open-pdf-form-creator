@@ -1,6 +1,6 @@
 // ─── Field Types ─────────────────────────────────────────────────────────────
 
-export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'signature' | 'scribble' | 'barcode' | 'button';
+export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'time' | 'scaleRating' | 'inputTable' | 'yesNo' | 'signature' | 'scribble' | 'barcode' | 'button';
 export type FontWeight = 'regular' | 'bold';
 
 export interface FieldCondition {
@@ -17,6 +17,7 @@ export interface FieldDef {
   name: string;
   /** Human-readable label shown in the overlay */
   label: string;
+  tooltip?: string;
 
   // ── Position & Size in PDF point space (origin: bottom-left) ──
   pdfX: number;
@@ -54,6 +55,25 @@ export interface FieldDef {
   // ── Date-specific ──
   /** 'auto' to use navigator.language, or explicitly 'DD.MM.YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD' */
   dateFormat?: string;
+
+  // ── Time-specific ──
+  timeFormat?: '24h' | '12h';
+
+  // ── Scale Rating-specific ──
+  scaleMin?: number;
+  scaleMax?: number;
+  scaleMinLabel?: string;
+  scaleMaxLabel?: string;
+
+  // ── Input Table-specific ──
+  tableRows?: string[];
+  tableCols?: string[];
+  tableInputType?: 'radio' | 'checkbox' | 'dropdown' | 'textbox';
+  tableValues?: Record<string, string | boolean | number>;
+
+  // ── Yes/No-specific ──
+  yesLabel?: string;
+  noLabel?: string;
 
   // ── Barcode-specific ──
   barcodeFormat?: 'qrcode' | 'pdf417';

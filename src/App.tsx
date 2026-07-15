@@ -57,7 +57,7 @@ export default function App() {
       return;
     }
     
-    const blob = new Blob([rawBytes], { type: 'application/pdf' });
+    const blob = new Blob([rawBytes as any], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     
     if (printWindow) {

@@ -5,6 +5,7 @@ import { useEditorStore } from '../store/useEditorStore';
 import { usePdfExport } from './usePdfExport';
 import { toast } from '../components/common/Toast';
 import type { FieldDef } from '../types';
+import { formatTableValues } from '../utils/tableExportUtils';
 
 export function useBulkExport() {
   const [isExportingBulk, setIsExportingBulk] = useState(false);
@@ -50,6 +51,7 @@ export function useBulkExport() {
           const formData: Record<string, any> = {};
           for (const f of useEditorStore.getState().fields) {
              if (f.type === 'checkbox') formData[f.name] = f.checked;
+             else if (f.type === 'inputTable') formData[f.name] = formatTableValues(f);
              else formData[f.name] = f.value || '';
           }
           zip.file(`${filename}.json`, JSON.stringify(formData, null, 2));

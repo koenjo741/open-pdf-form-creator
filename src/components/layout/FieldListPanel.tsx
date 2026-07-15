@@ -137,8 +137,6 @@ export function FieldListPanel() {
         </DndContext>
       </div>
 
-      {selectedField?.type === 'dropdown' && <DropdownFieldPanel field={selectedField} />}
-      {selectedField?.type === 'date' && <DateFieldPanel field={selectedField} />}
     </section>
   );
 }

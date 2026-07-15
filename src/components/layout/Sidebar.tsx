@@ -3,8 +3,12 @@ import { useEditorStore } from '../../store/useEditorStore';
 import { TextFieldPanel } from '../fields/TextFieldPanel';
 import { DropdownFieldPanel } from '../fields/DropdownFieldPanel';
 import { DateFieldPanel } from '../fields/DateFieldPanel';
+import { TimeFieldPanel } from '../fields/TimeFieldPanel';
+import { ScaleRatingFieldPanel } from '../fields/ScaleRatingFieldPanel';
+import { InputTableFieldPanel } from '../fields/InputTableFieldPanel';
 import { CheckboxFieldPanel } from '../fields/CheckboxFieldPanel';
 import { RadioFieldPanel } from '../fields/RadioFieldPanel';
+import { YesNoFieldPanel } from '../fields/YesNoFieldPanel';
 import { BarcodeFieldPanel } from '../fields/BarcodeFieldPanel';
 import { ButtonFieldPanel } from '../fields/ButtonFieldPanel';
 import { Trash2, MousePointerClick, ArrowLeft, ArrowRight } from 'lucide-react';
@@ -114,6 +118,10 @@ export function Sidebar() {
                   {selected.type === 'text' && <TextFieldPanel field={selected} />}
                   {selected.type === 'dropdown' && <DropdownFieldPanel field={selected} />}
                   {selected.type === 'date' && <DateFieldPanel field={selected} />}
+                  {selected.type === 'time' && <TimeFieldPanel field={selected} />}
+                  {selected.type === 'scaleRating' && <ScaleRatingFieldPanel field={selected} />}
+                  {selected.type === 'inputTable' && <InputTableFieldPanel field={selected} />}
+                  {selected.type === 'yesNo' && <YesNoFieldPanel field={selected} />}
                   {selected.type === 'checkbox' && <CheckboxFieldPanel field={selected} />}
                   {selected.type === 'radio' && <RadioFieldPanel field={selected} />}
                   {selected.type === 'barcode' && <BarcodeFieldPanel field={selected} />}

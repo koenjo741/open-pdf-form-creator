@@ -6,6 +6,7 @@ import { generateFilename } from '../../utils/dynamicFilename';
 import { saveFileWithPicker } from '../../utils/fileSystem';
 import { useTranslation, Trans } from 'react-i18next';
 import { toast } from '../common/Toast';
+import { formatTableValues } from '../../utils/tableExportUtils';
 
 export function DataExtractor() {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -30,6 +31,11 @@ export function DataExtractor() {
           }
         } else if (field.type === 'dropdown') {
           data[field.name] = field.value || field.defaultOption || '';
+        } else if (field.type === 'inputTable') {
+          data[field.name] = formatTableValues(field);
+        } else if (field.type === 'barcode' || field.type === 'signature' || field.type === 'scribble') {
+          // These don't have text values to extract
+          continue;
         } else {
           data[field.name] = field.value || '';
         }
@@ -93,7 +99,45 @@ export function DataExtractor() {
         }
       }
 
-      setExtractedData(data);
+      // Post-process table fields to group them back into structured tableValues objects
+      const structuredData: Record<string, any> = {};
+      const tableCells: Record<string, any> = {};
+      
+      for (const key in data) {
+        const match = key.match(/^(.*?)_R(\d+)(?:_C(\d+))?$/);
+        if (match) {
+          const baseName = match[1];
+          const r = match[2];
+          const c = match[3];
+          if (!tableCells[baseName]) tableCells[baseName] = {};
+          if (c !== undefined) {
+            tableCells[baseName][`r${r}_c${c}`] = data[key];
+          } else {
+            // Handle radio buttons which output "Col0", "Col1" etc.
+            const colMatch = String(data[key]).match(/^Col(\d+)$/);
+            if (colMatch) {
+              tableCells[baseName][`r${r}`] = parseInt(colMatch[1], 10);
+            } else {
+              tableCells[baseName][`r${r}`] = data[key];
+            }
+          }
+        } else {
+          structuredData[key] = data[key];
+        }
+      }
+
+      // Merge grouped table data (overwrites any empty root text fields from old templates)
+      const currentFields = useEditorStore.getState().fields;
+      for (const baseName in tableCells) {
+        const fieldDef = currentFields.find(f => f.name === baseName);
+        if (fieldDef && fieldDef.type === 'inputTable') {
+          structuredData[baseName] = formatTableValues(fieldDef, tableCells[baseName]);
+        } else {
+          structuredData[baseName] = tableCells[baseName];
+        }
+      }
+
+      setExtractedData(structuredData);
       toast.success(t('extract.toastSuccess'));
     } catch (err) {
       console.error(err);

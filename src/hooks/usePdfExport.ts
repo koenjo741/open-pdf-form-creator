@@ -16,6 +16,10 @@ import {
   generateScribbleField,
   generateBarcodeField,
   generateButtonField,
+  generateTimeField,
+  generateScaleRatingField,
+  generateInputTableField,
+  generateYesNoField,
   type FieldGeneratorContext
 } from '../utils/pdfFieldGenerators';
 
@@ -132,6 +136,9 @@ export function usePdfExport() {
               case 'date':
                 generateTextField(field, rect, ctx, isDuplicate);
                 break;
+              case 'time':
+                generateTimeField(field, rect, ctx, isDuplicate);
+                break;
               case 'dropdown':
                 generateDropdownField(field, rect, ctx, isDuplicate);
                 break;
@@ -140,6 +147,15 @@ export function usePdfExport() {
                 break;
               case 'radio':
                 generateRadioField(field, rect, ctx);
+                break;
+              case 'scaleRating':
+                generateScaleRatingField(field, rect, ctx);
+                break;
+              case 'inputTable':
+                generateInputTableField(field, rect, ctx);
+                break;
+              case 'yesNo':
+                generateYesNoField(field, rect, ctx);
                 break;
               case 'signature':
                 generateSignatureField(field, rect, ctx);
