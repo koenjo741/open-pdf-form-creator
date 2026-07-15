@@ -10,6 +10,7 @@ import { buildConditionalLogicJavaScript } from '../utils/pdfJavaScriptBuilder';
 import {
   generateTextField,
   generateDropdownField,
+  generateDateField,
   generateCheckboxField,
   generateRadioField,
   generateSignatureField,
@@ -18,10 +19,10 @@ import {
   generateButtonField,
   generateTimeField,
   generateScaleRatingField,
-  generateInputTableField,
   generateYesNoField,
+  generateInputTableField,
   type FieldGeneratorContext
-} from '../utils/pdfFieldGenerators';
+} from '../utils/generators';
 
 async function triggerDownload(bytes: Uint8Array, filename: string) {
   await saveFileWithPicker(bytes, filename, 'PDF Document', { 'application/pdf': ['.pdf'] });

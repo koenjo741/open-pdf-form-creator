@@ -23,7 +23,7 @@ import {
   ScaleRatingFieldRenderer,
   InputTableFieldRenderer,
   YesNoFieldRenderer
-} from './fields/FieldRenderers';
+} from './fields/renderers';
 import { toast } from '../common/Toast';
 
 // Default field dimensions in PDF points
