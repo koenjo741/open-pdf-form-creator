@@ -1,10 +1,7 @@
-import { PDFDocument, PDFPage, PDFFont, TextAlignment, rgb, PDFName, PDFString, PDFArray } from 'pdf-lib';
-import type { FieldDef, ExportMode } from '../../types';
+import { TextAlignment, rgb, PDFName, PDFString } from 'pdf-lib';
+import type { FieldDef } from '../../types';
 import { buildCalculationJavaScript, buildValidationJavaScript } from '../pdfJavaScriptBuilder';
-import bwipjs from 'bwip-js/browser';
-import { formatTableValues } from '../tableExportUtils';
 import type { FieldGeneratorContext } from './types';
-import { tryGetRadioGroup, setNestedValue } from './utils';
 
 export function generateTextField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext, isDuplicate: boolean) {
   const { form, page, pdfDoc, font, coArray, mode } = ctx;
@@ -62,4 +59,3 @@ export function generateTextField(field: FieldDef, rect: { x: number, y: number,
 
   try { tf.updateAppearances(font); } catch { /* ignore */ }
 }
-

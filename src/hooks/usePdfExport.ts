@@ -10,7 +10,6 @@ import { buildConditionalLogicJavaScript } from '../utils/pdfJavaScriptBuilder';
 import {
   generateTextField,
   generateDropdownField,
-  generateDateField,
   generateCheckboxField,
   generateRadioField,
   generateSignatureField,

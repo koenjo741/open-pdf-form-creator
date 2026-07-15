@@ -7,7 +7,6 @@ import type { FieldDef } from '../../types';
 interface Props { field: FieldDef; }
 
 export function TimeFieldPanel({ field }: Props) {
-  const { t } = useTranslation();
   const { updateField } = useEditorStore();
 
   return (

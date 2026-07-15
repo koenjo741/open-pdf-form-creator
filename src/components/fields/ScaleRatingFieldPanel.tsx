@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { useEditorStore } from '../../store/useEditorStore';
 import { FieldCommonInputs } from './FieldCommonInputs';
 import { FieldTextStyling } from './FieldTextStyling';
@@ -7,7 +6,6 @@ import type { FieldDef } from '../../types';
 interface Props { field: FieldDef; }
 
 export function ScaleRatingFieldPanel({ field }: Props) {
-  const { t } = useTranslation();
   const { updateField } = useEditorStore();
 
   return (

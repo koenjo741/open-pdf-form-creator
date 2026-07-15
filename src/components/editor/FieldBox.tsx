@@ -1,15 +1,10 @@
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import { useRef, useCallback, useState, useEffect } from 'react';
 import { useEditorStore } from '../../store/useEditorStore';
-import { webToPdf, pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
+import { pdfToWeb, scaleToPdf } from '../../utils/coordinateMapper';
 import type { FieldDef, PageMeta } from '../../types';
 import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from '../../utils/snapping';
-
-import { PromptModal } from '../modals/PromptModal';
-import { FieldActionModal } from '../modals/FieldActionModal';
-import { useFieldContextMenu } from './fields/useFieldContextMenu';
-import { useFieldInteraction } from './useFieldInteraction';
+import { toast } from '../common/Toast';
 import {
   TextFieldRenderer,
   DateFieldRenderer,
@@ -25,295 +20,6 @@ import {
   InputTableFieldRenderer,
   YesNoFieldRenderer
 } from './fields/renderers';
-import { toast } from '../common/Toast';
-
-// Default field dimensions in PDF points
-const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
-  text:        { w: 120, h: 24 },
-  dropdown:    { w: 100, h: 24 },
-  date:        { w: 120, h: 24 },
-  time:        { w: 100, h: 24 },
-  scaleRating: { w: 250, h: 50 },
-  inputTable:  { w: 350, h: 150 },
-  yesNo:       { w: 120, h: 30 },
-  checkbox:    { w: 16,  h: 16 },
-  radio:       { w: 16,  h: 16 },
-  signature:   { w: 150, h: 50 },
-  scribble:    { w: 150, h: 50 },
-  barcode:     { w: 100, h: 100 },
-  button:      { w: 120, h: 36 },
-};
-
-interface FieldOverlayProps {
-  pageMeta: PageMeta;
-  canvasWidth: number;
-  canvasHeight: number;
-}
-
-/**
- * Absolute-positioned transparent overlay that:
- *  - Captures clicks to place new fields
- *  - Renders draggable/resizable FieldBox components for fields on this page
- */
-export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverlayProps) {
-  const { t } = useTranslation();
-  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, updateFields, clearSelection, appMode } = useEditorStore();
-  const overlayRef = useRef<HTMLDivElement>(null);
-
-  const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
-  const isPlacingMode = activeTool !== 'select';
-
-  const { contextMenu, setContextMenu, promptModal, setPromptModal, handleRename, handleDuplicate, handleClone, handleConvert } = useFieldContextMenu(fields, pageFields, addField, selectField, updateField);
-
-  const [activeGuides, setActiveGuides] = useState<GuideLine[]>([]);
-
-  const [globalDrag, setGlobalDrag] = useState<{ originId: string; dxWeb: number; dyWeb: number } | null>(null);
-  const [globalResize, setGlobalResize] = useState<{ originId: string; handle: string; rx: number; ry: number; rw: number; rh: number } | null>(null);
-
-  // Keyboard Nudging (Multiple Fields)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't nudge if typing in an input
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) return;
-      if (selectedFieldIds.length === 0 || activeTool !== 'select' || appMode !== 'edit') return;
-
-      const selectedFieldsOnPage = fields.filter((f) => selectedFieldIds.includes(f.id) && f.pageIndex === pageMeta.pageIndex);
-      if (selectedFieldsOnPage.length === 0) return;
-
-      const step = e.shiftKey ? 10 : 1;
-      let dx = 0;
-      let dy = 0;
-
-      switch (e.key) {
-        case 'ArrowUp':
-          dy = step;
-          break;
-        case 'ArrowDown':
-          dy = -step;
-          break;
-        case 'ArrowLeft':
-          dx = -step;
-          break;
-        case 'ArrowRight':
-          dx = step;
-          break;
-        default:
-          return; // Ignore other keys
-      }
-
-      e.preventDefault(); // Prevent scrolling
-      const updates = selectedFieldsOnPage.map((field) => ({
-        id: field.id,
-        patch: {
-          pdfX: field.pdfX + dx,
-          pdfY: field.pdfY + dy,
-        }
-      }));
-      updateFields(updates);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField, updateFields, appMode]);  const { marquee, handlePointerDown, handlePointerMove, handlePointerUp } = useFieldInteraction(
-    pageFields,
-    pageMeta,
-    canvasWidth,
-    canvasHeight,
-    overlayRef
-  );
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (activeTool === 'select' || appMode !== 'edit') return;
-      
-      const rect = overlayRef.current!.getBoundingClientRect();
-      const webX = e.clientX - rect.left;
-      const webY = e.clientY - rect.top;
-
-      const { pdfX, pdfY } = webToPdf(
-        webX, webY,
-        pageMeta.widthPt, pageMeta.heightPt,
-        canvasWidth, canvasHeight,
-      );
-
-      const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url', 'regex'].includes(activeTool);
-      const isButtonSubtype = activeTool === 'lockButton';
-      const type = isTextSubtype ? 'text' : (isButtonSubtype ? 'button' : activeTool as any);
-      const sizes = DEFAULT_SIZES[type] || {w: 144, h: 24};
-      const id = crypto.randomUUID();
-      
-      const textSubType = isTextSubtype ? (activeTool as NonNullable<FieldDef['textSubType']>) : undefined;
-      const prefix = activeTool.charAt(0).toUpperCase() + activeTool.slice(1);
-      
-      let counter = 1;
-      let baseName = '';
-      while (true) {
-        baseName = `${prefix} -- ${counter}`;
-        if (!fields.some(f => f.name === baseName)) break;
-        counter++;
-      }
-
-      const newField: FieldDef = {
-        id,
-        pageIndex: pageMeta.pageIndex,
-        type: type,
-        name: baseName,
-        label: baseName,
-        pdfX,
-        pdfY: pdfY - sizes.h, // anchor top-left
-        pdfWidth: sizes.w,
-        pdfHeight: sizes.h,
-        fontSize: 12,
-        fontWeight: 'regular',
-        textSubType,
-        options: activeTool === 'dropdown' ? [] : undefined,
-        checkedByDefault: activeTool === 'checkbox' ? false : undefined,
-        groupName: activeTool === 'radio' ? 'group1' : undefined,
-        radioValue: activeTool === 'radio' ? id.slice(0, 4) : undefined,
-        ...(activeTool === 'barcode' ? { barcodeFormat: 'qrcode' } : {}),
-        ...(activeTool === 'time' ? { timeFormat: '24h' } : {}),
-        ...(activeTool === 'scaleRating' ? { scaleMin: 1, scaleMax: 5, scaleMinLabel: 'Worst', scaleMaxLabel: 'Best' } : {}),
-        ...(activeTool === 'inputTable' ? { tableRows: ['Row 1', 'Row 2'], tableCols: ['Col 1', 'Col 2'], tableInputType: 'textbox' } : {}),
-        ...(activeTool === 'yesNo' ? { yesLabel: 'JA', noLabel: 'NEIN' } : {}),
-        buttonAction: activeTool === 'lockButton' ? 'lock' : (type === 'button' ? 'submit' : undefined),
-        tooltip: activeTool === 'lockButton' ? t('fields.lockButtonTooltip') : undefined,
-      };
-
-      addField(newField);
-      selectField(id);
-      setActiveTool('select');
-    },
-    [activeTool, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, appMode],
-  );
-
-  return (
-    <div
-      ref={overlayRef}
-      onPointerDown={appMode === 'edit' ? handlePointerDown : undefined}
-      onPointerMove={appMode === 'edit' ? handlePointerMove : undefined}
-      onPointerUp={appMode === 'edit' ? handlePointerUp : undefined}
-      onPointerLeave={appMode === 'edit' ? handlePointerUp : undefined}
-      onClick={appMode === 'edit' ? handleClick : undefined}
-      className="absolute inset-0"
-      style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
-    >
-      {/* Marquee Box */}
-      {marquee && appMode === 'edit' && (
-        <div
-          className="absolute border border-blue-500 bg-blue-500/20 z-40 pointer-events-none"
-          style={{
-            left: Math.min(marquee.startX, marquee.currentX),
-            top: Math.min(marquee.startY, marquee.currentY),
-            width: Math.abs(marquee.currentX - marquee.startX),
-            height: Math.abs(marquee.currentY - marquee.startY),
-          }}
-        />
-      )}
-      {/* Guide lines */}
-      {activeGuides.map((guide, i) => (
-        <div
-          key={`guide-${i}`}
-          className="absolute bg-blue-500 z-50 pointer-events-none"
-          style={{
-            ...(guide.type === 'vertical'
-              ? { left: guide.position, top: 0, bottom: 0, width: 1 }
-              : { top: guide.position, left: 0, right: 0, height: 1 }),
-          }}
-        />
-      ))}
-
-      {/* Laser Beams for selected text/date fields */}
-      {appMode === 'edit' && selectedFieldIds.map(id => {
-        const f = pageFields.find(pf => pf.id === id);
-        if (!f || (f.type !== 'text' && f.type !== 'date')) return null;
-
-        let { webY } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
-        let webH = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
-
-        if (globalDrag && (globalDrag.originId === f.id || selectedFieldIds.includes(f.id))) {
-           webY += globalDrag.dyWeb;
-        }
-        if (globalResize && (globalResize.originId === f.id || selectedFieldIds.includes(f.id))) {
-           webY += globalResize.ry;
-           webH += globalResize.rh;
-        }
-
-        const scaledFontSize = (f.fontSize || 12) * (canvasHeight / pageMeta.heightPt);
-        const baselineY = webY + (webH / 2) + scaledFontSize * 0.351;
-
-        return (
-          <div
-            key={`laser-${id}`}
-            className="absolute left-0 right-0 border-t border-dashed border-red-500/40 z-40 pointer-events-none"
-            style={{ top: baselineY }}
-          />
-        );
-      })}
-
-      {pageFields.map((field) => (
-        appMode === 'preview' ? (
-          <PreviewFieldBox
-            key={field.id}
-            field={field}
-            pageMeta={pageMeta}
-            canvasWidth={canvasWidth}
-            canvasHeight={canvasHeight}
-          />
-        ) : (
-          <FieldBoxInner
-            key={field.id}
-            field={field}
-            pageMeta={pageMeta}
-            canvasWidth={canvasWidth}
-            canvasHeight={canvasHeight}
-            otherFields={pageFields.filter((f) => f.id !== field.id)}
-            onGuidesChange={setActiveGuides}
-            globalDrag={globalDrag}
-            setGlobalDrag={setGlobalDrag}
-            globalResize={globalResize}
-            setGlobalResize={setGlobalResize}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              const rect = overlayRef.current!.getBoundingClientRect();
-              setContextMenu({
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top,
-                fieldId: field.id,
-              });
-            }}
-          />
-        )
-      ))}
-
-      {contextMenu && appMode === 'edit' && pageFields.find(f => f.id === contextMenu.fieldId) && (
-        <FieldActionModal
-          field={pageFields.find(f => f.id === contextMenu.fieldId)!}
-          onClose={() => setContextMenu(null)}
-          onRename={handleRename}
-          onDuplicate={handleDuplicate}
-          onClone={handleClone}
-          onConvert={handleConvert}
-        />
-      )}
-
-      {promptModal && (
-        <PromptModal
-          open={promptModal.open}
-          title="Feldname umbenennen:"
-          initialValue={promptModal.initialValue}
-          onConfirm={(newName: string) => {
-            if (newName && newName.trim() !== '') {
-              updateField(promptModal.fieldId, { name: newName.trim(), label: newName.trim() });
-            }
-            setPromptModal(null);
-          }}
-          onCancel={() => setPromptModal(null)}
-        />
-      )}
-    </div>
-  );
-}
 
 // ─── Individual field box ────────────────────────────────────────────────────
 
@@ -331,7 +37,7 @@ interface FieldBoxInnerProps {
   setGlobalResize: (val: { originId: string; handle: string; rx: number; ry: number; rw: number; rh: number } | null) => void;
 }
 
-function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields, onGuidesChange, onContextMenu, globalDrag, setGlobalDrag, globalResize, setGlobalResize }: FieldBoxInnerProps) {
+export function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields, onGuidesChange, onContextMenu, globalDrag, setGlobalDrag, globalResize, setGlobalResize }: FieldBoxInnerProps) {
   const { selectedFieldIds, selectField, updateField, updateFields, activeTool, fields, snapToGrid } = useEditorStore();
   const isSelected = selectedFieldIds.includes(field.id);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -696,7 +402,7 @@ interface PreviewFieldBoxProps {
   canvasHeight: number;
 }
 
-function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
+export function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: PreviewFieldBoxProps) {
   const { updateField, fields } = useEditorStore();
 
   // Find if this is a duplicate (i.e. not the first field with this name)

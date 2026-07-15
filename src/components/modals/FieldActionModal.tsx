@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClone, onConvert }: Props) {
-  const isText = field.type === 'text';
+  const isCheckboxOrRadio = field.type === 'checkbox' || field.type === 'radio';
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div 
