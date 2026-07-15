@@ -1,11 +1,6 @@
-import { PDFDocument, PDFPage, PDFFont, TextAlignment, rgb, PDFName, PDFString, PDFArray } from 'pdf-lib';
-import type { FieldDef, ExportMode } from '../../types';
-import { buildCalculationJavaScript, buildValidationJavaScript } from '../pdfJavaScriptBuilder';
-import bwipjs from 'bwip-js/browser';
-import { formatTableValues } from '../tableExportUtils';
+import { rgb, PDFName } from 'pdf-lib';
+import type { FieldDef } from '../../types';
 import type { FieldGeneratorContext } from './types';
-import { tryGetRadioGroup, setNestedValue } from './utils';
-import { generateTextField } from './generateTextField';
 
 export function generateCheckboxField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext, isDuplicate: boolean) {
   const { form, page, mode } = ctx;
@@ -35,8 +30,3 @@ export function generateCheckboxField(field: FieldDef, rect: { x: number, y: num
   }
   try { (cb as unknown as { updateAppearances: () => void }).updateAppearances(); } catch { /* ignore */ }
 }
-
-function tryGetRadioGroup(form: ReturnType<PDFDocument['getForm']>, name: string) {
-  try { return form.getRadioGroup(name); } catch { return null; }
-}
-

@@ -8,7 +8,6 @@ import type { FieldDef } from '../../types';
 interface Props { field: FieldDef; }
 
 export function InputTableFieldPanel({ field }: Props) {
-  const { t } = useTranslation();
   const { updateField } = useEditorStore();
 
   const rows = field.tableRows || ['Row 1', 'Row 2'];

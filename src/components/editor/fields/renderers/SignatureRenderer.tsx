@@ -5,8 +5,6 @@ import type { FieldDef } from '../../../../types';
 import { TextValidationModal } from '../../../modals/TextValidationModal';
 import { DateValidationModal } from '../../../modals/DateValidationModal';
 import { ScribbleModal } from '../../../modals/ScribbleModal';
-import { parseDateString, isValidIBAN, isValidEmail, isValidURL, parseNumberStrict } from '../FieldValidation';
-import { QrCode } from 'lucide-react';
 
 export interface RendererProps {
   field: FieldDef;
