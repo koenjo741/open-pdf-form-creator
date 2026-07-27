@@ -103,7 +103,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
 
 
   return (
-    <aside className={`w-64 shrink-0 flex flex-col bg-slate-200 dark:bg-slate-900/95 ${sidebarPosition === 'right' ? 'border-r' : 'border-l'} border-slate-200 dark:border-slate-800 overflow-hidden relative z-20`}>
+    <aside className={`w-72 shrink-0 flex flex-col bg-slate-200 dark:bg-slate-900/95 ${sidebarPosition === 'right' ? 'border-r' : 'border-l'} border-slate-200 dark:border-slate-800 overflow-hidden relative z-20`}>
       {/* App Title Header */}
       <div className="px-4 h-12 flex items-center justify-between bg-slate-400/40 dark:bg-slate-800/40 border-b border-slate-300 dark:border-slate-800 shrink-0">
         <div className="flex items-center gap-2">
@@ -126,9 +126,9 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
               if (!isLoaded && !isImporting) fileInputRef.current?.click();
             }}
             disabled={isLoaded || isImporting}
-            className={`w-full flex items-center justify-center gap-2 h-9 rounded-lg text-sm transition-colors border ${
+            className={`w-full flex items-center justify-center gap-2 h-9 rounded-lg text-sm font-medium transition-colors border ${
               isLoaded || isImporting
-                ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed font-medium'
+                ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed'
                 : 'bg-[#059669] hover:bg-[#059669]/90 text-white border-[#059669]/50'
             }`}
           >
@@ -164,21 +164,21 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
             <button
               onClick={() => setAppMode('edit')}
               style={{ backgroundColor: appMode === 'edit' ? '#FFD700' : 'transparent', color: appMode === 'edit' ? '#000' : '#94a3b8' }}
-              className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+              className="flex-1 h-full flex items-center justify-center text-sm font-[520] rounded-md transition-colors"
             >
               Edit
             </button>
             <button
               onClick={() => setAppMode('preview')}
               style={{ backgroundColor: appMode === 'preview' ? '#06b6d4' : 'transparent', color: appMode === 'preview' ? '#fff' : '#94a3b8' }}
-              className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+              className="flex-1 h-full flex items-center justify-center text-sm font-medium rounded-md transition-colors"
             >
               Preview
             </button>
             <button
               onClick={() => setAppMode('extract')}
               style={{ backgroundColor: appMode === 'extract' ? '#10b981' : 'transparent', color: appMode === 'extract' ? '#fff' : '#94a3b8' }}
-              className="flex-1 h-full flex items-center justify-center text-xs font-semibold rounded-md transition-colors"
+              className="flex-1 h-full flex items-center justify-center text-sm font-medium rounded-md transition-colors"
             >
               Extract
             </button>
@@ -214,7 +214,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
             <div className="relative">
               <button
                 onClick={() => setAddFieldOpen((o) => !o)}
-                className={`w-full flex items-center justify-between px-3 h-9 rounded-lg text-xs font-medium transition-colors ${
+                className={`w-full flex items-center justify-between px-3 h-9 rounded-lg text-sm font-medium transition-colors ${
                   activeTool !== 'select' ? 'bg-cyan-600 text-white' : 'bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-400 dark:hover:bg-slate-700'
                 }`}
               >
@@ -306,7 +306,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
             <button
               onClick={handleAutoDetect}
               disabled={isAutoDetecting}
-              className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-slate-900 text-sm font-semibold transition-colors shadow-sm"
+              className="w-full flex items-center justify-center gap-2 h-9 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-slate-900 text-sm font-[520] transition-colors shadow-sm"
             >
               <span>{isAutoDetecting ? 'Analysiere...' : '✨ Felder automatisch erkennen'}</span>
             </button>

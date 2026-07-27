@@ -13,22 +13,35 @@ export function FieldTextStyling({ field }: Props) {
     <div className="space-y-4">
       {/* Font Size */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-medium text-zinc-300">{t('sidebar.fontSize')}</label>
-          <span className="text-xs text-blue-400 font-mono">{field.fontSize ?? 12}pt</span>
-        </div>
-        <input
-          id={`field-fontsize-${field.id}`}
-          type="range"
-          min={6}
-          max={72}
-          step={1}
-          value={field.fontSize ?? 12}
-          onChange={(e) => updateField(field.id, { fontSize: Number(e.target.value) })}
-          className="w-full accent-blue-500"
-        />
-        <div className="flex justify-between text-zinc-500 text-xs mt-1">
-          <span>6</span><span>72</span>
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5">{t('sidebar.fontSize')}</label>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center flex-1 min-w-0 rounded bg-zinc-800 border border-zinc-700/60 focus-within:border-blue-500/50">
+            <input
+              id={`field-fontsize-${field.id}`}
+              type="number"
+              min={6}
+              max={72}
+              step={1}
+              value={field.fontSize ?? 12}
+              onChange={(e) => updateField(field.id, { fontSize: Math.min(72, Math.max(6, Number(e.target.value) || 6)) })}
+              className="flex-1 min-w-0 px-2 py-1 bg-transparent text-xs text-zinc-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-xs text-zinc-500 pr-1">pt</span>
+            <div className="flex flex-col border-l border-zinc-700/60">
+              <button
+                type="button"
+                onClick={() => updateField(field.id, { fontSize: Math.min(72, (field.fontSize ?? 12) + 1) })}
+                className="px-1.5 py-0 text-[10px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-colors leading-tight"
+                aria-label="Increase font size"
+              >+</button>
+              <button
+                type="button"
+                onClick={() => updateField(field.id, { fontSize: Math.max(6, (field.fontSize ?? 12) - 1) })}
+                className="px-1.5 py-0 text-[10px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-colors leading-tight border-t border-zinc-700/60"
+                aria-label="Decrease font size"
+              >−</button>
+            </div>
+          </div>
         </div>
       </div>
 
