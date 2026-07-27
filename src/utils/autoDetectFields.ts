@@ -4,7 +4,10 @@ import { initialisePdfJs } from './pdfLoader';
 
 export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<FieldDef, 'id'>[]> {
   initialisePdfJs();
-  const loadingTask = pdfjs.getDocument({ data: pdfBuffer });
+  // Slice to guarantee a fresh, non-shared ArrayBuffer, preventing the original 
+  // from being detached when transferred to the pdfjs worker.
+  const safeCopy = pdfBuffer.slice(0);
+  const loadingTask = pdfjs.getDocument({ data: safeCopy });
   const doc = await loadingTask.promise;
   
   const detectedFields: Omit<FieldDef, 'id'>[] = [];
