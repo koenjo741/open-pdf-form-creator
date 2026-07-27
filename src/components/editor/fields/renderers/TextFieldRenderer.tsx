@@ -22,9 +22,16 @@ export function TextFieldRenderer({ field, isDisabled, baseStyle, handleChange }
     if (!val) return;
 
     setTimeout(() => {
-      if (field.textSubType === 'currency') {
+      if (field.textSubType === 'number') {
+        const num = parseNumberStrict(val);
+        if (isNaN(num)) {
+          setValidationModal({ open: true, title: 'Ungültige Zahl', message: 'Bitte eine gültige Zahl eingeben.' });
+        }
+      } else if (field.textSubType === 'currency') {
         const num = parseNumberStrict(val.replace(/[^\d.,\-]/g, ''));
-        if (!isNaN(num)) {
+        if (isNaN(num)) {
+          setValidationModal({ open: true, title: 'Ungültiger Betrag', message: 'Bitte einen gültigen Geldbetrag eingeben.' });
+        } else {
           const symbol = field.currencySymbol || '€';
           const formatted = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num) + ' ' + symbol;
           updateField(field.id, { value: formatted });

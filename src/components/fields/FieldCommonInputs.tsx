@@ -141,6 +141,7 @@ export function FieldCommonInputs({ field }: Props) {
         )}
       </div>
 
+
       {/* Tab Order */}
       <div>
         <label className="block text-xs font-medium text-zinc-300 mb-1.5">
@@ -169,42 +170,38 @@ export function FieldCommonInputs({ field }: Props) {
           Position & Größe (pt)
         </label>
         <div className="grid grid-cols-2 gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-400 w-3">X:</span>
-            <input
-              type="number"
-              value={Math.round(field.pdfX)}
-              onChange={(e) => updateField(field.id, { pdfX: parseInt(e.target.value) || 0 })}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-400 w-3">Y:</span>
-            <input
-              type="number"
-              value={Math.round(field.pdfY)}
-              onChange={(e) => updateField(field.id, { pdfY: parseInt(e.target.value) || 0 })}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-400 w-3">B:</span>
-            <input
-              type="number"
-              value={Math.round(field.pdfWidth)}
-              onChange={(e) => updateField(field.id, { pdfWidth: parseInt(e.target.value) || 0 })}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-400 w-3">H:</span>
-            <input
-              type="number"
-              value={Math.round(field.pdfHeight)}
-              onChange={(e) => updateField(field.id, { pdfHeight: parseInt(e.target.value) || 0 })}
-              className="flex-1 px-2 py-1 rounded bg-zinc-800 border border-zinc-700/60 text-xs text-zinc-100 outline-none focus:border-blue-500/50"
-            />
-          </div>
+          {[
+            { label: 'X', key: 'pdfX' as const, value: Math.round(field.pdfX) },
+            { label: 'Y', key: 'pdfY' as const, value: Math.round(field.pdfY) },
+            { label: 'B', key: 'pdfWidth' as const, value: Math.round(field.pdfWidth) },
+            { label: 'H', key: 'pdfHeight' as const, value: Math.round(field.pdfHeight) },
+          ].map(({ label, key, value }) => (
+            <div key={key} className="flex items-center gap-1 min-w-0">
+              <span className="text-xs text-zinc-400 shrink-0 w-3">{label}:</span>
+              <div className="flex items-center flex-1 min-w-0 rounded bg-zinc-800 border border-zinc-700/60 focus-within:border-blue-500/50">
+                <input
+                  type="number"
+                  value={value}
+                  onChange={(e) => updateField(field.id, { [key]: parseInt(e.target.value) || 0 })}
+                  className="flex-1 min-w-0 w-0 px-2 py-1 bg-transparent text-xs text-zinc-100 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <div className="flex flex-col border-l border-zinc-700/60 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => updateField(field.id, { [key]: value + 1 })}
+                    className="px-1 py-0 text-[10px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-colors leading-tight"
+                    aria-label={`Increase ${label}`}
+                  >+</button>
+                  <button
+                    type="button"
+                    onClick={() => updateField(field.id, { [key]: value - 1 })}
+                    className="px-1 py-0 text-[10px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-colors leading-tight border-t border-zinc-700/60"
+                    aria-label={`Decrease ${label}`}
+                  >−</button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </>

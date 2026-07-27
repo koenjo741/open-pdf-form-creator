@@ -6,11 +6,70 @@ import { FieldTextStyling } from './FieldTextStyling';
 import { Plus, X, GripVertical, ChevronDown } from 'lucide-react';
 import type { FieldDef } from '../../types';
 import { AnimatePresence, motion } from 'framer-motion';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const SALUTATION_PRESET = ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'];
 const TITLE_PRESET = ['B.Sc.', 'M.Sc.', 'MBA', 'M.D.', 'Ph.D.', 'Prof.'];
 
 interface Props { field: FieldDef; }
+
+function SortableOption({ id, label, onRemove }: { id: string; label: string; onRemove: () => void }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-2 px-2 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/40 group ${
+        isDragging ? 'opacity-50 z-50 shadow-lg' : ''
+      }`}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-zinc-500 hover:text-zinc-300 shrink-0"
+      >
+        <GripVertical className="w-3.5 h-3.5" />
+      </div>
+      <span className="flex-1 text-xs text-zinc-300 truncate">{label}</span>
+      <button
+        onClick={onRemove}
+        className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-all"
+        aria-label={`Remove ${label}`}
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
 
 export function DropdownFieldPanel({ field }: Props) {
   const { t } = useTranslation();
@@ -20,6 +79,25 @@ export function DropdownFieldPanel({ field }: Props) {
 
   const options = field.options ?? [];
 
+  // Stable IDs: use index-prefixed keys to handle duplicate option labels
+  const optionIds = options.map((opt, i) => `${i}::${opt}`);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = optionIds.indexOf(active.id as string);
+    const newIndex = optionIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    updateField(field.id, { options: arrayMove(options, oldIndex, newIndex) });
+  };
+
   const addOption = () => {
     const trimmed = newOption.trim();
     if (!trimmed || options.includes(trimmed)) return;
@@ -27,8 +105,8 @@ export function DropdownFieldPanel({ field }: Props) {
     setNewOption('');
   };
 
-  const removeOption = (opt: string) => {
-    updateField(field.id, { options: options.filter((o) => o !== opt) });
+  const removeOption = (index: number) => {
+    updateField(field.id, { options: options.filter((_, i) => i !== index) });
   };
 
   const applyPreset = (preset: string[]) => {
@@ -85,28 +163,22 @@ export function DropdownFieldPanel({ field }: Props) {
 
         {/* Option list */}
         <div className="space-y-1 mb-2 max-h-44 overflow-y-auto pr-1">
-          <AnimatePresence initial={false}>
-            {options.map((opt) => (
-              <motion.div
-                key={opt}
-                layout
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-zinc-800/60 border border-zinc-700/40 group"
-              >
-                <GripVertical className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                <span className="flex-1 text-xs text-zinc-300 truncate">{opt}</span>
-                <button
-                  onClick={() => removeOption(opt)}
-                  className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-all"
-                  aria-label={`Remove ${opt}`}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={optionIds} strategy={verticalListSortingStrategy}>
+              {options.map((opt, i) => (
+                <SortableOption
+                  key={optionIds[i]}
+                  id={optionIds[i]}
+                  label={opt}
+                  onRemove={() => removeOption(i)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
           {options.length === 0 && (
             <p className="text-zinc-500 text-xs text-center py-3">No options yet</p>
           )}
@@ -136,3 +208,4 @@ export function DropdownFieldPanel({ field }: Props) {
     </div>
   );
 }
+

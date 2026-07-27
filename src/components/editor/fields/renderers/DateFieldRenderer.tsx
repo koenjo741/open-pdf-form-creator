@@ -30,6 +30,16 @@ export function DateFieldRenderer({ field, isDisabled, baseStyle, handleChange }
         setValidationModal({ open: true, type: 'history' });
       } else if (year > 2199) {
         setValidationModal({ open: true, type: 'future' });
+      } else {
+        const dd = String(parsedDate.getDate()).padStart(2, '0');
+        const mm = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const yyyy = parsedDate.getFullYear();
+        let formatted = `${dd}.${mm}.${yyyy}`;
+        if (field.dateFormat === 'MM/DD/YYYY') formatted = `${mm}/${dd}/${yyyy}`;
+        else if (field.dateFormat === 'DD/MM/YYYY') formatted = `${dd}/${mm}/${yyyy}`;
+        else if (field.dateFormat === 'YYYY-MM-DD') formatted = `${yyyy}-${mm}-${dd}`;
+        
+        useEditorStore.getState().updateField(field.id, { value: formatted });
       }
     }
   };

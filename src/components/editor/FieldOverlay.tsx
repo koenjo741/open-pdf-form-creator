@@ -792,6 +792,8 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           const regex = new RegExp(`[^\\d.,\\-\\s${escapedSymbol}]`, 'g');
           val = val.replace(regex, '');
         }
+      } else if (field.type === 'date') {
+        val = val.replace(/[^\d.\/\- ]/g, '');
       }
       updateField(field.id, { value: val });
     }

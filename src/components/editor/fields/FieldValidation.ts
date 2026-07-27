@@ -2,7 +2,7 @@ export function parseDateString(input: string, format: string, locale: string): 
   let resolvedFormat = format;
 
   if (!resolvedFormat || resolvedFormat === 'auto') {
-    if (input.includes('.')) {
+    if (input.includes('.') || input.includes(',')) {
       resolvedFormat = 'DD.MM.YYYY';
     } else if (input.includes('/')) {
       if (locale.startsWith('en') && !locale.startsWith('en-GB')) {
@@ -12,6 +12,8 @@ export function parseDateString(input: string, format: string, locale: string): 
       }
     } else if (input.includes('-')) {
       resolvedFormat = 'YYYY-MM-DD';
+    } else if (/^\d{8}$/.test(input)) {
+      resolvedFormat = 'DDMMYYYY';
     } else {
       if (locale.startsWith('de')) resolvedFormat = 'DD.MM.YYYY';
       else if (locale.startsWith('en')) resolvedFormat = 'MM/DD/YYYY';
@@ -20,7 +22,13 @@ export function parseDateString(input: string, format: string, locale: string): 
     }
   }
 
-  const parts = input.match(/\d+/g);
+  let parts: string[] | null = null;
+  if (resolvedFormat === 'DDMMYYYY') {
+    parts = [input.slice(0, 2), input.slice(2, 4), input.slice(4, 8)];
+  } else {
+    parts = input.match(/\d+/g);
+  }
+  
   if (!parts || parts.length < 3) return null;
 
   let year, month, day;
