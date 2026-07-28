@@ -47,7 +47,7 @@ export function generateInputTableField(field: FieldDef, rect: { x: number, y: n
         }
       } else if (inputType === 'textbox') {
         const tf = form.getFieldMaybe(cellName) ? form.getTextField(cellName) : form.createTextField(cellName);
-        tf.addToPage(page, { ...cellRect, borderWidth: mode === 'flattened' ? 0 : 1 });
+        tf.addToPage(page, { ...cellRect, borderWidth: mode === 'flattened' ? 0 : 1, backgroundColor: rgb(1, 1, 1) });
         const val = field.tableValues?.[`r${r}_c${c}`];
         if (val) {
           try { tf.setText(String(val)); } catch { /* ignore */ }
