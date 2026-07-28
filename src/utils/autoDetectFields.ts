@@ -24,45 +24,66 @@ export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<Fiel
     for (const item of underscoreItems) {
       // @ts-ignore
       const transform = item.transform;
-      // transform is [scaleX, skewY, skewX, scaleY, tx, ty]
       const tx = transform[4];
       const ty = transform[5];
       // @ts-ignore
       const width = item.width || 100;
       // @ts-ignore
       const height = item.height || 14;
+      const str = item.str;
 
-      // Find the closest text item to the left or just above to act as label
-      let closestText = '';
-      let closestDist = Infinity;
+      const matches = [...str.matchAll(/_{4,}/g)];
 
-      for (const other of textContent.items) {
-        if (other === item) continue;
-        // @ts-ignore
-        const oTransform = other.transform;
-        // @ts-ignore
-        const oStr = other.str.trim();
-        if (!oStr || underscoreRegex.test(oStr)) continue;
+      for (const match of matches) {
+        const matchIndex = match.index!;
+        const matchLength = match[0].length;
 
-        const oTx = oTransform[4];
-        const oTy = oTransform[5];
+        // Estimate X and width based on string proportions
+        const matchTx = tx + (matchIndex / str.length) * width;
+        const matchWidth = (matchLength / str.length) * width;
 
-        // Same line (roughly within 10 points y-diff), and to the left
-        const isSameLineLeft = Math.abs(oTy - ty) < 10 && oTx < tx;
-        // Just above (x overlap, y is greater by 5-30 points)
-        const isJustAbove = Math.abs(oTx - tx) < 50 && oTy > ty && (oTy - ty) < 30;
+        let closestText = '';
 
-        if (isSameLineLeft || isJustAbove) {
-          const dist = isSameLineLeft ? tx - oTx : oTy - ty;
-          if (dist < closestDist) {
-            closestDist = dist;
-            closestText = oStr.replace(/[:.]+$/, ''); // remove trailing colons or dots
+        // 1. Try to find label in the SAME item (text before the underscore)
+        const beforeStr = str.substring(0, matchIndex).replace(/_+/g, ' ').trim();
+        if (beforeStr) {
+           const words = beforeStr.split(/\s+/);
+           // Take up to 2 words for better labels like "geb. am"
+           const labelWords = words.slice(-2).join(' ');
+           closestText = labelWords.replace(/[:.,]+$/, '');
+        }
+
+        // 2. If no label found, search other items
+        if (!closestText) {
+          let closestDist = Infinity;
+          for (const other of textContent.items) {
+            if (other === item) continue;
+            // @ts-ignore
+            const oTransform = other.transform;
+            // @ts-ignore
+            const oStr = other.str.trim();
+            if (!oStr || /_{4,}/.test(oStr)) continue;
+
+            const oTx = oTransform[4];
+            const oTy = oTransform[5];
+
+            // Same line (roughly within 10 points y-diff), and to the left
+            const isSameLineLeft = Math.abs(oTy - ty) < 10 && oTx < matchTx;
+            // Just above (x overlap, y is greater by 5-30 points)
+            const isJustAbove = Math.abs(oTx - matchTx) < 50 && oTy > ty && (oTy - ty) < 30;
+
+            if (isSameLineLeft || isJustAbove) {
+              const dist = isSameLineLeft ? matchTx - oTx : oTy - ty;
+              if (dist < closestDist) {
+                closestDist = dist;
+                closestText = oStr.replace(/[:.,]+$/, '');
+              }
+            }
           }
         }
-      }
 
-      // If no label found, use generic name
-      let baseName = closestText || 'Feld';
+        // If no label found, use generic name
+        let baseName = closestText || 'Feld';
       baseName = baseName.replace(/[^a-zA-Z0-9_\-\u00C0-\u017F ]/g, '').trim();
       if (!baseName) baseName = 'Feld';
 
@@ -79,15 +100,16 @@ export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<Fiel
         type: 'text',
         name: finalName,
         label: finalName,
-        pdfX: tx,
+        pdfX: matchTx,
         pdfY: ty - 2, // slightly adjust baseline
-        pdfWidth: width,
+        pdfWidth: matchWidth,
         pdfHeight: Math.max(16, height + 4),
         fontSize: 12,
         fontWeight: 'regular'
       });
     }
   }
+}
 
   return detectedFields;
 }
