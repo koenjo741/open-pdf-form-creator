@@ -43,7 +43,7 @@ interface FieldOverlayProps {
  */
 export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverlayProps) {
   const { t } = useTranslation();
-  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, updateFields, clearSelection, appMode } = useEditorStore();
+  const { fields, addField, selectField, activeTool, setActiveTool, selectedFieldIds, updateField, updateFields, clearSelection, appMode, snapToGrid } = useEditorStore();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const pageFields = fields.filter((f) => f.pageIndex === pageMeta.pageIndex);
@@ -58,6 +58,18 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
 
   useKeyboardNudging(pageMeta.pageIndex);
 
+  useEffect(() => {
+    const handleOpenActions = (e: Event) => {
+      const customEvent = e as CustomEvent<{ fieldId: string }>;
+      // Only open it if the field belongs to THIS page (so we don't open multiple modals)
+      if (pageFields.find(f => f.id === customEvent.detail.fieldId)) {
+        setContextMenu({ x: 0, y: 0, fieldId: customEvent.detail.fieldId });
+      }
+    };
+    window.addEventListener('OPEN_FIELD_ACTIONS', handleOpenActions);
+    return () => window.removeEventListener('OPEN_FIELD_ACTIONS', handleOpenActions);
+  }, [pageFields, setContextMenu]);
+
   const { marquee, handlePointerDown, handlePointerMove, handlePointerUp } = useFieldInteraction(
     pageFields,
     pageMeta,
@@ -66,11 +78,18 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     overlayRef
   );
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (activeTool === 'select' || appMode !== 'edit') return;
+  const handlePointerDownWrapper = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (appMode !== 'edit') return;
+      if (activeTool === 'select') {
+        handlePointerDown(e);
+        return;
+      }
       
-      const rect = overlayRef.current!.getBoundingClientRect();
+      // We are placing a new field
+      if (e.target !== overlayRef.current) return;
+      
+      const rect = overlayRef.current.getBoundingClientRect();
       const webX = e.clientX - rect.left;
       const webY = e.clientY - rect.top;
 
@@ -86,20 +105,41 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       selectField(newField.id);
       setActiveTool('select');
     },
-    [activeTool, fields, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, appMode, t],
+    [appMode, activeTool, handlePointerDown, fields, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, t]
   );
 
   return (
     <div
       ref={overlayRef}
-      onPointerDown={appMode === 'edit' ? handlePointerDown : undefined}
+      onPointerDown={handlePointerDownWrapper}
       onPointerMove={appMode === 'edit' ? handlePointerMove : undefined}
       onPointerUp={appMode === 'edit' ? handlePointerUp : undefined}
       onPointerLeave={appMode === 'edit' ? handlePointerUp : undefined}
-      onClick={appMode === 'edit' ? handleClick : undefined}
       className="absolute inset-0"
       style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
     >
+      {/* Grid Overlay */}
+      {snapToGrid && appMode === 'edit' && (
+        <svg className="absolute inset-0 pointer-events-none z-0" width="100%" height="100%">
+          <defs>
+            <pattern 
+              id={`grid-${pageMeta.pageIndex}`} 
+              width={(10 / pageMeta.widthPt) * canvasWidth} 
+              height={(10 / pageMeta.heightPt) * canvasHeight} 
+              patternUnits="userSpaceOnUse"
+            >
+              <path 
+                d={`M ${(10 / pageMeta.widthPt) * canvasWidth} 0 L 0 0 0 ${(10 / pageMeta.heightPt) * canvasHeight}`} 
+                fill="none" 
+                className="stroke-blue-500/20 dark:stroke-blue-400/18" 
+                strokeWidth="1" 
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#grid-${pageMeta.pageIndex})`} />
+        </svg>
+      )}
+
       {/* Marquee Box */}
       {marquee && appMode === 'edit' && (
         <div
@@ -286,6 +326,11 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
     button:    'bg-cyan-500/20 border-cyan-500',
   };
 
+  const firstMatchIndex = fields.findIndex(f => f.name === field.name);
+  const isClone = firstMatchIndex !== -1 && fields[firstMatchIndex].id !== field.id;
+  const cloneStyle = 'bg-[#f4aefa]/20 border-[#f4aefa]';
+  const boxStyle = isClone ? cloneStyle : (typeColors[field.type] ?? 'border-zinc-400 bg-zinc-500/10');
+
   return (
     <motion.div
       initial={false}
@@ -384,16 +429,18 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       }}
       className={`
         rounded border-[1px] transition-shadow
-        ${typeColors[field.type] ?? 'border-zinc-400 bg-zinc-500/10'}
+        ${boxStyle}
         ${isSelected ? 'shadow-lg shadow-blue-500/20' : ''}
       `}
     >
       {/* Field label */}
       <span
-        className="absolute -top-5 left-0 text-[9px] leading-none px-1 py-0.5 rounded
-          bg-zinc-900/80 text-zinc-300 truncate max-w-full pointer-events-none select-none"
+        className={`absolute -top-5 left-0 text-[9px] leading-none px-1 py-0.5 rounded
+          text-zinc-300 truncate max-w-full pointer-events-none select-none
+          ${isClone ? 'bg-[#f4aefa]/60 text-zinc-900 font-semibold' : 'bg-zinc-900/80'}
+        `}
       >
-        {field.label || field.name}
+        {field.label || field.name} {isClone && '(Klon)'}
       </span>
 
 
@@ -406,7 +453,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
             top: '50%', 
             transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.351}px)` 
           }} 
-          title="Text Baseline"
+          data-tooltip="Text Baseline"
         />
       )}
 

@@ -11,6 +11,7 @@ import { ToastContainer } from './components/common/Toast';
 import { TooltipLayer } from './components/common/TooltipLayer';
 import { usePdfExport } from './hooks/usePdfExport';
 import { useAutoSave } from './hooks/useAutoSave';
+import { useUndoRedoShortcuts } from './hooks/useUndoRedoShortcuts';
 import { useEditorStore } from './store/useEditorStore';
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
   }, [theme]);
 
   useAutoSave();
+  useUndoRedoShortcuts();
 
   const handleExportEditable = () => void exportPdf('editable');
   const handleExportFlattened = () => setFlattenModalOpen(true);

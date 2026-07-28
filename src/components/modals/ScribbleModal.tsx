@@ -250,7 +250,8 @@ export function ScribbleModal({ open, onClose, onSave, initialValue }: ScribbleM
                   <button
                     onClick={clearCanvas}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                    title="Neu beginnen"
+                    data-tooltip="Neu beginnen"
+                    data-tooltip-pos="top"
                   >
                     <Eraser className="w-4 h-4" />
                     <span className="hidden sm:inline">Neu beginnen</span>
@@ -258,7 +259,8 @@ export function ScribbleModal({ open, onClose, onSave, initialValue }: ScribbleM
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                    title="Bild hochladen"
+                    data-tooltip="Bild hochladen"
+                    data-tooltip-pos="top"
                   >
                     <UploadCloud className="w-4 h-4" />
                     <span className="hidden sm:inline">Bild hochladen</span>

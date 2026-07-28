@@ -227,7 +227,7 @@ export function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, othe
             top: '50%', 
             transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.351}px)` 
           }} 
-          title="Text Baseline"
+          data-tooltip="Text Baseline"
         />
       )}
 
