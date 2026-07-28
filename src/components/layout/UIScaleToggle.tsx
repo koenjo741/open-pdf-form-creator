@@ -26,7 +26,7 @@ export function UIScaleToggle() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-center h-8 px-2 gap-1 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
         aria-label={`UI Scale: ${getLabel()}`}
-        title={`UI Scale: ${getLabel()}`}
+        data-tooltip={`UI Scale: ${getLabel()}`}
       >
         <ZoomIn className="w-4 h-4" />
         <span className="text-[10px] font-bold tracking-tight">{getLabel()}</span>

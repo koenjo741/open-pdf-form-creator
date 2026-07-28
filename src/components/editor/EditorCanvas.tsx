@@ -5,6 +5,7 @@ import { initialisePdfJs } from '../../utils/pdfLoader';
 import { useEditorStore } from '../../store/useEditorStore';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { PageRenderer } from './PageRenderer';
+import { MiniMap } from './MiniMap';
 import { useTranslation } from 'react-i18next';
 import { Upload, FileUp } from 'lucide-react';
 import { toast } from '../common/Toast';
@@ -185,8 +186,11 @@ export function EditorCanvas() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div ref={containerRef} className="flex-1 overflow-y-scroll px-6 py-6">
+    <div className="flex-1 flex flex-col overflow-hidden relative">
+      {!isLoadingPdf && pdfDoc && (
+        <MiniMap pdfDoc={pdfDoc} numPages={numPages} containerRef={containerRef} />
+      )}
+      <div ref={containerRef} className="flex-1 overflow-y-scroll px-6 py-6 scroll-smooth">
         {/* Loading spinner while PDF is being parsed */}
         {isLoadingPdf && (
           <div className="flex items-center justify-center py-20">
@@ -201,7 +205,7 @@ export function EditorCanvas() {
           <div className="mx-auto" style={{ width: containerWidth }}>
             <div className="space-y-8">
               {Array.from({ length: numPages }, (_, i) => (
-                <div key={i}>
+                <div key={i} id={`pdf-page-${i}`}>
                   {/* Page label */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">

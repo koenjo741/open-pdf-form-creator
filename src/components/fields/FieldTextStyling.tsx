@@ -103,7 +103,8 @@ export function FieldTextStyling({ field }: Props) {
                 key={align}
                 id={`field-align-${align}-${field.id}`}
                 onClick={() => updateField(field.id, { textAlign: align })}
-                title={t(`sidebar.${align}` as const)}
+                data-tooltip={t(`sidebar.${align}` as const)}
+                data-tooltip-pos="top"
                 className={`flex-1 flex justify-center items-center py-2 text-sm transition-colors ${
                   (field.textAlign ?? 'left') === align
                     ? 'bg-blue-600 text-white'

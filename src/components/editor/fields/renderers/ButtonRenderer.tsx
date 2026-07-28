@@ -17,7 +17,7 @@ export interface RendererProps {
 export function ButtonRenderer({ field, baseStyle, isDisabled, onClick }: { field: FieldDef; baseStyle: React.CSSProperties; isDisabled?: boolean; onClick?: (e: React.MouseEvent) => void }) {
   return (
     <button
-      title={field.tooltip}
+      data-tooltip={field.tooltip}
       style={{
         ...baseStyle,
         backgroundColor: '#e2e8f0',

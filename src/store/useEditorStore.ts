@@ -294,17 +294,21 @@ export const useEditorStore = create<EditorStore>()(
       }),
       {
         // zundo options — undo/redo is in-memory only (not persisted)
-        partialize: (state): PersistedState => ({
+        // We ONLY track document-level state (fields), NOT UI state (theme, uiScale, etc.)
+        partialize: (state): Pick<EditorState, 'fields' | 'filenameTemplate'> => ({
           fields: state.fields,
-          pageMetas: state.pageMetas,
-          activeTool: state.activeTool,
-          sidebarPosition: state.sidebarPosition,
-          theme: state.theme,
-          snapToGrid: state.snapToGrid,
           filenameTemplate: state.filenameTemplate,
-          uiScale: state.uiScale,
         }),
         limit: 100,
+        handleSet: (handleSet) => {
+          let timeout: ReturnType<typeof setTimeout>;
+          return (state, pastState) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              handleSet(state, pastState);
+            }, 300);
+          };
+        }
       },
     ),
     {

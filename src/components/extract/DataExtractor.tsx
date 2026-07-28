@@ -184,7 +184,8 @@ export function DataExtractor() {
             <button
               onClick={() => setAppMode('edit')}
               className="flex items-center gap-2 px-4 py-2 border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:border-red-500/50 transition-colors rounded-lg font-medium"
-              title="Schließen"
+              data-tooltip="Schließen"
+              data-tooltip-pos="top"
             >
               <X className="w-5 h-5" />
               Reset / Close

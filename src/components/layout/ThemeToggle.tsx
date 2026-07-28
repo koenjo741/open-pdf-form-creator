@@ -12,7 +12,8 @@ export function ThemeToggle() {
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="relative flex items-center justify-center w-8 h-8 p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors overflow-hidden"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      data-tooltip={isDark ? 'Heller Modus' : 'Dunkler Modus'}
+      data-tooltip-pos="top"
     >
       <motion.div
         initial={false}
