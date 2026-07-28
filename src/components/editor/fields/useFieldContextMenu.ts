@@ -94,36 +94,41 @@ export function useFieldContextMenu(
 
     const patch: Partial<FieldDef> = { type: newType };
     
+    // reset some common text/options fields
+    patch.textSubType = undefined;
+    patch.options = undefined;
+    patch.checkedByDefault = undefined;
+    patch.groupName = undefined;
+    patch.radioValue = undefined;
+    patch.buttonAction = undefined;
+
     if (newType === 'text') {
       patch.textSubType = newSubType as FieldDef['textSubType'] || 'text';
-      patch.options = undefined;
-      patch.checkedByDefault = undefined;
-      patch.groupName = undefined;
-      patch.radioValue = undefined;
     } else if (newType === 'dropdown') {
       patch.options = [];
-      patch.textSubType = undefined;
-      patch.checkedByDefault = undefined;
-      patch.groupName = undefined;
-      patch.radioValue = undefined;
     } else if (newType === 'checkbox') {
       patch.checkedByDefault = false;
-      patch.textSubType = undefined;
-      patch.options = undefined;
-      patch.groupName = undefined;
-      patch.radioValue = undefined;
     } else if (newType === 'radio') {
       patch.groupName = 'group1';
       patch.radioValue = currentField.id.slice(0, 4);
-      patch.textSubType = undefined;
-      patch.options = undefined;
-      patch.checkedByDefault = undefined;
-    } else {
-      patch.textSubType = undefined;
-      patch.options = undefined;
-      patch.checkedByDefault = undefined;
-      patch.groupName = undefined;
-      patch.radioValue = undefined;
+    } else if (newType === 'button') {
+      patch.buttonAction = (newSubType as 'submit' | 'lock') || 'submit';
+    } else if (newType === 'barcode') {
+      patch.barcodeFormat = 'qrcode';
+    } else if (newType === 'time') {
+      patch.timeFormat = '24h';
+    } else if (newType === 'scaleRating') {
+      patch.scaleMin = 1;
+      patch.scaleMax = 5;
+      patch.scaleMinLabel = 'Worst';
+      patch.scaleMaxLabel = 'Best';
+    } else if (newType === 'inputTable') {
+      patch.tableRows = ['Row 1', 'Row 2'];
+      patch.tableCols = ['Col 1', 'Col 2'];
+      patch.tableInputType = 'textbox';
+    } else if (newType === 'yesNo') {
+      patch.yesLabel = 'JA';
+      patch.noLabel = 'NEIN';
     }
 
     updateField(currentField.id, patch);

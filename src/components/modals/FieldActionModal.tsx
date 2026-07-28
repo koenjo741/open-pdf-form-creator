@@ -78,63 +78,45 @@ export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClon
 
         <div className="mt-6 border-t border-zinc-700 pt-6">
           <div className="font-medium text-white mb-3">Feld umwandeln in...</div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => onConvert('text')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'text' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'text' && (!field.textSubType || field.textSubType === 'text')}
-            >
-              Textfeld
-            </button>
-            <button
-              onClick={() => onConvert('date')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'date' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'date'}
-            >
-              Datum
-            </button>
-            <button
-              onClick={() => onConvert('dropdown')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'dropdown' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'dropdown'}
-            >
-              Dropdown
-            </button>
-            <button
-              onClick={() => onConvert('checkbox')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'checkbox' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'checkbox'}
-            >
-              Kontrollkästchen
-            </button>
-            <button
-              onClick={() => onConvert('radio')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'radio' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'radio'}
-            >
-              Radio-Button
-            </button>
-            <button
-              onClick={() => onConvert('text', 'number')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'number' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'text' && field.textSubType === 'number'}
-            >
-              Zahlen
-            </button>
-            <button
-              onClick={() => onConvert('text', 'currency')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'currency' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'text' && field.textSubType === 'currency'}
-            >
-              Währung
-            </button>
-            <button
-              onClick={() => onConvert('text', 'iban')}
-              className={`p-2 rounded-lg text-sm text-left transition-colors border ${field.type === 'text' && field.textSubType === 'iban' ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
-              disabled={field.type === 'text' && field.textSubType === 'iban'}
-            >
-              IBAN
-            </button>
+          <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            {[
+              { id: 'text', label: 'Textfeld', type: 'text', subType: 'text' },
+              { id: 'number', label: 'Zahlen', type: 'text', subType: 'number' },
+              { id: 'currency', label: 'Währung', type: 'text', subType: 'currency' },
+              { id: 'iban', label: 'IBAN', type: 'text', subType: 'iban' },
+              { id: 'email', label: 'E-Mail', type: 'text', subType: 'email' },
+              { id: 'url', label: 'URL', type: 'text', subType: 'url' },
+              { id: 'dropdown', label: 'Dropdown', type: 'dropdown' },
+              { id: 'date', label: 'Datum', type: 'date' },
+              { id: 'time', label: 'Uhrzeit', type: 'time' },
+              { id: 'scaleRating', label: 'Bewertungsskala', type: 'scaleRating' },
+              { id: 'inputTable', label: 'Eingabetabelle', type: 'inputTable' },
+              { id: 'yesNo', label: 'JA / NEIN', type: 'yesNo' },
+              { id: 'checkbox', label: 'Kontrollkästchen', type: 'checkbox' },
+              { id: 'radio', label: 'Radio', type: 'radio' },
+              { id: 'signature', label: 'Signatur (Zertifikat)', type: 'signature' },
+              { id: 'scribble', label: 'Signatur (Zeichnung)', type: 'scribble' },
+              { id: 'barcode', label: '2D-Barcode', type: 'barcode' },
+              { id: 'button', label: 'Sende-Button', type: 'button', subType: 'submit' },
+              { id: 'lockButton', label: 'Sperren-Button', type: 'button', subType: 'lock' },
+            ].map(opt => {
+              const isCurrent = opt.type === 'text' 
+                ? (field.type === 'text' && (field.textSubType || 'text') === opt.subType)
+                : opt.type === 'button'
+                ? (field.type === 'button' && (field.buttonAction || 'submit') === opt.subType)
+                : field.type === opt.type;
+
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => onConvert(opt.type as any, opt.subType)}
+                  className={`p-2 rounded-lg text-sm text-left transition-colors border ${isCurrent ? 'bg-zinc-800 border-zinc-600 text-white cursor-default' : 'bg-zinc-800/50 hover:bg-zinc-700 border-zinc-700 text-zinc-300'}`}
+                  disabled={isCurrent}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
