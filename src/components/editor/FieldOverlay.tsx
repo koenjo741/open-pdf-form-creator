@@ -10,6 +10,9 @@ import { PromptModal } from '../modals/PromptModal';
 import { FieldActionModal } from '../modals/FieldActionModal';
 import { useFieldContextMenu } from './fields/useFieldContextMenu';
 import { useFieldInteraction } from './useFieldInteraction';
+import { useKeyboardNudging } from '../../hooks/useKeyboardNudging';
+import { createNewField } from '../../utils/fieldDefinitions';
+import { LaserBeams } from './LaserBeams';
 import {
   TextFieldRenderer,
   DateFieldRenderer,
@@ -26,23 +29,6 @@ import {
   YesNoFieldRenderer
 } from './fields/renderers';
 import { toast } from '../common/Toast';
-
-// Default field dimensions in PDF points
-const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
-  text:        { w: 120, h: 24 },
-  dropdown:    { w: 100, h: 24 },
-  date:        { w: 120, h: 24 },
-  time:        { w: 100, h: 24 },
-  scaleRating: { w: 250, h: 50 },
-  inputTable:  { w: 350, h: 150 },
-  yesNo:       { w: 120, h: 30 },
-  checkbox:    { w: 16,  h: 16 },
-  radio:       { w: 16,  h: 16 },
-  signature:   { w: 150, h: 50 },
-  scribble:    { w: 150, h: 50 },
-  barcode:     { w: 100, h: 100 },
-  button:      { w: 120, h: 36 },
-};
 
 interface FieldOverlayProps {
   pageMeta: PageMeta;
@@ -70,51 +56,9 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const [globalDrag, setGlobalDrag] = useState<{ originId: string; dxWeb: number; dyWeb: number } | null>(null);
   const [globalResize, setGlobalResize] = useState<{ originId: string; handle: string; rx: number; ry: number; rw: number; rh: number } | null>(null);
 
-  // Keyboard Nudging (Multiple Fields)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't nudge if typing in an input
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) return;
-      if (selectedFieldIds.length === 0 || activeTool !== 'select' || appMode !== 'edit') return;
+  useKeyboardNudging(pageMeta.pageIndex);
 
-      const selectedFieldsOnPage = fields.filter((f) => selectedFieldIds.includes(f.id) && f.pageIndex === pageMeta.pageIndex);
-      if (selectedFieldsOnPage.length === 0) return;
-
-      const step = e.shiftKey ? 10 : 1;
-      let dx = 0;
-      let dy = 0;
-
-      switch (e.key) {
-        case 'ArrowUp':
-          dy = step;
-          break;
-        case 'ArrowDown':
-          dy = -step;
-          break;
-        case 'ArrowLeft':
-          dx = -step;
-          break;
-        case 'ArrowRight':
-          dx = step;
-          break;
-        default:
-          return; // Ignore other keys
-      }
-
-      e.preventDefault(); // Prevent scrolling
-      const updates = selectedFieldsOnPage.map((field) => ({
-        id: field.id,
-        patch: {
-          pdfX: field.pdfX + dx,
-          pdfY: field.pdfY + dy,
-        }
-      }));
-      updateFields(updates);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedFieldIds, fields, activeTool, pageMeta.pageIndex, updateField, updateFields, appMode]);  const { marquee, handlePointerDown, handlePointerMove, handlePointerUp } = useFieldInteraction(
+  const { marquee, handlePointerDown, handlePointerMove, handlePointerUp } = useFieldInteraction(
     pageFields,
     pageMeta,
     canvasWidth,
@@ -136,54 +80,13 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
         canvasWidth, canvasHeight,
       );
 
-      const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url', 'regex'].includes(activeTool);
-      const isButtonSubtype = activeTool === 'lockButton';
-      const type = isTextSubtype ? 'text' : (isButtonSubtype ? 'button' : activeTool as any);
-      const sizes = DEFAULT_SIZES[type] || {w: 144, h: 24};
-      const id = crypto.randomUUID();
+      const newField = createNewField(activeTool, fields, pageMeta.pageIndex, pdfX, pdfY, t);
       
-      const textSubType = isTextSubtype ? (activeTool as NonNullable<FieldDef['textSubType']>) : undefined;
-      const prefix = activeTool.charAt(0).toUpperCase() + activeTool.slice(1);
-      
-      let counter = 1;
-      let baseName = '';
-      while (true) {
-        baseName = `${prefix} -- ${counter}`;
-        if (!fields.some(f => f.name === baseName)) break;
-        counter++;
-      }
-
-      const newField: FieldDef = {
-        id,
-        pageIndex: pageMeta.pageIndex,
-        type: type,
-        name: baseName,
-        label: baseName,
-        pdfX,
-        pdfY: pdfY - sizes.h, // anchor top-left
-        pdfWidth: sizes.w,
-        pdfHeight: sizes.h,
-        fontSize: 12,
-        fontWeight: 'regular',
-        textSubType,
-        options: activeTool === 'dropdown' ? [] : undefined,
-        checkedByDefault: activeTool === 'checkbox' ? false : undefined,
-        groupName: activeTool === 'radio' ? 'group1' : undefined,
-        radioValue: activeTool === 'radio' ? id.slice(0, 4) : undefined,
-        ...(activeTool === 'barcode' ? { barcodeFormat: 'qrcode' } : {}),
-        ...(activeTool === 'time' ? { timeFormat: '24h' } : {}),
-        ...(activeTool === 'scaleRating' ? { scaleMin: 1, scaleMax: 5, scaleMinLabel: 'Worst', scaleMaxLabel: 'Best' } : {}),
-        ...(activeTool === 'inputTable' ? { tableRows: ['Row 1', 'Row 2'], tableCols: ['Col 1', 'Col 2'], tableInputType: 'textbox' } : {}),
-        ...(activeTool === 'yesNo' ? { yesLabel: 'JA', noLabel: 'NEIN' } : {}),
-        buttonAction: activeTool === 'lockButton' ? 'lock' : (type === 'button' ? 'submit' : undefined),
-        tooltip: activeTool === 'lockButton' ? t('fields.lockButtonTooltip') : undefined,
-      };
-
       addField(newField);
-      selectField(id);
+      selectField(newField.id);
       setActiveTool('select');
     },
-    [activeTool, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, appMode],
+    [activeTool, fields, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, appMode, t],
   );
 
   return (
@@ -223,32 +126,14 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       ))}
 
       {/* Laser Beams for selected text/date fields */}
-      {appMode === 'edit' && selectedFieldIds.map(id => {
-        const f = pageFields.find(pf => pf.id === id);
-        if (!f || (f.type !== 'text' && f.type !== 'date')) return null;
-
-        let { webY } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
-        let webH = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
-
-        if (globalDrag && (globalDrag.originId === f.id || selectedFieldIds.includes(f.id))) {
-           webY += globalDrag.dyWeb;
-        }
-        if (globalResize && (globalResize.originId === f.id || selectedFieldIds.includes(f.id))) {
-           webY += globalResize.ry;
-           webH += globalResize.rh;
-        }
-
-        const scaledFontSize = (f.fontSize || 12) * (canvasHeight / pageMeta.heightPt);
-        const baselineY = webY + (webH / 2) + scaledFontSize * 0.351;
-
-        return (
-          <div
-            key={`laser-${id}`}
-            className="absolute left-0 right-0 border-t border-dashed border-red-500/40 z-40 pointer-events-none"
-            style={{ top: baselineY }}
-          />
-        );
-      })}
+      <LaserBeams
+        pageFields={pageFields}
+        pageMeta={pageMeta}
+        canvasWidth={canvasWidth}
+        canvasHeight={canvasHeight}
+        globalDrag={globalDrag}
+        globalResize={globalResize}
+      />
 
       {pageFields.map((field) => (
         appMode === 'preview' ? (
