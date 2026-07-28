@@ -20,7 +20,7 @@ export function BarcodeRenderer({ field, baseStyle }: { field: FieldDef; baseSty
     <div style={{ ...baseStyle, backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <QrCode className="w-8 h-8 text-slate-400 mb-1" />
       <span className="text-[10px] text-slate-400 font-medium px-2 text-center leading-tight">
-        {(field as any).barcodeType === 'qrcode' ? 'QR Code' : 'Barcode'}<br/>
+        {field.barcodeFormat === 'pdf417' ? 'PDF417' : 'QR Code'}<br/>
         <span className="text-[8px] opacity-75">{field.value || 'Kein Inhalt'}</span>
       </span>
     </div>
