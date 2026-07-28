@@ -725,7 +725,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
           val = val.replace(regex, '');
         }
       } else if (field.type === 'date') {
-        val = val.replace(/[^\d.\/\- ]/g, '');
+        val = val.replace(/[^\d.\/\- ,]/g, '');
       }
       updateField(field.id, { value: val });
     }
