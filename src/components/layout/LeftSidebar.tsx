@@ -183,6 +183,7 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
             <span>{isImporting ? 'Importing...' : t('header.upload')}</span>
           </button>
           <button
+            id="sidebar-create-blank-btn"
             onClick={handleCreateBlankPdf}
             disabled={isLoaded || isImporting}
             className={`w-full flex items-center justify-center gap-2 h-9 rounded-lg text-sm font-medium transition-colors border ${

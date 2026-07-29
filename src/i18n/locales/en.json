@@ -80,7 +80,9 @@
     "conditionFieldLabel": "Depends on field",
     "conditionIsChecked": "is checked",
     "conditionIsSelected": "is selected",
-    "conditionHasValue": "has the value:"
+    "conditionHasValue": "has the value:",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
   "editor": {
     "uploadPrompt": "Upload a PDF to get started",
