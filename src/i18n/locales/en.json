@@ -84,6 +84,7 @@
   },
   "editor": {
     "uploadPrompt": "Upload a PDF to get started",
+    "createNewPdf": "Create a new PDF-Form",
     "uploadPromptSub": "Your file never leaves your device",
     "dropHere": "Drop your PDF here",
     "clickToUpload": "or click to upload",

@@ -35,7 +35,7 @@ function buildFilename(original: string | null, mode: ExportMode): string {
 
 export function usePdfExport() {
   const [isExporting, setIsExporting] = useState(false);
-  const { pdfBuffer, fields, pdfFileName } = useEditorStore();
+  const { pdfBuffer, fields, pdfFileName, backgroundLayers } = useEditorStore();
 
   const exportPdfBuffer = async (mode: ExportMode, readOnlyFieldNames?: string[]): Promise<Uint8Array | null> => {
     if (!pdfBuffer || pdfBuffer.length === 0) {
@@ -74,10 +74,18 @@ export function usePdfExport() {
       // 5. Set NeedAppearances so PDF viewers regenerate appearances
       form.acroForm.dict.set(PDFName.of('NeedAppearances'), PDFBool.True);
 
-      // 5.5 Enforce Annotation Array order for Tabbing
-      for (const page of pdfDoc.getPages()) {
+      // Dynamically import the tiptap renderer to avoid circular deps or lazy load it
+      const { renderTiptapLayerToPDF } = await import('../utils/generators/renderTiptapLayer');
+
+      // 5.5 Enforce Annotation Array order for Tabbing and Render Background Layers
+      pdfDoc.getPages().forEach((page, index) => {
         page.node.set(PDFName.of('Tabs'), PDFName.of('A'));
-      }
+        
+        // Render Tiptap background text behind form fields
+        if (backgroundLayers[index]) {
+          renderTiptapLayerToPDF(page, backgroundLayers[index], embeddedRegular, embeddedBold);
+        }
+      });
 
       // Prepare Calculation Order (CO) array
       const coArray = pdfDoc.context.obj([]);

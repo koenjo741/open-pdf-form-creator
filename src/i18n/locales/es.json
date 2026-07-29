@@ -71,6 +71,7 @@
   },
   "editor": {
     "uploadPrompt": "Suba un PDF para comenzar",
+    "createNewPdf": "Crear un nuevo PDF",
     "uploadPromptSub": "Su archivo nunca sale de su dispositivo",
     "dropHere": "Suelte su PDF aquí",
     "clickToUpload": "o haga clic para subir",

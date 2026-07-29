@@ -84,6 +84,7 @@
   },
   "editor": {
     "uploadPrompt": "PDF hochladen um zu beginnen",
+    "createNewPdf": "PDF neu erstellen",
     "uploadPromptSub": "Ihre Datei verlässt nie Ihr Gerät",
     "dropHere": "PDF hier ablegen",
     "clickToUpload": "oder zum Hochladen klicken",

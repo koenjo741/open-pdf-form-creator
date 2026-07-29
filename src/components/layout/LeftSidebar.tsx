@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
 import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, Lock, Clock, BarChart, Table, ToggleLeft } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { usePdfExport } from '../../hooks/usePdfExport';
 import { toast } from '../common/Toast';
 import { AnimatePresence, motion } from 'framer-motion';
 import { extractAndStripFormFields } from '../../utils/pdfImporter';
@@ -56,15 +57,34 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
       if (extractedFields.length > 0) {
         toast.success(`Imported ${extractedFields.length} existing fields.`);
       } else {
-        toast.error('No form fields found in the PDF.');
+        toast.info('No form fields found in the PDF.');
       }
     } catch (err) {
-      console.error('Failed to import PDF fields:', err);
-      toast.error(t('errors.unknown'));
+      console.error('Failed to parse PDF:', err);
+      toast.error('Fehler beim Lesen des PDFs. Ist es passwortgeschützt?');
     } finally {
       setIsImporting(false);
     }
   };
+
+  const handleCreateBlankPdf = async () => {
+    setIsImporting(true);
+    try {
+      const { PDFDocument } = await import('pdf-lib');
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage([595.28, 841.89]); // A4 Size
+      const pdfBytes = await pdfDoc.save();
+      setPdfBuffer(pdfBytes, 'NeuesDokument.pdf', pdfBytes.byteLength, []);
+      toast.success('Leeres PDF erfolgreich erstellt.');
+    } catch (err) {
+      console.error('Failed to create blank PDF:', err);
+      toast.error('Fehler beim Erstellen des PDFs.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const { exportPdfBuffer } = usePdfExport();
 
   const handleAutoDetect = async () => {
     const { pdfBuffer, addFields, fields } = useEditorStore.getState();
@@ -72,23 +92,50 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
 
     setIsAutoDetecting(true);
     try {
-      const detected = await autoDetectFields(pdfBuffer);
+      // Export a temporary PDF that has the Tiptap background text baked into it
+      // so the auto-detect logic can find placeholders drawn by the user.
+      const mergedPdf = await exportPdfBuffer('editable');
+      if (!mergedPdf) {
+        setIsAutoDetecting(false);
+        return;
+      }
+
+      const detected = await autoDetectFields(mergedPdf);
       if (detected.length === 0) {
         toast.info('Keine Platzhalter (Unterstriche) im Dokument gefunden.');
         return;
       }
-      
-      // Prevent duplicates by checking name
-      const newFields = detected.filter(df => !fields.some(f => f.name === df.name)).map(df => ({
-        ...df,
-        id: crypto.randomUUID()
-      }));
+      const { updateField } = useEditorStore.getState();
 
-      if (newFields.length > 0) {
-        addFields(newFields);
-        toast.success(`${newFields.length} Felder automatisch erkannt und hinzugefügt!`);
+      let addedCount = 0;
+      let updatedCount = 0;
+
+      detected.forEach(df => {
+        const existingField = fields.find(f => f.name === df.name);
+        if (existingField) {
+          // Update position and size of existing field
+          updateField(existingField.id, {
+            pdfX: df.pdfX,
+            pdfY: df.pdfY,
+            pdfWidth: df.pdfWidth,
+            pdfHeight: df.pdfHeight,
+          });
+          updatedCount++;
+        } else {
+          // Add new field
+          addFields([{ ...df, id: crypto.randomUUID() }]);
+          addedCount++;
+        }
+      });
+
+      if (addedCount > 0 && updatedCount > 0) {
+        toast.success(`${addedCount} neue Felder hinzugefügt, ${updatedCount} aktualisiert!`);
+      } else if (addedCount > 0) {
+        toast.success(`${addedCount} Felder automatisch erkannt und hinzugefügt!`);
+      } else if (updatedCount > 0) {
+        toast.success(`${updatedCount} vorhandene Felder an neue Positionen angepasst!`);
       } else {
-        toast.info('Felder wurden bereits hinzugefügt.');
+        toast.info('Keine neuen Platzhalter gefunden.');
       }
     } catch (err) {
       console.error('Failed to auto-detect fields:', err);
@@ -134,6 +181,18 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
           >
             <Upload className="w-4 h-4" />
             <span>{isImporting ? 'Importing...' : t('header.upload')}</span>
+          </button>
+          <button
+            onClick={handleCreateBlankPdf}
+            disabled={isLoaded || isImporting}
+            className={`w-full flex items-center justify-center gap-2 h-9 rounded-lg text-sm font-medium transition-colors border ${
+              isLoaded || isImporting
+                ? 'bg-zinc-800/50 text-zinc-600 border-zinc-700/30 cursor-not-allowed'
+                : 'bg-slate-700 hover:bg-slate-600 text-white border-slate-600'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>PDF neu erstellen</span>
           </button>
           <input
             ref={fileInputRef}

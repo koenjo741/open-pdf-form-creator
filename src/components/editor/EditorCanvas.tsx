@@ -7,7 +7,7 @@ import { extractAndStripFormFields } from '../../utils/pdfImporter';
 import { PageRenderer } from './PageRenderer';
 import { MiniMap } from './MiniMap';
 import { useTranslation } from 'react-i18next';
-import { Upload, FileUp } from 'lucide-react';
+import { Upload, FileUp, FilePlus, ShieldCheck } from 'lucide-react';
 import { toast } from '../common/Toast';
 import type { PageMeta } from '../../types';
 
@@ -158,26 +158,49 @@ export function EditorCanvas() {
             ${isDraggingOver ? 'bg-blue-900/10' : ''}
           `}
         >
-          <div 
-            onClick={() => document.getElementById('sidebar-upload-btn')?.click()}
-            className={`
-              flex flex-col items-center gap-4 px-12 py-16 rounded-2xl border-2 border-dashed transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900/50
-              ${isDraggingOver ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-300 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-900/30'}
-            `}
-          >
-            <div className={`
-              w-16 h-16 rounded-2xl flex items-center justify-center transition-colors
-              ${isDraggingOver ? 'bg-cyan-600/20' : 'bg-slate-200 dark:bg-slate-800/60'}
-            `}>
-              {isDraggingOver
-                ? <FileUp className="w-8 h-8 text-cyan-500" />
-                : <Upload className="w-8 h-8 text-slate-400 dark:text-slate-500" />
-              }
+          <div className="flex flex-col items-center gap-8">
+            <div 
+              className={`
+                flex flex-col gap-0 rounded-2xl border-2 transition-colors overflow-hidden
+                ${isDraggingOver ? 'border-cyan-500 bg-cyan-500/5' : 'border-slate-300 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-900/30'}
+              `}
+            >
+              {/* Upload Area */}
+              <div 
+                onClick={() => document.getElementById('sidebar-upload-btn')?.click()}
+                className="flex items-center gap-6 px-10 py-10 cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-200 dark:border-slate-700/50"
+              >
+                <div className={`
+                  w-14 h-14 rounded-2xl flex shrink-0 items-center justify-center transition-colors
+                  ${isDraggingOver ? 'bg-cyan-600/20' : 'bg-slate-200 dark:bg-slate-800/80'}
+                `}>
+                  {isDraggingOver
+                    ? <FileUp className="w-7 h-7 text-cyan-500" />
+                    : <Upload className="w-7 h-7 text-slate-400 dark:text-slate-500" />
+                  }
+                </div>
+                <div className="text-left">
+                  <p className="text-slate-800 dark:text-slate-300 font-medium text-lg">{t('editor.uploadPrompt')}</p>
+                </div>
+              </div>
+
+              {/* Create New Area */}
+              <div 
+                onClick={() => document.getElementById('sidebar-create-blank-btn')?.click()}
+                className="flex items-center gap-6 px-10 py-10 cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                <div className="w-14 h-14 rounded-2xl flex shrink-0 items-center justify-center transition-colors bg-slate-200 dark:bg-slate-800/80">
+                  <FilePlus className="w-7 h-7 text-slate-400 dark:text-slate-500" />
+                </div>
+                <div className="text-left">
+                  <p className="text-slate-800 dark:text-slate-300 font-medium text-lg">{t('editor.createNewPdf')}</p>
+                </div>
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-slate-800 dark:text-slate-300 font-medium">{t('editor.uploadPrompt')}</p>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{t('editor.uploadPromptSub')}</p>
-              <p className="text-slate-500 dark:text-slate-500 text-xs mt-3">{t('editor.dropHere')} · {t('editor.clickToUpload')}</p>
+            
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400/80 bg-slate-100 dark:bg-slate-800/30 px-4 py-2 rounded-full text-sm font-medium">
+              <ShieldCheck className="w-4 h-4" />
+              {t('editor.uploadPromptSub')}
             </div>
           </div>
         </div>

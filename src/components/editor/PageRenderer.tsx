@@ -3,6 +3,7 @@ import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 import { usePdfRenderer } from '../../hooks/usePdfRenderer';
 import { FieldOverlay } from './FieldOverlay';
 import { useEditorStore } from '../../store/useEditorStore';
+import { PageEditor } from './tiptap/PageEditor';
 
 interface PageRendererProps {
   pdfDoc: PDFDocumentProxy;
@@ -56,6 +57,13 @@ export function PageRenderer({ pdfDoc, pageIndex, containerWidth }: PageRenderer
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 rounded-sm">
           <p className="text-red-500 dark:text-red-400 text-sm px-4 text-center">{error}</p>
+        </div>
+      )}
+
+      {/* Tiptap Background Editor */}
+      {pageMeta && canvasW > 0 && canvasH > 0 && (
+        <div className="absolute inset-0 pointer-events-none">
+          <PageEditor pageMeta={pageMeta} isActive={true} scale={canvasW / pageMeta.widthPt} />
         </div>
       )}
 
