@@ -168,32 +168,32 @@ export function EditorCanvas() {
               {/* Upload Area */}
               <div 
                 onClick={() => document.getElementById('sidebar-upload-btn')?.click()}
-                className="flex items-center gap-6 px-10 py-10 cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-200 dark:border-slate-700/50"
+                className="group flex items-center gap-6 px-10 py-10 cursor-pointer hover:bg-[#059669] transition-colors border-b border-slate-200 dark:border-slate-700/50"
               >
                 <div className={`
                   w-14 h-14 rounded-2xl flex shrink-0 items-center justify-center transition-colors
-                  ${isDraggingOver ? 'bg-cyan-600/20' : 'bg-slate-200 dark:bg-slate-800/80'}
+                  ${isDraggingOver ? 'bg-cyan-600/20' : 'bg-slate-200 dark:bg-slate-800/80 group-hover:bg-white/20'}
                 `}>
                   {isDraggingOver
                     ? <FileUp className="w-7 h-7 text-cyan-500" />
-                    : <Upload className="w-7 h-7 text-slate-400 dark:text-slate-500" />
+                    : <Upload className="w-7 h-7 text-slate-400 dark:text-slate-500 group-hover:text-white" />
                   }
                 </div>
                 <div className="text-left">
-                  <p className="text-slate-800 dark:text-slate-300 font-medium text-lg">{t('editor.uploadPrompt')}</p>
+                  <p className="text-slate-800 dark:text-slate-300 font-medium text-lg group-hover:text-white">{t('editor.uploadPrompt')}</p>
                 </div>
               </div>
 
               {/* Create New Area */}
               <div 
                 onClick={() => document.getElementById('sidebar-create-blank-btn')?.click()}
-                className="flex items-center gap-6 px-10 py-10 cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
+                className="group flex items-center gap-6 px-10 py-10 cursor-pointer hover:bg-slate-600 transition-colors"
               >
-                <div className="w-14 h-14 rounded-2xl flex shrink-0 items-center justify-center transition-colors bg-slate-200 dark:bg-slate-800/80">
-                  <FilePlus className="w-7 h-7 text-slate-400 dark:text-slate-500" />
+                <div className="w-14 h-14 rounded-2xl flex shrink-0 items-center justify-center transition-colors bg-slate-200 dark:bg-slate-800/80 group-hover:bg-white/20">
+                  <FilePlus className="w-7 h-7 text-slate-400 dark:text-slate-500 group-hover:text-white" />
                 </div>
                 <div className="text-left">
-                  <p className="text-slate-800 dark:text-slate-300 font-medium text-lg">{t('editor.createNewPdf')}</p>
+                  <p className="text-slate-800 dark:text-slate-300 font-medium text-lg group-hover:text-white">{t('editor.createNewPdf')}</p>
                 </div>
               </div>
             </div>

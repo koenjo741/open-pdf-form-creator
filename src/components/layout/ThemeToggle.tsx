@@ -1,9 +1,11 @@
 import { useEditorStore } from '../../store/useEditorStore';
 import { Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useEditorStore();
+  const { t } = useTranslation();
   
   const isDark = theme === 'dark';
 
@@ -11,8 +13,8 @@ export function ThemeToggle() {
     <button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       className="relative flex items-center justify-center w-8 h-8 p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors overflow-hidden"
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      data-tooltip={isDark ? 'Heller Modus' : 'Dunkler Modus'}
+      aria-label={isDark ? t('sidebar.lightMode', 'Heller Modus') : t('sidebar.darkMode', 'Dunkler Modus')}
+      data-tooltip={isDark ? t('sidebar.lightMode', 'Heller Modus') : t('sidebar.darkMode', 'Dunkler Modus')}
       data-tooltip-pos="top"
     >
       <motion.div

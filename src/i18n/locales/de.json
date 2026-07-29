@@ -80,7 +80,9 @@
     "conditionFieldLabel": "Abhängig von Feld",
     "conditionIsChecked": "angehakt ist",
     "conditionIsSelected": "ausgewählt ist",
-    "conditionHasValue": "den Wert hat:"
+    "conditionHasValue": "den Wert hat:",
+    "lightMode": "Heller Modus",
+    "darkMode": "Dunkler Modus"
   },
   "editor": {
     "uploadPrompt": "PDF hochladen um zu beginnen",
