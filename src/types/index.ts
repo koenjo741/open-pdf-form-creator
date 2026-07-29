@@ -102,6 +102,13 @@ export interface PageMeta {
   heightPt: number;
 }
 
+// ─── Background Layer ────────────────────────────────────────────────────────
+
+export interface PageBackgroundLayer {
+  pageIndex: number;
+  content: any; // Tiptap JSON content
+}
+
 // ─── Coordinate Mapping ──────────────────────────────────────────────────────
 
 export interface WebCoords {

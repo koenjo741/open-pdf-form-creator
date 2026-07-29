@@ -115,7 +115,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       onPointerMove={appMode === 'edit' ? handlePointerMove : undefined}
       onPointerUp={appMode === 'edit' ? handlePointerUp : undefined}
       onPointerLeave={appMode === 'edit' ? handlePointerUp : undefined}
-      className="absolute inset-0"
+      className={`absolute inset-0 ${appMode === 'edit' && activeTool === 'select' ? 'pointer-events-none' : ''}`}
       style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
     >
       {/* Grid Overlay */}
@@ -428,7 +428,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         touchAction: 'none',
       }}
       className={`
-        rounded border-[1px] transition-shadow
+        rounded border-[1px] transition-shadow pointer-events-auto
         ${boxStyle}
         ${isSelected ? 'shadow-lg shadow-blue-500/20' : ''}
       `}

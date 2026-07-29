@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { temporal } from 'zundo';
 import { get, set, del } from 'idb-keyval';
-import type { FieldDef, PageMeta, ToolMode, AppMode } from '../types';
+import type { FieldDef, PageMeta, ToolMode, AppMode, PageBackgroundLayer } from '../types';
 
 // ─── IDB Storage Adapter ──────────────────────────────────────────────────────
 
@@ -32,6 +32,8 @@ export interface EditorState {
   selectedFieldIds: string[];
   /** Metadata for each PDF page (dimensions in pt) */
   pageMetas: PageMeta[];
+  /** Tiptap Background Layers, keyed by page index */
+  backgroundLayers: Record<number, any>;
   /** Active tool in the toolbar */
   activeTool: ToolMode;
   /** Whether any page is currently rendered */
@@ -66,6 +68,7 @@ export interface EditorActions {
   setPdfBuffer: (buffer: Uint8Array, fileName: string, fileSize: number, initialFields?: FieldDef[]) => void;
   clearPdf: () => void;
   setPageMetas: (metas: PageMeta[]) => void;
+  updateBackgroundLayer: (pageIndex: number, content: any) => void;
   addField: (field: FieldDef) => void;
   addFields: (newFields: FieldDef[]) => void;
   updateField: (id: string, patch: Partial<FieldDef>) => void;
@@ -113,7 +116,7 @@ function ensureSequentialTabIndices(fields: FieldDef[]): FieldDef[] {
 // ─── Persisted slice (fields + page metas + tool) ────────────────────────────
 // pdfBuffer is intentionally NOT in the persisted state.
 
-type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid' | 'filenameTemplate' | 'uiScale'>;
+type PersistedState = Pick<EditorState, 'fields' | 'pageMetas' | 'backgroundLayers' | 'activeTool' | 'sidebarPosition' | 'theme' | 'snapToGrid' | 'filenameTemplate' | 'uiScale'>;
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -128,6 +131,7 @@ export const useEditorStore = create<EditorStore>()(
         fields: [],
         selectedFieldIds: [],
         pageMetas: [],
+        backgroundLayers: {},
         activeTool: 'select' as ToolMode,
         isLoaded: false,
         appMode: 'edit',
@@ -164,10 +168,16 @@ export const useEditorStore = create<EditorStore>()(
             fields: [],
             selectedFieldIds: [],
             pageMetas: [],
+            backgroundLayers: {},
             isLoaded: false,
           }),
 
         setPageMetas: (metas) => set({ pageMetas: metas }),
+
+        updateBackgroundLayer: (pageIndex, content) => 
+          set((state) => ({
+            backgroundLayers: { ...state.backgroundLayers, [pageIndex]: content }
+          })),
 
         addField: (field) =>
           set((state) => {
@@ -295,9 +305,10 @@ export const useEditorStore = create<EditorStore>()(
       {
         // zundo options — undo/redo is in-memory only (not persisted)
         // We ONLY track document-level state (fields), NOT UI state (theme, uiScale, etc.)
-        partialize: (state): Pick<EditorState, 'fields' | 'filenameTemplate'> => ({
+        partialize: (state): Pick<EditorState, 'fields' | 'filenameTemplate' | 'backgroundLayers'> => ({
           fields: state.fields,
           filenameTemplate: state.filenameTemplate,
+          backgroundLayers: state.backgroundLayers,
         }),
         limit: 100,
         handleSet: (handleSet) => {
@@ -318,6 +329,7 @@ export const useEditorStore = create<EditorStore>()(
       partialize: (state): PersistedState => ({
         fields: state.fields,
         pageMetas: state.pageMetas,
+        backgroundLayers: state.backgroundLayers,
         activeTool: state.activeTool,
         sidebarPosition: state.sidebarPosition,
         theme: state.theme,

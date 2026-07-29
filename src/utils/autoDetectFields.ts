@@ -27,10 +27,10 @@ export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<Fiel
       const tx = transform[4];
       const ty = transform[5];
       // @ts-ignore
-      const width = item.width || 100;
-      // @ts-ignore
-      const height = item.height || 14;
-      const str = item.str;
+      const fontSize = Math.abs(transform[0]);
+      const str = (item as any).str;
+      const width = (item as any).width || (str.length * (fontSize * 0.5));
+      const height = (item as any).height || fontSize;
 
       const matches = [...str.matchAll(/_{4,}/g)];
 
@@ -38,9 +38,26 @@ export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<Fiel
         const matchIndex = match.index!;
         const matchLength = match[0].length;
 
-        // Estimate X and width based on string proportions
-        const matchTx = tx + (matchIndex / str.length) * width;
-        const matchWidth = (matchLength / str.length) * width;
+        // Estimate X and width accurately using canvas text measurement
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let matchTx = tx + (matchIndex / str.length) * width;
+        let matchWidth = (matchLength / str.length) * width;
+        let underscoreDescent = 0;
+
+        if (ctx) {
+          ctx.font = `${fontSize}px Helvetica, Arial, sans-serif`;
+          const prefixMeasure = ctx.measureText(str.substring(0, matchIndex)).width;
+          
+          const underscoreMetrics = ctx.measureText(match[0]);
+          const underscoreMeasure = underscoreMetrics.width;
+          // Some browsers might not support this, so fallback to 1.5 if undefined
+          underscoreDescent = underscoreMetrics.actualBoundingBoxDescent ?? 1.5;
+          
+          // Use exact canvas measurements instead of pdfjs-dist's inaccurate item.width
+          matchTx = tx + prefixMeasure;
+          matchWidth = underscoreMeasure;
+        }
 
         let closestText = '';
 
@@ -101,9 +118,9 @@ export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<Fiel
         name: finalName,
         label: finalName,
         pdfX: matchTx,
-        pdfY: ty - 2, // slightly adjust baseline
+        pdfY: ty - underscoreDescent,
         pdfWidth: matchWidth,
-        pdfHeight: Math.max(16, height + 4),
+        pdfHeight: fontSize + underscoreDescent,
         fontSize: 12,
         fontWeight: 'regular'
       });
