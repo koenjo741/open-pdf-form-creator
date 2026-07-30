@@ -222,10 +222,11 @@ export function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, othe
       {/* Visual Baseline Indicator */}
       {(field.type === 'text' || field.type === 'date') && (
         <div 
-          className="absolute left-0 right-0 border-b border-dashed border-red-500/60 pointer-events-none z-10"
+          className="absolute right-0 border-b-[0.5px] border-solid border-red-500/80 pointer-events-none z-10"
           style={{ 
+            left: -currentWebX,
             top: '50%', 
-            transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.351}px)` 
+            transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.35}px)` 
           }} 
           data-tooltip="Text Baseline"
         />

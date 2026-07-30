@@ -11,8 +11,10 @@ import { useEditorStore } from '../../../store/useEditorStore';
 import type { PageMeta } from '../../../types';
 import { 
   Bold, Italic, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  List, ListOrdered, Type
+  List, ListOrdered, Type, Indent, Outdent
 } from 'lucide-react';
+import { IndentExtension } from './IndentExtension';
+import { UnderscoreAdjustExtension } from './UnderscoreExtension';
 
 interface PageEditorProps {
   pageMeta: PageMeta;
@@ -125,6 +127,23 @@ const MenuBar = ({ editor }: { editor: any }) => {
       </button>
 
       <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5"></div>
+
+      <button
+        onClick={() => editor.chain().focus().removeTab().run()}
+        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+        title="Outdent (Shift+Tab)"
+      >
+        <Outdent size={14} />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().insertTab().run()}
+        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+        title="Indent (Tab)"
+      >
+        <Indent size={14} />
+      </button>
+
+      <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5"></div>
       
       {/* Line Height */}
       <select 
@@ -173,6 +192,8 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageMeta, isActive, scal
       }),
       LineHeight,
       FontSize,
+      IndentExtension,
+      UnderscoreAdjustExtension,
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
@@ -185,7 +206,7 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageMeta, isActive, scal
         // perfectly match the raw PDF rendering loop in renderTiptapLayerToPDF.
         // renderTiptapLayer adds 6px after paragraphs/lists, and 12px after headings.
         class: 'text-black max-w-none focus:outline-none h-full [&_p]:m-0 [&_p]:mb-[6px] [&_h1]:m-0 [&_h1]:mb-[12px] [&_h1]:text-[18px] [&_h1]:font-bold [&_h2]:m-0 [&_h2]:mb-[12px] [&_h2]:text-[18px] [&_h2]:font-bold [&_h3]:m-0 [&_h3]:mb-[12px] [&_h3]:text-[18px] [&_h3]:font-bold [&_ul]:m-0 [&_ul]:mb-[6px] [&_li]:m-0',
-        style: `font-size: 12px; color: black; font-family: Helvetica, Arial, sans-serif; line-height: 1.5; padding: 24px;`,
+        style: `font-size: 12px; color: black; font-family: Helvetica, Arial, sans-serif; line-height: 1.5; padding: 20px; white-space: pre-wrap; tab-size: 10px;`,
       },
     },
   });

@@ -10,6 +10,8 @@ import { autoDetectFields } from '../../utils/autoDetectFields';
 import { ThemeToggle } from './ThemeToggle';
 import { UIScaleToggle } from './UIScaleToggle';
 import { FieldListPanel } from './FieldListPanel';
+import { PAGE_FORMATS, MM_TO_PT } from '../../types/formats';
+import { resizePdfPages } from '../../utils/pdfFormatChanger';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
@@ -34,6 +36,10 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
   const [addFieldOpen, setAddFieldOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isAutoDetecting, setIsAutoDetecting] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState('A4');
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [customWidth, setCustomWidth] = useState(210);
+  const [customHeight, setCustomHeight] = useState(297);
 
   const canUndo = temporalStore.getState().pastStates.length > 0;
   const canRedo = temporalStore.getState().futureStates.length > 0;
@@ -79,6 +85,44 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
     } catch (err) {
       console.error('Failed to create blank PDF:', err);
       toast.error('Fehler beim Erstellen des PDFs.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleChangeFormat = async (formatId: string, orient: 'portrait' | 'landscape', cw: number, ch: number) => {
+    const { pdfBuffer, setPdfBuffer, pdfFileName, pdfFileSize, fields } = useEditorStore.getState();
+    if (!pdfBuffer) return;
+
+    setIsImporting(true);
+    try {
+      let wMm = cw;
+      let hMm = ch;
+      
+      if (formatId !== 'Custom') {
+        const fmt = PAGE_FORMATS.find(f => f.id === formatId);
+        if (fmt) {
+          wMm = fmt.widthMm;
+          hMm = fmt.heightMm;
+        }
+      }
+
+      let finalW = wMm * MM_TO_PT;
+      let finalH = hMm * MM_TO_PT;
+
+      if (orient === 'landscape') {
+        const temp = finalW;
+        finalW = finalH;
+        finalH = temp;
+      }
+
+      const newPdfBytes = await resizePdfPages(pdfBuffer, finalW, finalH);
+      // Keep existing fields, they might be off-page but it's up to the user to fix
+      setPdfBuffer(newPdfBytes, pdfFileName || 'document.pdf', pdfFileSize, fields);
+      toast.success('Seitenformat erfolgreich geändert.');
+    } catch (err) {
+      console.error('Failed to change format:', err);
+      toast.error('Fehler beim Ändern des Formats.');
     } finally {
       setIsImporting(false);
     }
@@ -207,6 +251,72 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
           {pdfFileName && (
             <div className="text-xs text-slate-500 truncate mt-1" data-tooltip={pdfFileName}>
               {pdfFileName}
+            </div>
+          )}
+
+          {isLoaded && (
+            <div className="flex flex-col gap-2 mt-2 p-3 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+              <label className="text-[10px] font-semibold text-slate-500 uppercase">Seitenformat</label>
+              
+              <select
+                value={selectedFormat}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedFormat(val);
+                  if (val !== 'Custom') handleChangeFormat(val, orientation, customWidth, customHeight);
+                }}
+                className="w-full h-8 px-2 text-xs rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+              >
+                {PAGE_FORMATS.map(f => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </select>
+
+              {selectedFormat === 'Custom' && (
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-[10px] text-slate-500">Breite (mm)</label>
+                    <input
+                      type="number"
+                      value={customWidth}
+                      onChange={(e) => setCustomWidth(Number(e.target.value))}
+                      onBlur={() => handleChangeFormat('Custom', orientation, customWidth, customHeight)}
+                      className="w-full h-8 px-2 text-xs rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[10px] text-slate-500">Höhe (mm)</label>
+                    <input
+                      type="number"
+                      value={customHeight}
+                      onChange={(e) => setCustomHeight(Number(e.target.value))}
+                      onBlur={() => handleChangeFormat('Custom', orientation, customWidth, customHeight)}
+                      className="w-full h-8 px-2 text-xs rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2 mt-1">
+                <button
+                  onClick={() => {
+                    setOrientation('portrait');
+                    handleChangeFormat(selectedFormat, 'portrait', customWidth, customHeight);
+                  }}
+                  className={`flex-1 h-7 text-xs rounded border transition-colors ${orientation === 'portrait' ? 'bg-slate-600 text-white border-slate-600' : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600'}`}
+                >
+                  Hochformat
+                </button>
+                <button
+                  onClick={() => {
+                    setOrientation('landscape');
+                    handleChangeFormat(selectedFormat, 'landscape', customWidth, customHeight);
+                  }}
+                  className={`flex-1 h-7 text-xs rounded border transition-colors ${orientation === 'landscape' ? 'bg-slate-600 text-white border-slate-600' : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600'}`}
+                >
+                  Querformat
+                </button>
+              </div>
             </div>
           )}
 

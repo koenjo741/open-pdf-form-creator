@@ -104,3 +104,8 @@ input[type="time"].time-align-left::-webkit-datetime-edit {
   justify-content: flex-start;
 }
 
+/* 🎨 Adjust underscore baseline in Tiptap 🎨 */
+.underscore-adjust {
+  position: relative;
+  top: -0.15em; /* Shift underscore up to align perfectly with text baseline */
+}

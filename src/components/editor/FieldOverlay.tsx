@@ -448,10 +448,11 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       {/* Visual Baseline Indicator */}
       {(field.type === 'text' || field.type === 'date') && (
         <div 
-          className="absolute left-0 right-0 border-b border-dashed border-red-500/60 pointer-events-none z-10"
+          className="absolute right-0 border-b-[0.5px] border-solid border-red-500/80 pointer-events-none z-10"
           style={{ 
+            left: -currentWebX,
             top: '50%', 
-            transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.351}px)` 
+            transform: `translateY(${(field.fontSize || 12) * (canvasHeight / pageMeta.heightPt) * 0.35}px)` 
           }} 
           data-tooltip="Text Baseline"
         />
@@ -686,7 +687,7 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
     width: webW,
     height: webH,
     zIndex: 10,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: '#ffffff',
     border: '1px solid rgba(59, 130, 246, 0.5)',
     borderRadius: '2px',
     color: '#111827',
