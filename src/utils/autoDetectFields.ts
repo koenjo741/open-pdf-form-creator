@@ -118,9 +118,9 @@ export async function autoDetectFields(pdfBuffer: Uint8Array): Promise<Omit<Fiel
         name: finalName,
         label: finalName,
         pdfX: matchTx,
-        pdfY: ty - underscoreDescent,
+        pdfY: ty - (fontSize * 0.25), // cover descenders
         pdfWidth: matchWidth,
-        pdfHeight: fontSize + underscoreDescent,
+        pdfHeight: fontSize * 1.2, // perfectly center text baseline
         fontSize: 12,
         fontWeight: 'regular'
       });

@@ -32,12 +32,25 @@ export function renderTiptapLayerToPDF(
   if (!content || !content.content) return;
 
   const { width, height } = page.getSize();
-  const margin = 24; // 24pt padding from PageEditor
+  const margin = 20; // 20pt padding from PageEditor (aligned with 10pt grid)
   const availableWidth = width - margin * 2;
   
   let currentY = height - margin; // pdf-lib origin is bottom-left, so we start at top and move down
 
   const defaultFontSize = 12; // 12pt
+
+  // Helper to measure width of text considering \t tab stops (10pt each)
+  const measureLine = (text: string, font: PDFFont, fontSize: number): number => {
+    const parts = text.split('\t');
+    let w = 0;
+    for (let i = 0; i < parts.length; i++) {
+      w += font.widthOfTextAtSize(parts[i], fontSize);
+      if (i < parts.length - 1) {
+        w = Math.floor((w + 10) / 10) * 10;
+      }
+    }
+    return w;
+  };
 
   // Helper to split text into lines based on width
   const wrapText = (text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] => {
@@ -50,12 +63,13 @@ export function renderTiptapLayerToPDF(
         continue;
       }
       
+      // We still split by space to wrap words, but we preserve \t attached to words.
       const words = mLine.split(' ');
       let currentLine = '';
 
       for (const word of words) {
         const testLine = currentLine ? `${currentLine} ${word}` : word;
-        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+        const testWidth = measureLine(testLine, font, fontSize);
         if (testWidth > maxWidth && currentLine !== '') {
           lines.push(currentLine);
           currentLine = word;
@@ -150,21 +164,31 @@ export function renderTiptapLayerToPDF(
         const lines = wrapText(fullText, currentFont, blockFontSize, availableWidth);
 
         lines.forEach((line, index) => {
-          let lineX = margin;
-          const lineWidth = currentFont.widthOfTextAtSize(line, blockFontSize);
+          let lineX = xOffset;
+          const lineWidth = measureLine(line, currentFont, blockFontSize);
 
           if (textAlign === 'center') {
-            lineX = margin + (availableWidth - lineWidth) / 2;
+            lineX = xOffset + (availableWidth - lineWidth) / 2;
           } else if (textAlign === 'right') {
             lineX = margin + availableWidth - lineWidth;
           }
 
-          page.drawText(line, {
-            x: lineX,
-            y: currentY,
-            size: blockFontSize,
-            font: currentFont,
-            color: blockColor,
+          const tabParts = line.split('\t');
+          tabParts.forEach((part, partIndex) => {
+            if (part) {
+              page.drawText(part, {
+                x: lineX,
+                y: currentY,
+                size: blockFontSize,
+                font: currentFont,
+                color: blockColor,
+              });
+            }
+            lineX += currentFont.widthOfTextAtSize(part, blockFontSize);
+            if (partIndex < tabParts.length - 1) {
+              const relX = lineX - margin;
+              lineX = margin + Math.floor((relX + 10) / 10) * 10;
+            }
           });
 
           // Move down for next line

@@ -35,12 +35,12 @@ export function LaserBeams({ pageFields, pageMeta, canvasWidth, canvasHeight, gl
         }
 
         const scaledFontSize = (f.fontSize || 12) * (canvasHeight / pageMeta.heightPt);
-        const baselineY = webY + (webH / 2) + scaledFontSize * 0.351;
+        const baselineY = webY + (webH / 2) + scaledFontSize * 0.35;
 
         return (
           <div
             key={`laser-${id}`}
-            className="absolute left-0 right-0 border-t border-dashed border-red-500/40 z-40 pointer-events-none"
+            className="absolute left-0 right-0 border-t-[0.5px] border-solid border-red-500/80 z-40 pointer-events-none"
             style={{ top: baselineY }}
           />
         );
