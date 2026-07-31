@@ -28,7 +28,7 @@ export function createNewField(
   const isButtonSubtype = activeTool === 'lockButton';
   const type = isTextSubtype ? 'text' : (isButtonSubtype ? 'button' : activeTool as any);
   const sizes = DEFAULT_SIZES[type] || { w: 144, h: 24 };
-  const id = crypto.randomUUID();
+  const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 10);
 
   const textSubType = isTextSubtype ? (activeTool as NonNullable<FieldDef['textSubType']>) : undefined;
   const prefix = activeTool.charAt(0).toUpperCase() + activeTool.slice(1);
