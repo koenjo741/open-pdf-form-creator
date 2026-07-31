@@ -111,9 +111,9 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   return (
     <div
       ref={overlayRef}
-      onPointerDown={handlePointerDownWrapper}
-      onPointerMove={appMode === 'edit' ? handlePointerMove : undefined}
-      onPointerUp={appMode === 'edit' ? handlePointerUp : undefined}
+      onPointerDownCapture={handlePointerDownWrapper}
+      onPointerMoveCapture={appMode === 'edit' ? handlePointerMove : undefined}
+      onPointerUpCapture={appMode === 'edit' ? handlePointerUp : undefined}
       onPointerLeave={appMode === 'edit' ? handlePointerUp : undefined}
       className={`absolute inset-0 ${appMode === 'edit' && activeTool === 'select' ? 'pointer-events-none' : ''}`}
       style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
