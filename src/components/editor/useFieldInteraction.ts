@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { FieldDef, PageMeta } from '../../types';
 import { pdfToWeb } from '../../utils/coordinateMapper';
 import { useEditorStore } from '../../store/useEditorStore';
@@ -17,35 +17,50 @@ export function useFieldInteraction(
     selectField, 
     clearSelection 
   } = useEditorStore();
-
   const [marquee, setMarquee] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
 
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (activeTool !== 'select' || appMode !== 'edit') return;
-      // Allow marquee if clicking on the background, OR if Shift is held (to force marquee over fields)
-      if (e.target !== overlayRef.current && !e.shiftKey) return;
+  useEffect(() => {
+    const parent = overlayRef.current?.parentElement;
+    if (!parent) return;
+
+    const handleParentPointerDown = (e: PointerEvent) => {
+      if (appMode !== 'edit' || activeTool !== 'select') return;
       
-      const rect = overlayRef.current.getBoundingClientRect();
+      // If clicking on a field (pointer-events-auto), don't start marquee unless shift is held
+      const target = e.target as HTMLElement;
+      const isField = target.closest('.pointer-events-auto');
+      
+      if (isField && !e.shiftKey) return;
+
+      if (e.shiftKey) {
+        // Prevent Tiptap from stealing focus/selection
+        e.preventDefault();
+      }
+
+      const rect = overlayRef.current!.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
       setMarquee({ startX: x, startY: y, currentX: x, currentY: y });
-    },
-    [activeTool, appMode, overlayRef]
-  );
+    };
 
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!marquee || activeTool !== 'select' || appMode !== 'edit') return;
-      const rect = overlayRef.current!.getBoundingClientRect();
+    parent.addEventListener('pointerdown', handleParentPointerDown);
+    return () => {
+      parent.removeEventListener('pointerdown', handleParentPointerDown);
+    };
+  }, [appMode, activeTool, overlayRef]);
+
+  useEffect(() => {
+    if (!marquee) return;
+
+    const handleWindowPointerMove = (e: PointerEvent) => {
+      if (activeTool !== 'select' || appMode !== 'edit') return;
+      const rect = overlayRef.current?.getBoundingClientRect();
+      if (!rect) return;
       setMarquee((prev) => prev ? { ...prev, currentX: e.clientX - rect.left, currentY: e.clientY - rect.top } : null);
-    },
-    [marquee, activeTool, appMode, overlayRef]
-  );
+    };
 
-  const handlePointerUp = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
+    const handleWindowPointerUp = (e: PointerEvent) => {
       if (appMode !== 'edit') return;
       if (activeTool !== 'select') {
         clearSelection();
@@ -98,14 +113,17 @@ export function useFieldInteraction(
         }
         setMarquee(null);
       }
-    },
-    [activeTool, marquee, pageFields, pageMeta, canvasWidth, canvasHeight, clearSelection, selectedFieldIds, selectField, appMode]
-  );
+    };
+
+    window.addEventListener('pointermove', handleWindowPointerMove);
+    window.addEventListener('pointerup', handleWindowPointerUp);
+    return () => {
+      window.removeEventListener('pointermove', handleWindowPointerMove);
+      window.removeEventListener('pointerup', handleWindowPointerUp);
+    };
+  }, [marquee, activeTool, appMode, overlayRef, pageFields, pageMeta, canvasWidth, canvasHeight, clearSelection, selectedFieldIds, selectField]);
 
   return {
-    marquee,
-    handlePointerDown,
-    handlePointerMove,
-    handlePointerUp,
+    marquee
   };
 }

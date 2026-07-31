@@ -70,7 +70,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
     return () => window.removeEventListener('OPEN_FIELD_ACTIONS', handleOpenActions);
   }, [pageFields, setContextMenu]);
 
-  const { marquee, handlePointerDown, handlePointerMove, handlePointerUp } = useFieldInteraction(
+  const { marquee } = useFieldInteraction(
     pageFields,
     pageMeta,
     canvasWidth,
@@ -81,10 +81,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const handlePointerDownWrapper = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (appMode !== 'edit') return;
-      if (activeTool === 'select') {
-        handlePointerDown(e);
-        return;
-      }
+      if (activeTool === 'select') return;
       
       // We are placing a new field
       if (e.target !== overlayRef.current) return;
@@ -105,16 +102,13 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
       selectField(newField.id);
       setActiveTool('select');
     },
-    [appMode, activeTool, handlePointerDown, fields, pageMeta, canvasWidth, canvasHeight, addField, selectField, setActiveTool, t]
+    [appMode, activeTool, isPlacingMode, canvasWidth, canvasHeight, pageMeta, pageFields.length, addField, selectField, setActiveTool, t]
   );
 
   return (
     <div
       ref={overlayRef}
       onPointerDownCapture={handlePointerDownWrapper}
-      onPointerMoveCapture={appMode === 'edit' ? handlePointerMove : undefined}
-      onPointerUpCapture={appMode === 'edit' ? handlePointerUp : undefined}
-      onPointerLeave={appMode === 'edit' ? handlePointerUp : undefined}
       className={`absolute inset-0 ${appMode === 'edit' && activeTool === 'select' ? 'pointer-events-none' : ''}`}
       style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
     >
