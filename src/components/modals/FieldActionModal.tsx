@@ -13,7 +13,7 @@ interface Props {
 export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClone, onConvert }: Props) {
   const isCheckboxOrRadio = field.type === 'checkbox' || field.type === 'radio';
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm pointer-events-auto">
       <div 
         className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-md p-6 relative"
         onClick={(e) => e.stopPropagation()}

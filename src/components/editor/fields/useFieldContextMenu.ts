@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { FieldDef } from '../../../types';
+import { useEditorStore } from '../../../store/useEditorStore';
+import { toast } from '../../common/Toast';
 
 export function useFieldContextMenu(
   fields: FieldDef[],
@@ -32,15 +34,30 @@ export function useFieldContextMenu(
     const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
     if (!sourceField) return;
 
-    const id = crypto.randomUUID();
+    const sourceLabel = sourceField.label || sourceField.name || '';
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 10);
+    const pageMetas = useEditorStore.getState().pageMetas;
+    const pageMeta = pageMetas.find(m => m.pageIndex === sourceField.pageIndex);
+    const pageHeight = pageMeta ? pageMeta.heightPt : 841.89; // Default A4 height
+
+    let newPdfX = Number(sourceField.pdfX);
+    let newPdfY = Number(sourceField.pdfY) - Number(sourceField.pdfHeight || 24) - 10;
+
+    // Wrap around if it falls off the bottom of the page
+    if (newPdfY < 0) {
+      newPdfY = pageHeight - Number(sourceField.pdfHeight || 24) - 10;
+      newPdfX += 20;
+    }
+
     const newField: FieldDef = {
       ...sourceField,
       id,
       // Name stays exactly the same so it acts as a mirror/clone
-      label: sourceField.label.includes(' (nicht editierbar)') 
-        ? sourceField.label 
-        : `${sourceField.label} (nicht editierbar)`,
-      pdfY: sourceField.pdfY - sourceField.pdfHeight - 10,
+      label: sourceLabel.includes(' (nicht editierbar)') 
+        ? sourceLabel 
+        : `${sourceLabel} (nicht editierbar)`,
+      pdfX: newPdfX,
+      pdfY: newPdfY,
     };
     addField(newField);
     selectField(id);
@@ -52,7 +69,8 @@ export function useFieldContextMenu(
     const sourceField = fields.find((f) => f.id === contextMenu.fieldId);
     if (!sourceField) return;
 
-    if (sourceField.label.includes(' (nicht editierbar)')) {
+    const sourceLabel = sourceField.label || sourceField.name || '';
+    if (sourceLabel.includes(' (nicht editierbar)')) {
       return handleClone();
     }
 
@@ -68,13 +86,26 @@ export function useFieldContextMenu(
       counter++;
     }
 
-    const id = crypto.randomUUID();
+    const pageMetas = useEditorStore.getState().pageMetas;
+    const pageMeta = pageMetas.find(m => m.pageIndex === sourceField.pageIndex);
+    const pageHeight = pageMeta ? pageMeta.heightPt : 841.89;
+
+    let newPdfX = Number(sourceField.pdfX);
+    let newPdfY = Number(sourceField.pdfY) - Number(sourceField.pdfHeight || 24) - 10;
+
+    if (newPdfY < 0) {
+      newPdfY = pageHeight - Number(sourceField.pdfHeight || 24) - 10;
+      newPdfX += 20;
+    }
+
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 10);
     const newField: FieldDef = {
       ...sourceField,
       id,
       name: baseName,
       label: baseName,
-      pdfY: sourceField.pdfY - sourceField.pdfHeight - 10, // place 10pt below
+      pdfX: newPdfX,
+      pdfY: newPdfY,
     };
     
     if (newField.type === 'radio') {
