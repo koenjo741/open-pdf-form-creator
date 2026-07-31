@@ -178,7 +178,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
 };
 
 export const PageEditor: React.FC<PageEditorProps> = ({ pageMeta, isActive, scale }) => {
-  const { backgroundLayers, updateBackgroundLayer } = useEditorStore();
+  const { backgroundLayers, updateBackgroundLayer, activeTool } = useEditorStore();
   const initialContent = (backgroundLayers && backgroundLayers[pageMeta.pageIndex]) || { type: 'doc', content: [{ type: 'paragraph' }] };
 
   const editor = useEditor({
@@ -217,9 +217,9 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageMeta, isActive, scal
         <MenuBar editor={editor} />
       )}
       
-      {/* The actual editor content, scaled. */}
+      {/* The actual editor content, scaled. pointer-events-none during select mode so marquee works */}
       <div 
-        className="absolute top-0 left-0 origin-top-left pointer-events-auto select-text cursor-text"
+        className={`absolute top-0 left-0 origin-top-left ${activeTool === 'select' ? 'pointer-events-none' : 'pointer-events-auto select-text cursor-text'}`}
         onClick={() => editor?.commands.focus()}
         style={{
           width: `${pageMeta.widthPt}px`,

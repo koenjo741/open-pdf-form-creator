@@ -32,10 +32,8 @@ export function useFieldInteraction(
       
       if (isField && !e.shiftKey) return;
 
-      if (e.shiftKey) {
-        // Prevent Tiptap from stealing focus/selection
-        e.preventDefault();
-      }
+      // Prevent browser's native drag/text-selection from intercepting pointer events
+      e.preventDefault();
 
       const rect = overlayRef.current!.getBoundingClientRect();
       const x = e.clientX - rect.left;
