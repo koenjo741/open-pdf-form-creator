@@ -336,6 +336,8 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
       initial={false}
       onPanStart={(e, info) => {
         if (activeTool !== 'select') return;
+        const evt = e as any;
+        if (evt.shiftKey) return; // Allow marquee selection over fields
         if (isResizingRef.current || (e.target as HTMLElement).closest('.resize-handle')) return;
         // If they start dragging an unselected field, select it (clear others)
         if (!isSelected) selectField(field.id);

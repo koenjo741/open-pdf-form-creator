@@ -23,7 +23,8 @@ export function useFieldInteraction(
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (activeTool !== 'select' || appMode !== 'edit') return;
-      if (e.target !== overlayRef.current) return;
+      // Allow marquee if clicking on the background, OR if Shift is held (to force marquee over fields)
+      if (e.target !== overlayRef.current && !e.shiftKey) return;
       
       const rect = overlayRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
