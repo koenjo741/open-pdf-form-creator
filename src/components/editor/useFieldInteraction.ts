@@ -63,6 +63,10 @@ export function useFieldInteraction(
             clearSelection();
           }
         } else {
+          // If a marquee selection actually happened (dragged > 5px), stop propagation
+          // so that the background field doesn't trigger a 'click' and toggle itself off
+          e.stopPropagation();
+
           const selectedIds: string[] = [];
           pageFields.forEach((f) => {
             const { webX, webY } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
