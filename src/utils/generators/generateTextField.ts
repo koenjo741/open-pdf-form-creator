@@ -101,5 +101,5 @@ export function generateTextField(field: FieldDef, rect: { x: number, y: number,
     }
   }
 
-  try { tf.updateAppearances(font); } catch { /* ignore */ }
+  try { tf.updateAppearances(font); } catch (e) { console.warn(`[PDF] updateAppearances failed for "${field.name}":`, e); }
 }
