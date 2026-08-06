@@ -243,8 +243,12 @@ export function usePdfExport() {
         pdfDoc.catalog.set(PDFName.of('OpenPdfFormCreatorState'), arrayObj);
       }
 
-      // 8. Save
-      const rawBytes = await pdfDoc.save();
+      // 8. Save — CRITICAL: disable automatic updateFieldAppearances.
+      // We already generated appearances per-field with the correct embedded font (Inter).
+      // Leaving the default (true) causes pdf-lib to re-run updateFieldAppearances()
+      // with the default Helvetica font during save(), which can silently overwrite
+      // or fail to generate appearance streams — making fields invisible in the output.
+      const rawBytes = await pdfDoc.save({ updateFieldAppearances: false });
       return rawBytes;
     } catch (err) {
       console.error('[PDF Export]', err);
