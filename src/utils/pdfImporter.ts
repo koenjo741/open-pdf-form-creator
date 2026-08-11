@@ -171,10 +171,10 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
             AP.set(PDFName.of('N'), pdfDoc.context.register(dummyStream));
           }
         } else {
-          AP = pdfDoc.context.obj({});
+          const newAP = pdfDoc.context.obj({}) as PDFDict;
           const dummyStream = pdfDoc.context.flateStream(new Uint8Array(0));
-          AP.set(PDFName.of('N'), pdfDoc.context.register(dummyStream));
-          w.dict.set(PDFName.of('AP'), AP);
+          newAP.set(PDFName.of('N'), pdfDoc.context.register(dummyStream));
+          w.dict.set(PDFName.of('AP'), newAP);
         }
       }
       form.removeField(f);
