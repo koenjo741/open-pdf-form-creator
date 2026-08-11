@@ -7,6 +7,7 @@ import { calculateSnaps, calculateResizeSnaps, type GuideLine, type Rect } from 
 import { toast } from '../common/Toast';
 import {
   TextFieldRenderer,
+  TextareaFieldRenderer,
   DateFieldRenderer,
   DropdownRenderer,
   CheckboxRenderer,
@@ -220,7 +221,7 @@ export function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, othe
 
 
       {/* Visual Baseline Indicator */}
-      {(field.type === 'text' || field.type === 'date') && (
+      {(field.type === 'text' || field.type === 'textarea' || field.type === 'date') && (
         <div 
           className="absolute right-0 border-b-[0.5px] border-solid border-red-500/80 pointer-events-none z-10"
           style={{ 
@@ -508,6 +509,8 @@ export function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: 
   switch (field.type) {
     case 'text':
       return <TextFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'textarea':
+      return <TextareaFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
     case 'date':
       return <DateFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
     case 'dropdown':

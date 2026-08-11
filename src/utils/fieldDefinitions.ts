@@ -2,6 +2,7 @@ import type { FieldDef, ToolMode } from '../types';
 
 export const DEFAULT_SIZES: Record<string, { w: number; h: number }> = {
   text:        { w: 120, h: 24 },
+  textarea:    { w: 200, h: 80 },
   dropdown:    { w: 100, h: 24 },
   date:        { w: 120, h: 24 },
   time:        { w: 100, h: 24 },

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore, useTemporalStore } from '../../store/useEditorStore';
-import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, Lock, Clock, BarChart, Table, ToggleLeft } from 'lucide-react';
+import { Upload, Download, Undo2, Redo2, ChevronDown, FileText, X, Printer, Type, CheckSquare, Circle, Calendar, Hash, Info, Plus, Banknote, CreditCard, AtSign, Link, BadgeCheck, PenTool, QrCode, Send, Lock, Clock, BarChart, Table, ToggleLeft, AlignLeft } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { usePdfExport } from '../../hooks/usePdfExport';
 import { toast } from '../common/Toast';
@@ -409,7 +409,8 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
                       { id: 'number', label: 'Zahlen', icon: Hash },
                       { id: 'currency', label: 'Währung', icon: Banknote },
                       { id: 'iban', label: 'IBAN', icon: CreditCard },
-                      { id: 'text', label: 'Textfeld', icon: Type },
+                      { id: 'text', label: 'Text, einzeilig', icon: Type },
+                      { id: 'textarea', label: 'Text, mehrzeilig', icon: AlignLeft },
                       { id: 'email', label: 'E-Mail', icon: AtSign },
                       { id: 'url', label: 'URL', icon: Link },
                       { id: 'dropdown', label: 'Dropdown', icon: ChevronDown },

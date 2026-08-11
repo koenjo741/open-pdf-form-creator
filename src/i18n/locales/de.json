@@ -18,7 +18,8 @@
   },
   "tools": {
     "select": "Auswählen",
-    "text": "Textfeld",
+    "text": "Text, einzeilig",
+    "textarea": "Text, mehrzeilig",
     "dropdown": "Dropdown",
     "checkbox": "Kontrollkästchen",
     "radio": "Radio",

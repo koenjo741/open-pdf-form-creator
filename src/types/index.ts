@@ -1,6 +1,6 @@
 // ─── Field Types ─────────────────────────────────────────────────────────────
 
-export type FieldType = 'text' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'time' | 'scaleRating' | 'inputTable' | 'yesNo' | 'signature' | 'scribble' | 'barcode' | 'button';
+export type FieldType = 'text' | 'textarea' | 'dropdown' | 'checkbox' | 'radio' | 'date' | 'time' | 'scaleRating' | 'inputTable' | 'yesNo' | 'signature' | 'scribble' | 'barcode' | 'button';
 export type FontWeight = 'regular' | 'bold';
 
 export interface FieldCondition {

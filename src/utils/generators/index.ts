@@ -1,4 +1,5 @@
 export * from './generateTextField';
+export * from './generateTextareaField';
 export * from './generateDropdownField';
 export * from './generateCheckboxField';
 export * from './generateRadioField';

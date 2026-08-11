@@ -80,7 +80,8 @@ export function FieldActionModal({ field, onClose, onRename, onDuplicate, onClon
           <div className="font-medium text-white mb-3">Feld umwandeln in...</div>
           <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
             {[
-              { id: 'text', label: 'Textfeld', type: 'text', subType: 'text' },
+              { id: 'text', label: 'Text, einzeilig', type: 'text', subType: 'text' },
+              { id: 'textarea', label: 'Text, mehrzeilig', type: 'textarea' },
               { id: 'number', label: 'Zahlen', type: 'text', subType: 'number' },
               { id: 'currency', label: 'Währung', type: 'text', subType: 'currency' },
               { id: 'iban', label: 'IBAN', type: 'text', subType: 'iban' },

@@ -12,7 +12,7 @@ export function TextFieldPanel({ field }: Props) {
     <div className="space-y-4">
       <div>
         <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-          Feld-Typ (Textfeld)
+          Feld-Typ (Text, einzeilig)
         </label>
         <select
           value={field.textSubType || 'text'}

@@ -14,7 +14,8 @@
   },
   "tools": {
     "select": "Seleccionar",
-    "text": "Campo de texto",
+    "text": "Texto, una línea",
+    "textarea": "Texto, multilínea",
     "dropdown": "Lista desplegable",
     "checkbox": "Casilla de verificación",
     "radio": "Botón de opción",
