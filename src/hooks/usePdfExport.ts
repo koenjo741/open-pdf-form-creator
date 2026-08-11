@@ -226,7 +226,7 @@ export function usePdfExport() {
 
       // 7. Flatten if requested or embed state if editable
       if (mode === 'flattened') {
-        form.flatten();
+        form.flatten({ updateFieldAppearances: false });
       } else {
         // Embed our custom JSON state for lossless re-import
         const statePayload = {

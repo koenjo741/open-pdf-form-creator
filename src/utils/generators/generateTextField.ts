@@ -12,6 +12,7 @@ export function generateTextField(field: FieldDef, rect: { x: number, y: number,
     borderWidth: mode === 'flattened' ? 0 : 1,
     backgroundColor: rgb(1, 1, 1),
     borderColor: rgb(0.62, 0.75, 0.98),
+    font,
   });
 
   if (isDuplicate) {

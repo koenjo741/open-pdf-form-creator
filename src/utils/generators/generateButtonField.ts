@@ -11,7 +11,8 @@ export function generateButtonField(field: FieldDef, rect: { x: number, y: numbe
     ...rect,
     borderWidth: mode === 'flattened' ? 0 : 1,
     backgroundColor: rgb(0.9, 0.9, 0.9),
-    textColor: rgb(0, 0, 0)
+    textColor: rgb(0, 0, 0),
+    font: ctx.font
   });
 
   if (field.tooltip) {
