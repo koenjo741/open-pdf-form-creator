@@ -38,16 +38,16 @@ export function generateInputTableField(field: FieldDef, rect: { x: number, y: n
       const cellName = `${field.name}_R${r}_C${c}`;
 
       if (inputType === 'radio' && radioGroup) {
-        radioGroup.addOptionToPage(`Col${c}`, page, { ...cellRect, borderWidth: mode === 'flattened' ? 0 : 1 });
+        radioGroup.addOptionToPage(`Col${c}`, page, { ...cellRect, borderWidth: mode === 'readonly' ? 0 : 1 });
       } else if (inputType === 'checkbox') {
         const cb = form.getFieldMaybe(cellName) ? form.getCheckBox(cellName) : form.createCheckBox(cellName);
-        cb.addToPage(page, { ...cellRect, borderWidth: mode === 'flattened' ? 0 : 1 });
+        cb.addToPage(page, { ...cellRect, borderWidth: mode === 'readonly' ? 0 : 1 });
         if (field.tableValues?.[`r${r}_c${c}`]) {
           try { cb.check(); } catch { /* ignore */ }
         }
       } else if (inputType === 'textbox') {
         const tf = form.getFieldMaybe(cellName) ? form.getTextField(cellName) : form.createTextField(cellName);
-        tf.addToPage(page, { ...cellRect, borderWidth: mode === 'flattened' ? 0 : 1, backgroundColor: rgb(1, 1, 1), font: ctx.font });
+        tf.addToPage(page, { ...cellRect, borderWidth: mode === 'readonly' ? 0 : 1, backgroundColor: rgb(1, 1, 1), font: ctx.font });
         const val = field.tableValues?.[`r${r}_c${c}`];
         if (val) {
           try { tf.setText(String(val)); } catch { /* ignore */ }

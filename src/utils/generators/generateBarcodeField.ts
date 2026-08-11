@@ -6,7 +6,7 @@ import type { FieldGeneratorContext } from './types';
 
 export async function generateBarcodeField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { page, pdfDoc, mode, allFields } = ctx;
-  if (mode === 'flattened') {
+  if (mode === 'readonly') {
     try {
       const formData: Record<string, any> = {};
       for (const f of allFields) {

@@ -8,7 +8,7 @@ export function generateDropdownField(field: FieldDef, rect: { x: number, y: num
   const dd = existingField ? form.getDropdown(field.name) : form.createDropdown(field.name);
   dd.addToPage(page, { 
     ...rect, 
-    borderWidth: mode === 'flattened' ? 0 : 1,
+    borderWidth: mode === 'readonly' ? 0 : 1,
     backgroundColor: rgb(1, 1, 1),
     borderColor: rgb(0.62, 0.75, 0.98),
     font,

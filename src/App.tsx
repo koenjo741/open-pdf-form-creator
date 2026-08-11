@@ -43,7 +43,7 @@ export default function App() {
   const handleExportFlattened = () => setFlattenModalOpen(true);
   const handleFlattenConfirm = () => {
     setFlattenModalOpen(false);
-    void exportPdf('flattened');
+    void exportPdf('readonly');
   };
 
   const handlePrint = async () => {
@@ -53,7 +53,7 @@ export default function App() {
       printWindow.document.write('<div style="font-family: sans-serif; padding: 20px;">PDF wird für den Druck vorbereitet...</div>');
     }
 
-    const rawBytes = await exportPdfBuffer('flattened');
+    const rawBytes = await exportPdfBuffer('readonly');
     if (!rawBytes) {
       if (printWindow) printWindow.close();
       return;

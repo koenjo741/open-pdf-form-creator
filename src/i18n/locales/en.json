@@ -8,13 +8,13 @@
     "uploadNew": "Upload New PDF",
     "download": "Download",
     "downloadEditable": "Download Editable PDF",
-    "downloadFinalized": "Download Finalized PDF",
     "undo": "Undo",
     "redo": "Redo",
     "close": "Close",
     "saveEditable": "Save, editable",
-    "saveFinalized": "Save, finalized",
-    "closeWithoutSaving": "Close without saving."
+    "closeWithoutSaving": "Close without saving.",
+    "saveFinalized": "Save, not-editable",
+    "downloadFinalized": "Download Not-Editable PDF"
   },
   "tools": {
     "select": "Select",
@@ -65,7 +65,7 @@
     "infoFunctionText": "Upload static PDFs and make them interactive. Use the Editor view to place fields and the Preview to fill them with data. The form can be downloaded in two ways:",
     "infoFunctionPoint1": "Editable PDF: Fields remain active and can still be filled out.",
     "infoFunctionPointExtract": "Editable PDF: Field contents can be extracted in JSON format using the Extract function.",
-    "infoFunctionPoint2": "Finalized PDF: Fields are \"burned\" into the document and cannot be modified later.",
+    "infoFunctionPoint2": "Not-Editable PDF: Fields are locked and cannot be modified by users.",
     "infoPrivacyTitle": "Privacy",
     "infoPrivacyText": "100% local. All data and documents remain exclusively on your device. No upload to any server.",
     "infoLicenseTitle": "License",
@@ -99,8 +99,8 @@
     "zoomOut": "Zoom Out"
   },
   "export": {
-    "confirmFlatten": "Download Finalized PDF",
-    "confirmFlattenMessage": "The finalized PDF will have all fields converted to static text. This cannot be undone. Are you sure?",
+    "confirmFlatten": "Download Not-Editable PDF",
+    "confirmFlattenMessage": "The PDF will have all fields locked (Read-Only). Users will not be able to edit them. Are you sure?",
     "confirm": "Yes, Finalize",
     "cancel": "Cancel",
     "generating": "Generating PDF…",
@@ -135,7 +135,10 @@
   "fields": {
     "dateFormat": "Date format",
     "dateFormatAuto": "Auto (Language)",
-    "lockButtonTooltip": "Click this button to complete the data entry in the form.\nWarning: After this, no further changes are possible!"
+    "saveWidgetTooltip": "Adds a widget for saving.",
+    "saveWidgetExplainer": "Save the document as editable as long as not all fields have been filled in. Save it as not-editable when no further changes to the fields should be possible.",
+    "saveWidgetEditable": "Save, editable",
+    "saveWidgetReadonly": "Save, not-editable"
   },
   "extract": {
     "title": "Data Extraction",

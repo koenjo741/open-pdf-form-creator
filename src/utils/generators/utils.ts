@@ -1,4 +1,4 @@
-﻿import { PDFDocument } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 
 export function tryGetRadioGroup(form: ReturnType<PDFDocument['getForm']>, name: string) {
   try { return form.getRadioGroup(name); } catch { return null; }

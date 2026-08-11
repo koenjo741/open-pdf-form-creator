@@ -123,11 +123,11 @@ export interface PdfCoords {
 
 // ─── Export Options ──────────────────────────────────────────────────────────
 
-export type ExportMode = 'editable' | 'flattened';
+export type ExportMode = 'editable' | 'readonly';
 
 // ─── Tool Mode ───────────────────────────────────────────────────────────────
 
-export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex' | 'lockButton';
+export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex' | 'saveWidget';
 
 // ─── App Mode ────────────────────────────────────────────────────────────────
 

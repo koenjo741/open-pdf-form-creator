@@ -8,9 +8,9 @@
     "uploadNew": "Télécharger un nouveau PDF",
     "download": "Télécharger",
     "downloadEditable": "Télécharger le PDF modifiable",
-    "downloadFinalized": "Télécharger le PDF finalisé",
     "undo": "Annuler",
-    "redo": "Rétablir"
+    "redo": "Rétablir",
+    "downloadFinalized": "Télécharger le PDF finalisé"
   },
   "tools": {
     "select": "Sélectionner",
@@ -120,7 +120,10 @@
   "fields": {
     "dateFormat": "Format de date",
     "dateFormatAuto": "Automatique (Langue)",
-    "lockButtonTooltip": "Cliquez sur ce bouton pour terminer la saisie des données dans le formulaire.\nAttention : après cela, plus aucune modification ne sera possible !"
+    "saveWidgetTooltip": "Adds a widget for saving.",
+    "saveWidgetExplainer": "Save the document as editable as long as not all fields have been filled in. Save it as not-editable when no further changes to the fields should be possible.",
+    "saveWidgetEditable": "Save, editable",
+    "saveWidgetReadonly": "Save, not-editable"
   },
   "extract": {
     "title": "Extraction de données",

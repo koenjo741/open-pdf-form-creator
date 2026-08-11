@@ -5,7 +5,7 @@ import type { FieldGeneratorContext } from './types';
 export function generateSignatureField(field: FieldDef, rect: { x: number, y: number, width: number, height: number }, ctx: FieldGeneratorContext) {
   const { form, page, pdfDoc, mode } = ctx;
   const existingField = form.getFieldMaybe(field.name);
-  if (mode === 'flattened') {
+  if (mode === 'readonly') {
     page.drawRectangle({
       x: rect.x, y: rect.y, width: rect.width, height: rect.height,
       borderColor: rgb(0.8, 0.8, 0.8), borderWidth: 1,

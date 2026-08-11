@@ -9,7 +9,7 @@ export function generateTextField(field: FieldDef, rect: { x: number, y: number,
   const tf = existingField ? form.getTextField(field.name) : form.createTextField(field.name);
   tf.addToPage(page, { 
     ...rect, 
-    borderWidth: mode === 'flattened' ? 0 : 1,
+    borderWidth: mode === 'readonly' ? 0 : 1,
     backgroundColor: rgb(1, 1, 1),
     borderColor: rgb(0.62, 0.75, 0.98),
     font,

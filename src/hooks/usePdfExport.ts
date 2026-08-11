@@ -31,7 +31,7 @@ async function triggerDownload(bytes: Uint8Array, filename: string) {
 /** Generate a safe output filename */
 function buildFilename(original: string | null, mode: ExportMode): string {
   const base = original?.replace(/\.pdf$/i, '') ?? 'document';
-  return mode === 'editable' ? `${base}__editable.pdf` : `${base}__finalized.pdf`;
+  return mode === 'editable' ? `${base}__editable.pdf` : `${base}__not-editable.pdf`;
 }
 
 export function usePdfExport() {
@@ -224,9 +224,10 @@ export function usePdfExport() {
         form.acroForm.dict.set(PDFName.of('CO'), coArray);
       }
 
-      // 7. Flatten if requested or embed state if editable
-      if (mode === 'flattened') {
-        form.flatten({ updateFieldAppearances: false });
+      // 7. Make fields ReadOnly if requested or embed state if editable
+      if (mode === 'readonly') {
+        const allFormFields = form.getFields();
+        allFormFields.forEach(f => f.enableReadOnly());
       } else {
         // Embed our custom JSON state for lossless re-import
         const statePayload = {
@@ -267,7 +268,7 @@ export function usePdfExport() {
     const rawBytes = await exportPdfBuffer(mode);
     if (rawBytes) {
       await triggerDownload(rawBytes, buildFilename(pdfFileName, mode));
-      toast.success(mode === 'editable' ? 'Editable PDF downloaded!' : 'Finalized PDF downloaded!');
+      toast.success(mode === 'editable' ? 'Editable PDF downloaded!' : 'Read-only PDF downloaded!');
     }
   };
 

@@ -19,7 +19,7 @@ export function generateYesNoField(field: FieldDef, rect: { x: number, y: number
   const yesY = rect.y + (rect.height - btnHeight) / 2;
   radioGroup.addOptionToPage('Yes', page, { 
     x: yesX, y: yesY, width: btnWidth, height: btnHeight,
-    borderWidth: mode === 'flattened' ? 0 : 1 
+    borderWidth: mode === 'readonly' ? 0 : 1 
   });
 
   // Option 2: No
@@ -27,7 +27,7 @@ export function generateYesNoField(field: FieldDef, rect: { x: number, y: number
   const noY = yesY;
   radioGroup.addOptionToPage('No', page, { 
     x: noX, y: noY, width: btnWidth, height: btnHeight,
-    borderWidth: mode === 'flattened' ? 0 : 1 
+    borderWidth: mode === 'readonly' ? 0 : 1 
   });
 
   if (field.value) {

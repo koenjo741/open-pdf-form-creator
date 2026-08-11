@@ -8,7 +8,7 @@ export function generateCheckboxField(field: FieldDef, rect: { x: number, y: num
   const cb = existingField ? form.getCheckBox(field.name) : form.createCheckBox(field.name);
   cb.addToPage(page, {
     ...rect,
-    borderWidth: mode === 'flattened' ? 0 : 3,
+    borderWidth: mode === 'readonly' ? 0 : 3,
     borderColor: rgb(0.15, 0.15, 0.15),
     textColor: rgb(0.086, 0.64, 0.29)
   });

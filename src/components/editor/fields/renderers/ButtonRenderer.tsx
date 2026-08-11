@@ -15,6 +15,47 @@ export interface RendererProps {
 }
 
 export function ButtonRenderer({ field, baseStyle, isDisabled, onClick }: { field: FieldDef; baseStyle: React.CSSProperties; isDisabled?: boolean; onClick?: (e: React.MouseEvent) => void }) {
+  const { t } = useTranslation();
+  
+  if (field.buttonAction === 'saveWidget') {
+    return (
+      <div
+        data-tooltip={field.tooltip}
+        style={{
+          ...baseStyle,
+          backgroundColor: '#f8fafc',
+          border: '1px solid #cbd5e1',
+          borderRadius: '4px',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ flex: 1, padding: '4px 8px', fontSize: '10px', color: '#334155', textAlign: 'justify', overflowY: 'auto' }}>
+          {t('fields.saveWidgetExplainer')}
+        </div>
+        <div style={{ display: 'flex', height: '30px', borderTop: '1px solid #cbd5e1' }}>
+          <button
+            style={{
+              flex: 1, border: '1px solid #0091b7', backgroundColor: '#d9eef4', cursor: isDisabled ? 'not-allowed' : 'pointer', fontSize: '11px', fontWeight: 'bold'
+            }}
+            onClick={(e) => { if (!isDisabled && onClick) onClick(e); }}
+          >
+            {t('fields.saveWidgetEditable')}
+          </button>
+          <button
+            style={{
+              flex: 1, border: '1px solid #059669', backgroundColor: '#daefe9', cursor: isDisabled ? 'not-allowed' : 'pointer', fontSize: '11px', fontWeight: 'bold'
+            }}
+            onClick={(e) => { if (!isDisabled && onClick) onClick(e); }}
+          >
+            {t('fields.saveWidgetReadonly')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <button
       data-tooltip={field.tooltip}
@@ -39,4 +80,3 @@ export function ButtonRenderer({ field, baseStyle, isDisabled, onClick }: { fiel
     </button>
   );
 }
-

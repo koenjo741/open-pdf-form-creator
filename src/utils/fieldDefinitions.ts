@@ -26,9 +26,9 @@ export function createNewField(
   t: (key: string) => string
 ): FieldDef {
   const isTextSubtype = ['number', 'currency', 'iban', 'email', 'url', 'regex'].includes(activeTool);
-  const isButtonSubtype = activeTool === 'lockButton';
+  const isButtonSubtype = activeTool === 'saveWidget';
   const type = isTextSubtype ? 'text' : (isButtonSubtype ? 'button' : activeTool as any);
-  const sizes = DEFAULT_SIZES[type] || { w: 144, h: 24 };
+  const sizes = activeTool === 'saveWidget' ? { w: 300, h: 80 } : (DEFAULT_SIZES[type] || { w: 144, h: 24 });
   const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 10);
 
   const textSubType = isTextSubtype ? (activeTool as NonNullable<FieldDef['textSubType']>) : undefined;
@@ -64,7 +64,7 @@ export function createNewField(
     ...(activeTool === 'scaleRating' ? { scaleMin: 1, scaleMax: 5, scaleMinLabel: 'Worst', scaleMaxLabel: 'Best' } : {}),
     ...(activeTool === 'inputTable' ? { tableRows: ['Row 1', 'Row 2'], tableCols: ['Col 1', 'Col 2'], tableInputType: 'textbox' } : {}),
     ...(activeTool === 'yesNo' ? { yesLabel: 'JA', noLabel: 'NEIN' } : {}),
-    buttonAction: activeTool === 'lockButton' ? 'lock' : (type === 'button' ? 'submit' : undefined),
-    tooltip: activeTool === 'lockButton' ? t('fields.lockButtonTooltip') : undefined,
+    buttonAction: activeTool === 'saveWidget' ? 'saveWidget' : (type === 'button' ? 'submit' : undefined),
+    tooltip: activeTool === 'saveWidget' ? t('fields.saveWidgetTooltip') : undefined,
   };
 }

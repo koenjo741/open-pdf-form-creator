@@ -26,7 +26,7 @@ export function generateScaleRatingField(field: FieldDef, rect: { x: number, y: 
     
     radioGroup.addOptionToPage(val, page, { 
       x: optionX, y: optionY, width: btnWidth, height: btnHeight,
-      borderWidth: mode === 'flattened' ? 0 : 1 
+      borderWidth: mode === 'readonly' ? 0 : 1 
     });
   }
 
