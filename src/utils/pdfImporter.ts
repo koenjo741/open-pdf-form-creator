@@ -1,4 +1,4 @@
-import { PDFDocument, PDFName, PDFTextField, PDFDropdown, PDFCheckBox, PDFRadioGroup } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFDict, PDFTextField, PDFDropdown, PDFCheckBox, PDFRadioGroup } from 'pdf-lib';
 import type { FieldDef, FieldType } from '../types';
 
 export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ buffer: Uint8Array, extractedFields: FieldDef[], debugInfo: string }> {
@@ -160,7 +160,27 @@ export async function extractAndStripFormFields(buffer: Uint8Array): Promise<{ b
 
   // Strip fields from the PDF (using AcroForm API)
   for (const f of fields) {
-    form.removeField(f);
+    try {
+      // Fix missing AP/N before removing to prevent pdf-lib crash (Unexpected N type)
+      const widgets = f.acroField.getWidgets();
+      for (const w of widgets) {
+        let AP = w.dict.get(PDFName.of('AP'));
+        if (AP instanceof PDFDict) {
+          if (!AP.get(PDFName.of('N'))) {
+            const dummyStream = pdfDoc.context.flateStream(new Uint8Array(0));
+            AP.set(PDFName.of('N'), pdfDoc.context.register(dummyStream));
+          }
+        } else {
+          AP = pdfDoc.context.obj({});
+          const dummyStream = pdfDoc.context.flateStream(new Uint8Array(0));
+          AP.set(PDFName.of('N'), pdfDoc.context.register(dummyStream));
+          w.dict.set(PDFName.of('AP'), AP);
+        }
+      }
+      form.removeField(f);
+    } catch (e) {
+      console.warn(`Failed to safely remove field ${f.getName()}:`, e);
+    }
   }
 
   // If all fields were stripped, remove the AcroForm dict to prevent PDF.js parsing errors
