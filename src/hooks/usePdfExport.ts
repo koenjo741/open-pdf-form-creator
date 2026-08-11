@@ -9,6 +9,7 @@ import { saveFileWithPicker } from '../utils/fileSystem';
 import { buildConditionalLogicJavaScript } from '../utils/pdfJavaScriptBuilder';
 import {
   generateTextField,
+  generateTextareaField,
   generateDropdownField,
   generateCheckboxField,
   generateRadioField,
@@ -143,6 +144,9 @@ export function usePdfExport() {
               case 'text':
               case 'date':
                 generateTextField(field, rect, ctx, isDuplicate);
+                break;
+              case 'textarea':
+                generateTextareaField(field, rect, ctx, isDuplicate);
                 break;
               case 'time':
                 generateTimeField(field, rect, ctx, isDuplicate);

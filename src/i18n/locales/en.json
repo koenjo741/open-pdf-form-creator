@@ -18,7 +18,8 @@
   },
   "tools": {
     "select": "Select",
-    "text": "Text Field",
+    "text": "Text, single-line",
+    "textarea": "Text, multi-line",
     "dropdown": "Dropdown",
     "checkbox": "Checkbox",
     "radio": "Radio",

@@ -1,4 +1,5 @@
 export { TextFieldRenderer } from './TextFieldRenderer';
+export { TextareaFieldRenderer } from './TextareaFieldRenderer';
 export { DropdownRenderer } from './DropdownRenderer';
 export { CheckboxRenderer } from './CheckboxRenderer';
 export { RadioRenderer } from './RadioRenderer';

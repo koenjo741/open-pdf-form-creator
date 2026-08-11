@@ -56,7 +56,7 @@ export function MultiSelectPanel() {
     updateFields(calculateDistributeVerticallyUpdates(selectedFields, delta));
   };
 
-  const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'dropdown' || f.type === 'date');
+  const textFields = selectedFields.filter(f => f.type === 'text' || f.type === 'textarea' || f.type === 'dropdown' || f.type === 'date');
 
   const handleBulkUpdate = (patch: Partial<FieldDef>) => {
     updateFields(textFields.map(f => ({ id: f.id, patch })));

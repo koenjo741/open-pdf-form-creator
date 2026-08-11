@@ -14,7 +14,8 @@
   },
   "tools": {
     "select": "Sélectionner",
-    "text": "Champ texte",
+    "text": "Texte, une ligne",
+    "textarea": "Texte, multi-lignes",
     "dropdown": "Liste déroulante",
     "checkbox": "Case à cocher",
     "radio": "Bouton radio",

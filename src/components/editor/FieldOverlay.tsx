@@ -15,6 +15,7 @@ import { createNewField } from '../../utils/fieldDefinitions';
 import { LaserBeams } from './LaserBeams';
 import {
   TextFieldRenderer,
+  TextareaFieldRenderer,
   DateFieldRenderer,
   DropdownRenderer,
   CheckboxRenderer,
@@ -442,7 +443,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
 
 
       {/* Visual Baseline Indicator */}
-      {(field.type === 'text' || field.type === 'date') && (
+      {(field.type === 'text' || field.type === 'textarea' || field.type === 'date') && (
         <div 
           className="absolute right-0 border-b-[0.5px] border-solid border-red-500/80 pointer-events-none z-10"
           style={{ 
@@ -732,6 +733,8 @@ function PreviewFieldBox({ field, pageMeta, canvasWidth, canvasHeight }: Preview
   switch (field.type) {
     case 'text':
       return <TextFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
+    case 'textarea':
+      return <TextareaFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
     case 'date':
       return <DateFieldRenderer field={field} isDisabled={isDisabled} baseStyle={baseStyle} handleChange={handleChange} />;
     case 'dropdown':

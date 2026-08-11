@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useEditorStore } from '../../store/useEditorStore';
 import { TextFieldPanel } from '../fields/TextFieldPanel';
+import { TextareaFieldPanel } from '../fields/TextareaFieldPanel';
 import { DropdownFieldPanel } from '../fields/DropdownFieldPanel';
 import { DateFieldPanel } from '../fields/DateFieldPanel';
 import { TimeFieldPanel } from '../fields/TimeFieldPanel';
@@ -116,6 +117,7 @@ export function Sidebar() {
               ) : selected ? (
                 <>
                   {selected.type === 'text' && <TextFieldPanel field={selected} />}
+                  {selected.type === 'textarea' && <TextareaFieldPanel field={selected} />}
                   {selected.type === 'dropdown' && <DropdownFieldPanel field={selected} />}
                   {selected.type === 'date' && <DateFieldPanel field={selected} />}
                   {selected.type === 'time' && <TimeFieldPanel field={selected} />}
