@@ -99,10 +99,10 @@
     "zoomOut": "Zoom Out"
   },
   "export": {
-    "confirmFlatten": "Download Not-Editable PDF",
-    "confirmFlattenMessage": "The PDF will have all fields locked (Read-Only). Users will not be able to edit them. Are you sure?",
-    "confirm": "Yes, Finalize",
-    "cancel": "Cancel",
+    "confirmFlatten": "Lock Document",
+    "confirmFlattenMessage": "By clicking OK, all fields in this document will be locked for further entries. Click CANCEL to return to editing the input fields.",
+    "confirm": "OK",
+    "cancel": "CANCEL",
     "generating": "Generating PDF…",
     "noFonts": "Font files not found. Please add Inter-Regular.ttf and Inter-Bold.ttf to /public/fonts/."
   },

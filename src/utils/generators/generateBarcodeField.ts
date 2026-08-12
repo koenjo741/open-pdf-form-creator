@@ -26,7 +26,7 @@ export async function generateBarcodeField(field: FieldDef, rect: { x: number, y
       const canvas = document.createElement('canvas');
       bwipjs.toCanvas(canvas, {
         bcid: field.barcodeFormat === 'pdf417' ? 'pdf417' : 'qrcode',
-        text: jsonString, scale: 3, includetext: false,
+        text: jsonString, scale: 6, includetext: false,
       });
 
       const dataUrl = canvas.toDataURL('image/png');

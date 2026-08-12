@@ -80,7 +80,7 @@ export interface FieldDef {
 
   // ── Button-specific (Submit) ──
   submitUrl?: string;
-  buttonAction?: 'submit' | 'lock';
+  buttonAction?: 'submit' | 'lock' | 'saveWidget';
 
   // ── Tab Order ──
   tabIndex?: number;

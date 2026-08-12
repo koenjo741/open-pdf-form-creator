@@ -99,10 +99,10 @@
     "zoomOut": "Verkleinern"
   },
   "export": {
-    "confirmFlatten": "Nicht-bearbeitbares PDF herunterladen",
-    "confirmFlattenMessage": "Das PDF wird alle Felder sperren (schreibgeschützt). Benutzer können sie nicht mehr bearbeiten. Fortfahren?",
-    "confirm": "Ja, schreibschützen",
-    "cancel": "Abbrechen",
+    "confirmFlatten": "Dokument sperren",
+    "confirmFlattenMessage": "Mit OK werden alle Felder dieses Dokumentes für weitere Einträge gesperrt. Mit ABBRECHEN kehren Sie zur weiteren Bearbeitung der Eingabefelder zurück.",
+    "confirm": "OK",
+    "cancel": "ABBRECHEN",
     "generating": "PDF wird erstellt…",
     "noFonts": "Schriftdateien nicht gefunden. Bitte Inter-Regular.ttf und Inter-Bold.ttf in /public/fonts/ ablegen."
   },
