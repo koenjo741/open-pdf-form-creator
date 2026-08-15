@@ -82,7 +82,7 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   const handlePointerDownWrapper = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (appMode !== 'edit') return;
-      if (activeTool === 'select') return;
+      if (activeTool === 'select' || activeTool === 'freetext') return;
       
       // We are placing a new field
       if (e.target !== overlayRef.current) return;
@@ -109,8 +109,13 @@ export function FieldOverlay({ pageMeta, canvasWidth, canvasHeight }: FieldOverl
   return (
     <div
       ref={overlayRef}
-      onPointerDownCapture={handlePointerDownWrapper}
-      className={`absolute inset-0 ${appMode === 'edit' && activeTool === 'select' ? 'pointer-events-none' : ''}`}
+      onPointerDown={handlePointerDownWrapper}
+      onDoubleClick={(e) => {
+        if (appMode === 'edit' && activeTool === 'select') {
+          setActiveTool('freetext');
+        }
+      }}
+      className={`absolute inset-0 z-10 select-none overflow-hidden touch-none ${activeTool === 'freetext' ? 'pointer-events-none' : ''}`}
       style={{ cursor: appMode === 'edit' && isPlacingMode ? 'crosshair' : 'default', touchAction: 'none' }}
     >
       {/* Grid Overlay */}
@@ -326,110 +331,141 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
   const cloneStyle = 'bg-[#f4aefa]/20 border-[#f4aefa]';
   const boxStyle = isClone ? cloneStyle : (typeColors[field.type] ?? 'border-zinc-400 bg-zinc-500/10');
 
-  return (
-    <motion.div
-      initial={false}
-      onPanStart={(e, info) => {
-        if (activeTool !== 'select') return;
-        const evt = e as any;
-        if (evt.shiftKey) return; // Allow marquee selection over fields
-        if (isResizingRef.current || (e.target as HTMLElement).closest('.resize-handle')) return;
-        // If they start dragging an unselected field, select it (clear others)
-        if (!isSelected) selectField(field.id);
-        dragStartRef.current = { x: info.point.x, y: info.point.y };
-      }}
-      onPan={(_e, info) => {
-        if (activeTool !== 'select' || !dragStartRef.current) return;
-        
-        let dxWebSnap = info.point.x - dragStartRef.current.x;
-        let dyWebSnap = info.point.y - dragStartRef.current.y;
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-        // Snapping logic
-        const movingRect: Rect = {
-          id: field.id,
-          x: webX + dxWebSnap,
-          y: webY + dyWebSnap,
-          w: webW,
-          h: webH,
-        };
+  // Global pointerdown listener to reliably catch clicks on this field
+  // even if React's event delegation fails due to pointer-events-none on the parent
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
 
-        // Do not snap to other fields in the same selection group, because they are moving with us!
-        const snappingCandidates = isSelected 
-          ? otherFields.filter(f => !selectedFieldIds.includes(f.id))
-          : otherFields;
-
-        const otherRects: Rect[] = snappingCandidates.map((f) => {
-          // Pass top edge to pdfToWeb
-          const { webX: ox, webY: oy } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
-          const ow = (f.pdfWidth / pageMeta.widthPt) * canvasWidth;
-          const oh = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
-          return { id: f.id, x: ox, y: oy, w: ow, h: oh };
-        });
-
-        const snapResult = calculateSnaps(movingRect, otherRects, 8, webGridX, webGridY);
-        onGuidesChange(snapResult.guides);
-
-        if (snapResult.snappedX !== null) dxWebSnap = snapResult.snappedX - webX;
-        if (snapResult.snappedY !== null) dyWebSnap = snapResult.snappedY - webY;
-
-        setGlobalDrag({ originId: field.id, dxWeb: dxWebSnap, dyWeb: dyWebSnap });
-      }}
-      onPanEnd={() => {
-        onGuidesChange([]);
-        if (!dragStartRef.current) return;
-        if (!globalDrag || globalDrag.originId !== field.id) {
-          dragStartRef.current = null;
-          return;
-        }
-
-        const dxPdf = scaleToPdf(globalDrag.dxWeb, pageMeta.widthPt, canvasWidth);
-        const dyPdf = scaleToPdf(globalDrag.dyWeb, pageMeta.heightPt, canvasHeight);
-        
-        // Move ALL selected fields if this is a selected field
-        if (isSelected) {
-          const selectedFields = fields.filter((f) => selectedFieldIds.includes(f.id));
-          const updates = selectedFields.map((f) => ({
-            id: f.id,
-            patch: {
-              pdfX: f.pdfX + dxPdf,
-              pdfY: f.pdfY - dyPdf, // web Y is inverted
-            }
-          }));
-          updateFields(updates);
-        } else {
-          updateField(field.id, {
-            pdfX: field.pdfX + dxPdf,
-            pdfY: field.pdfY - dyPdf, // web Y is inverted
-          });
-        }
-        
-        dragStartRef.current = null;
-        setGlobalDrag(null);
-      }}
-      onClick={(e) => {
+    const handlePointerDown = (e: PointerEvent) => {
+      // If we are in freetext mode, we want this click to immediately switch us back to select mode
+      const currentState = useEditorStore.getState();
+      if (currentState.activeTool !== 'select') {
         e.stopPropagation();
-        if (activeTool === 'select') {
-          // If shift or ctrl is pressed, multi-select
-          selectField(field.id, e.ctrlKey || e.metaKey || e.shiftKey);
-        }
-      }}
-      onContextMenu={onContextMenu}
+        currentState.setActiveTool('select');
+        currentState.selectField(field.id, false);
+      }
+    };
+
+    el.addEventListener('pointerdown', handlePointerDown, { capture: true });
+    return () => el.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+  }, [field.id]);
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="field-box-wrapper"
+      data-field-id={field.id}
       style={{
         position: 'absolute',
         left: currentWebX,
         top: currentWebY,
         width: currentWebW,
         height: currentWebH,
-        cursor: activeTool === 'select' ? 'move' : 'crosshair',
         zIndex: isSelected ? 20 : 10,
-        touchAction: 'none',
+        pointerEvents: 'auto',
       }}
-      className={`
-        rounded border-[1px] transition-shadow pointer-events-auto
-        ${boxStyle}
-        ${isSelected ? 'shadow-lg shadow-blue-500/20' : ''}
-      `}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (activeTool === 'select') {
+          selectField(field.id, e.ctrlKey || e.metaKey || e.shiftKey);
+        }
+      }}
+      onContextMenu={onContextMenu}
     >
+      <motion.div
+        initial={false}
+        onPanStart={(e, info) => {
+          if (activeTool !== 'select') return;
+          const evt = e as any;
+          if (evt.shiftKey) return; // Allow marquee selection over fields
+          if (isResizingRef.current || (e.target as HTMLElement).closest('.resize-handle')) return;
+          // If they start dragging an unselected field, select it (clear others)
+          if (!isSelected) selectField(field.id);
+          dragStartRef.current = { x: info.point.x, y: info.point.y };
+        }}
+        onPan={(_e, info) => {
+          if (activeTool !== 'select' || !dragStartRef.current) return;
+          
+          let dxWebSnap = info.point.x - dragStartRef.current.x;
+          let dyWebSnap = info.point.y - dragStartRef.current.y;
+
+          // Snapping logic
+          const movingRect: Rect = {
+            id: field.id,
+            x: webX + dxWebSnap,
+            y: webY + dyWebSnap,
+            w: webW,
+            h: webH,
+          };
+
+          // Do not snap to other fields in the same selection group, because they are moving with us!
+          const snappingCandidates = isSelected 
+            ? otherFields.filter(f => !selectedFieldIds.includes(f.id))
+            : otherFields;
+
+          const otherRects: Rect[] = snappingCandidates.map((f) => {
+            // Pass top edge to pdfToWeb
+            const { webX: ox, webY: oy } = pdfToWeb(f.pdfX, f.pdfY + f.pdfHeight, pageMeta.widthPt, pageMeta.heightPt, canvasWidth, canvasHeight);
+            const ow = (f.pdfWidth / pageMeta.widthPt) * canvasWidth;
+            const oh = (f.pdfHeight / pageMeta.heightPt) * canvasHeight;
+            return { id: f.id, x: ox, y: oy, w: ow, h: oh };
+          });
+
+          const snapResult = calculateSnaps(movingRect, otherRects, 8, webGridX, webGridY);
+          onGuidesChange(snapResult.guides);
+
+          if (snapResult.snappedX !== null) dxWebSnap = snapResult.snappedX - webX;
+          if (snapResult.snappedY !== null) dyWebSnap = snapResult.snappedY - webY;
+
+          setGlobalDrag({ originId: field.id, dxWeb: dxWebSnap, dyWeb: dyWebSnap });
+        }}
+        onPanEnd={() => {
+          onGuidesChange([]);
+          if (!dragStartRef.current) return;
+          if (!globalDrag || globalDrag.originId !== field.id) {
+            dragStartRef.current = null;
+            return;
+          }
+
+          const dxPdf = scaleToPdf(globalDrag.dxWeb, pageMeta.widthPt, canvasWidth);
+          const dyPdf = scaleToPdf(globalDrag.dyWeb, pageMeta.heightPt, canvasHeight);
+          
+          // Move ALL selected fields if this is a selected field
+          if (isSelected) {
+            const selectedFields = fields.filter((f) => selectedFieldIds.includes(f.id));
+            const updates = selectedFields.map((f) => ({
+              id: f.id,
+              patch: {
+                pdfX: f.pdfX + dxPdf,
+                pdfY: f.pdfY - dyPdf, // web Y is inverted
+              }
+            }));
+            updateFields(updates);
+          } else {
+            updateField(field.id, {
+              pdfX: field.pdfX + dxPdf,
+              pdfY: field.pdfY - dyPdf, // web Y is inverted
+            });
+          }
+          
+          dragStartRef.current = null;
+          setGlobalDrag(null);
+        }}
+        style={{
+          width: '100%',
+          height: '100%',
+          cursor: activeTool === 'select' ? 'move' : 'crosshair',
+          touchAction: 'none',
+        }}
+        className={`
+          rounded border-[1px] transition-shadow
+          ${boxStyle}
+          ${isSelected ? 'shadow-lg shadow-blue-500/20' : ''}
+        `}
+      >
       {/* Field label */}
       <span
         className={`absolute -top-5 left-0 text-[9px] leading-none px-1 py-0.5 rounded
@@ -612,6 +648,7 @@ function FieldBoxInner({ field, pageMeta, canvasWidth, canvasHeight, otherFields
         </>
       )}
     </motion.div>
+    </div>
   );
 }
 

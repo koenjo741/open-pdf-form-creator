@@ -127,7 +127,7 @@ export type ExportMode = 'editable' | 'readonly';
 
 // ─── Tool Mode ───────────────────────────────────────────────────────────────
 
-export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex' | 'saveWidget';
+export type ToolMode = FieldType | 'select' | 'number' | 'currency' | 'iban' | 'email' | 'url' | 'regex' | 'saveWidget' | 'freetext';
 
 // ─── App Mode ────────────────────────────────────────────────────────────────
 

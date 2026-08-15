@@ -383,9 +383,22 @@ export function LeftSidebar({ onExportEditable, onExportFlattened, onPrint, isEx
             <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tools</h3>
             <div className="relative">
               <button
+                onClick={() => {
+                  setActiveTool('freetext');
+                  setAddFieldOpen(false);
+                }}
+                className={`w-full flex items-center justify-start gap-2 px-3 mb-2 h-9 rounded-lg text-sm font-medium transition-colors ${
+                  activeTool === 'freetext' ? 'bg-cyan-600 text-white' : 'bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Type className="w-4 h-4 shrink-0" />
+                <span>Freitext (Hintergrund)</span>
+              </button>
+
+              <button
                 onClick={() => setAddFieldOpen((o) => !o)}
                 className={`w-full flex items-center justify-between px-3 h-9 rounded-lg text-sm font-medium transition-colors ${
-                  activeTool !== 'select' ? 'bg-cyan-600 text-white' : 'bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-400 dark:hover:bg-slate-700'
+                  activeTool !== 'select' && activeTool !== 'freetext' ? 'bg-cyan-600 text-white' : 'bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-400 dark:hover:bg-slate-700'
                 }`}
               >
                 <div className="flex items-center gap-2">
