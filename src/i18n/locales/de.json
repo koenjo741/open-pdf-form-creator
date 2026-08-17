@@ -155,5 +155,23 @@
     "toastSaveSuccess": "JSON erfolgreich gespeichert.",
     "toastDownloadSuccess": "JSON heruntergeladen.",
     "toastSaveError": "Speichern fehlgeschlagen."
+  },
+  "tabHint": {
+    "title": "Tabulator-Funktion im Freitext",
+    "subtitle": "Schnelle Text- & Zahlenformatierung",
+    "leftTab": "Linksbündiger Tabulator",
+    "leftTabDesc": "Setzt einen linksbündigen Tabulator im Abstand von 3 Kästchen (30 pt Raster).",
+    "rightTab": "Rechtsbündiger Tabulator",
+    "rightTabDesc": "Setzt einen rechtsbündigen Tabulator-Stopp, damit z. B. Zahlenkolonnen exakt untereinander ausgerichtet werden können.",
+    "commaTab": "Komma-Tabulator (Dezimal)",
+    "commaTabDesc": "Richtet alle Zahlen exakt am Komma aus, unabhängig davon, wie viele Stellen vor bzw. nach dem Komma stehen.",
+    "confirm": "Verstanden"
+  },
+  "decimalChoice": {
+    "title": "Dezimaltrennzeichen auswählen",
+    "subtitle": "Punkt oder Komma zentrieren?",
+    "message": "In der Zahl kommen sowohl Punkt (.) als auch Komma (,) vor (z. B. 11.000,58). Soll der Punkt oder das Komma am Tabulator zentriert/ausgerichtet werden?",
+    "dot": "Punkt (.)",
+    "comma": "Komma (,)"
   }
 }

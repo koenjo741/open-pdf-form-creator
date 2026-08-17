@@ -1,4 +1,10 @@
 import { PDFPage, PDFFont, rgb } from 'pdf-lib';
+import {
+  TAB_GRID_SIZE,
+  TAB_TOKENS,
+  parseLineSegments,
+  getDecimalSeparatorIndex,
+} from '../text/tabAlignmentUtils';
 
 interface TiptapMark {
   type: string;
@@ -12,20 +18,11 @@ interface TiptapNode {
   attrs?: any;
 }
 
-interface RenderContext {
-  page: PDFPage;
-  fontRegular: PDFFont;
-  fontBold: PDFFont;
-  fontItalic: PDFFont;
-  fontBoldItalic: PDFFont;
-}
-
 export function renderTiptapLayerToPDF(
   page: PDFPage,
   content: TiptapNode,
   fontRegular: PDFFont,
   fontBold: PDFFont,
-  // Assuming we might not have italic loaded, we fall back to regular if missing
   fontItalic?: PDFFont,
   fontBoldItalic?: PDFFont
 ) {
@@ -35,35 +32,48 @@ export function renderTiptapLayerToPDF(
   const margin = 20; // 20pt padding from PageEditor (aligned with 10pt grid)
   const availableWidth = width - margin * 2;
   
-  let currentY = height - margin; // pdf-lib origin is bottom-left, so we start at top and move down
-
+  let currentY = height - margin; // pdf-lib origin is bottom-left
   const defaultFontSize = 12; // 12pt
 
-  // Helper to measure width of text considering \t tab stops (10pt each)
+  // Helper to measure width of text considering \t, \u21E5, and \u21E4 tab stops
   const measureLine = (text: string, font: PDFFont, fontSize: number): number => {
-    const parts = text.split('\t');
-    let w = 0;
-    for (let i = 0; i < parts.length; i++) {
-      w += font.widthOfTextAtSize(parts[i], fontSize);
-      if (i < parts.length - 1) {
-        w = Math.floor((w + 10) / 10) * 10;
+    const segments = parseLineSegments(text);
+    let lineX = 0;
+    for (const seg of segments) {
+      const textWidth = font.widthOfTextAtSize(seg.text, fontSize);
+      if (seg.tabTypeBefore === 'left') {
+        lineX = Math.floor((lineX + TAB_GRID_SIZE) / TAB_GRID_SIZE) * TAB_GRID_SIZE;
+        lineX += textWidth;
+      } else if (seg.tabTypeBefore === 'right') {
+        lineX = Math.max(lineX + textWidth, Math.ceil((lineX + TAB_GRID_SIZE) / TAB_GRID_SIZE) * TAB_GRID_SIZE);
+      } else if (seg.tabTypeBefore === 'comma') {
+        let textToMeasure = seg.text;
+        const commaIdx = getDecimalSeparatorIndex(seg.text);
+        if (commaIdx !== -1) {
+          textToMeasure = seg.text.substring(0, commaIdx);
+        }
+        const wBefore = font.widthOfTextAtSize(textToMeasure, fontSize);
+        const targetX = Math.max(lineX + wBefore, Math.ceil((lineX + TAB_GRID_SIZE) / TAB_GRID_SIZE) * TAB_GRID_SIZE);
+        const remainingText = commaIdx !== -1 ? seg.text.substring(commaIdx) : '';
+        lineX = targetX + font.widthOfTextAtSize(remainingText, fontSize);
+      } else {
+        lineX += textWidth;
       }
     }
-    return w;
+    return lineX;
   };
 
-  // Helper to split text into lines based on width
-  const wrapText = (text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] => {
+  // Helper for word wrapping
+  const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number): string[] => {
     const lines: string[] = [];
     const manualLines = text.split('\n');
-    
+
     for (const mLine of manualLines) {
-      if (mLine === '') {
+      if (!mLine) {
         lines.push('');
         continue;
       }
       
-      // We still split by space to wrap words, but we preserve \t attached to words.
       const words = mLine.split(' ');
       let currentLine = '';
 
@@ -92,16 +102,12 @@ export function renderTiptapLayerToPDF(
       const lineHeightMultiplier = parseFloat(node.attrs?.lineHeight || '1.5');
       const lineHeight = fontSize * lineHeightMultiplier;
       
-      let xOffset = margin;
-      let textBuffer = '';
       let currentFont = fontRegular;
 
-      // Extremely simplified renderer: it treats the entire block as one styling for line breaking.
-      // A robust WYSIWYG would need to handle mixed marks (bold/italic) inside the same line.
-      // For this MVP, we extract all text to calculate wrapping, then draw.
-      
       const extractText = (n: TiptapNode): string => {
         if (n.type === 'hardBreak') return '\n';
+        if (n.type === 'rightTab') return TAB_TOKENS.RIGHT;
+        if (n.type === 'commaTab') return TAB_TOKENS.COMMA;
         if (n.type === 'text' && n.text) return n.text;
         if (n.content) return n.content.map(extractText).join('');
         return '';
@@ -122,121 +128,110 @@ export function renderTiptapLayerToPDF(
       let blockFontSize = fontSize;
       let blockColor = rgb(0, 0, 0);
 
-      const hexToRgb = (hex: string) => {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? rgb(
-          parseInt(result[1], 16) / 255,
-          parseInt(result[2], 16) / 255,
-          parseInt(result[3], 16) / 255
-        ) : rgb(0, 0, 0);
-      };
-
-      if (!fullText) {
-        // Empty paragraph, advance Y by line height PLUS the bottom margin
-        currentY -= lineHeight;
-        currentY -= isHeading ? 12 : 6;
-      } else {
-        // For accurate rendering, we should look at the first text node for font style
-        if (node.content && node.content.length > 0 && node.content[0].type === 'text') {
-          currentFont = determineFont(node.content[0].marks);
-          
-          // Check for textStyle (FontSize / Color)
-          const marks = node.content[0].marks as any[];
-          if (marks) {
-            const ts = marks.find(m => m.type === 'textStyle');
-            if (ts && ts.attrs) {
-              if (ts.attrs.fontSize) {
-                const parsed = parseInt(ts.attrs.fontSize);
-                if (!isNaN(parsed)) blockFontSize = parsed;
-              }
-              if (ts.attrs.color) {
-                blockColor = hexToRgb(ts.attrs.color);
-              }
+      // Check first text child for color/font styling
+      if (node.content && node.content.length > 0) {
+        const firstChild = node.content[0];
+        currentFont = determineFont(firstChild.marks);
+        if (firstChild.marks) {
+          const colorMark = firstChild.marks.find(m => m.type === 'textStyle' && (m as any).attrs?.color);
+          if (colorMark && (colorMark as any).attrs?.color) {
+            const hex = (colorMark as any).attrs.color.replace('#', '');
+            if (hex.length === 6) {
+              const r = parseInt(hex.substring(0, 2), 16) / 255;
+              const g = parseInt(hex.substring(2, 4), 16) / 255;
+              const b = parseInt(hex.substring(4, 6), 16) / 255;
+              blockColor = rgb(r, g, b);
             }
           }
         }
+      }
 
-        const actualLineHeight = blockFontSize * lineHeightMultiplier;
+      if (fullText.trim() === '' && !fullText.includes('\n')) {
+        currentY -= lineHeight;
+        return;
+      }
 
-        // Adjust Y for the baseline of the first line
-        currentY -= blockFontSize; // roughly the ascender height
+      const wrappedLines = wrapText(fullText, availableWidth, currentFont, blockFontSize);
 
-        const lines = wrapText(fullText, currentFont, blockFontSize, availableWidth);
+      for (const line of wrappedLines) {
+        if (currentY - lineHeight < margin) {
+          break;
+        }
 
-        lines.forEach((line, index) => {
-          let lineX = xOffset;
+        if (line) {
           const lineWidth = measureLine(line, currentFont, blockFontSize);
+          let lineX = margin;
 
           if (textAlign === 'center') {
-            lineX = xOffset + (availableWidth - lineWidth) / 2;
+            lineX = margin + (availableWidth - lineWidth) / 2;
           } else if (textAlign === 'right') {
             lineX = margin + availableWidth - lineWidth;
           }
 
-          const tabParts = line.split('\t');
-          tabParts.forEach((part, partIndex) => {
-            if (part) {
-              page.drawText(part, {
-                x: lineX,
-                y: currentY,
+          const segments = parseLineSegments(line);
+          let currentSegmentX = lineX;
+
+          segments.forEach((seg) => {
+            const textWidth = currentFont.widthOfTextAtSize(seg.text, blockFontSize);
+            let drawX = currentSegmentX;
+
+            if (seg.tabTypeBefore === 'left') {
+              const relX = currentSegmentX - margin;
+              currentSegmentX = margin + Math.floor((relX + TAB_GRID_SIZE) / TAB_GRID_SIZE) * TAB_GRID_SIZE;
+              drawX = currentSegmentX;
+              currentSegmentX += textWidth;
+            } else if (seg.tabTypeBefore === 'right') {
+              const relX = currentSegmentX - margin;
+              const targetX = margin + Math.max(relX + textWidth, Math.ceil((relX + TAB_GRID_SIZE) / TAB_GRID_SIZE) * TAB_GRID_SIZE);
+              drawX = targetX - textWidth;
+              currentSegmentX = targetX;
+            } else if (seg.tabTypeBefore === 'comma') {
+              const relX = currentSegmentX - margin;
+              let textToMeasure = seg.text;
+              const commaIdx = getDecimalSeparatorIndex(seg.text);
+              if (commaIdx !== -1) {
+                textToMeasure = seg.text.substring(0, commaIdx);
+              }
+              const wBefore = currentFont.widthOfTextAtSize(textToMeasure, blockFontSize);
+              const targetX = margin + Math.max(relX + wBefore, Math.ceil((relX + TAB_GRID_SIZE) / TAB_GRID_SIZE) * TAB_GRID_SIZE);
+              drawX = targetX - wBefore;
+              const remainingText = commaIdx !== -1 ? seg.text.substring(commaIdx) : '';
+              currentSegmentX = targetX + currentFont.widthOfTextAtSize(remainingText, blockFontSize);
+            } else {
+              drawX = currentSegmentX;
+              currentSegmentX += textWidth;
+            }
+
+            if (seg.text) {
+              page.drawText(seg.text, {
+                x: drawX,
+                y: currentY - blockFontSize,
                 size: blockFontSize,
                 font: currentFont,
                 color: blockColor,
               });
             }
-            lineX += currentFont.widthOfTextAtSize(part, blockFontSize);
-            if (partIndex < tabParts.length - 1) {
-              const relX = lineX - margin;
-              lineX = margin + Math.floor((relX + 10) / 10) * 10;
-            }
           });
+        }
 
-          // Move down for next line
-          if (index < lines.length - 1) {
-            currentY -= actualLineHeight;
-          }
-        });
-        
-        // Move down for spacing below the paragraph/heading
-        currentY -= (actualLineHeight - blockFontSize); // Remaining line height
+        currentY -= lineHeight;
       }
 
-      // Add fixed spacing after block
-      currentY -= isHeading ? 12 : 6;
+      currentY -= (isHeading ? 12 : 6);
     } else if (node.type === 'bulletList' || node.type === 'orderedList') {
-      node.content?.forEach((listItem, index) => {
-        const itemText = listItem.content?.map(p => p.content?.map(t => t.text).join('')).join('') || '';
-        const fontSize = defaultFontSize;
-        const prefix = node.type === 'bulletList' ? '• ' : `${index + 1}. `;
-        const prefixWidth = fontRegular.widthOfTextAtSize(prefix, fontSize);
-        
-        currentY -= fontSize;
-        
-        page.drawText(prefix, {
-          x: margin + 12,
-          y: currentY,
-          size: fontSize,
-          font: fontRegular,
-        });
-
-        const lines = wrapText(itemText, fontRegular, fontSize, availableWidth - 24);
-        lines.forEach((line, lIndex) => {
-          page.drawText(line, {
-            x: margin + 12 + prefixWidth,
-            y: currentY,
-            size: fontSize,
-            font: fontRegular,
-          });
-          if (lIndex < lines.length - 1) {
-            currentY -= fontSize * 1.5;
+      if (node.content) {
+        node.content.forEach((item, index) => {
+          if (item.type === 'listItem' && item.content) {
+            item.content.forEach((innerNode) => {
+              renderNode(innerNode);
+            });
           }
         });
-
-        currentY -= (fontSize * 1.5 - fontSize);
-        currentY -= 6;
-      });
+      }
     }
   };
 
-  content.content.forEach(renderNode);
+  content.content.forEach((node) => {
+    renderNode(node);
+  });
 }

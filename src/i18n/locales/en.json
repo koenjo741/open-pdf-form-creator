@@ -155,5 +155,23 @@
     "toastSaveSuccess": "JSON successfully saved.",
     "toastDownloadSuccess": "JSON downloaded.",
     "toastSaveError": "Failed to save."
+  },
+  "tabHint": {
+    "title": "Tab Stops in Free Text",
+    "subtitle": "Fast text and number formatting",
+    "leftTab": "Left-Aligned Tab",
+    "leftTabDesc": "Sets a left-aligned tab stop every 3 grid squares (30 pt grid).",
+    "rightTab": "Right-Aligned Tab",
+    "rightTabDesc": "Sets a right-aligned tab stop to align number columns accurately at the right edge.",
+    "commaTab": "Decimal / Comma Tab",
+    "commaTabDesc": "Aligns numbers exactly at the decimal point/comma, regardless of digits before or after.",
+    "confirm": "Got it"
+  },
+  "decimalChoice": {
+    "title": "Select Decimal Separator",
+    "subtitle": "Center on dot or comma?",
+    "message": "The number contains both a dot (.) and a comma (,) (e.g. 11.000,58). Should the dot or the comma be centered / aligned at the tab stop?",
+    "dot": "Dot (.)",
+    "comma": "Comma (,)"
   }
 }

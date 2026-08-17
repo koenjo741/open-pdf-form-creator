@@ -7,6 +7,8 @@ import { DataExtractor } from './components/extract/DataExtractor';
 import { ConsentModal } from './components/modals/ConsentModal';
 import { BulkImportModal } from './components/modals/BulkImportModal';
 import { FlattenConfirmModal } from './components/modals/FlattenConfirmModal';
+import { TabHintModal } from './components/modals/TabHintModal';
+import { DecimalSeparatorChoiceModal } from './components/modals/DecimalSeparatorChoiceModal';
 import { ToastContainer } from './components/common/Toast';
 import { TooltipLayer } from './components/common/TooltipLayer';
 import { usePdfExport } from './hooks/usePdfExport';
@@ -21,6 +23,38 @@ export default function App() {
   const theme = useEditorStore((s) => s.theme);
   const uiScale = useEditorStore((s) => s.uiScale);
   const [flattenModalOpen, setFlattenModalOpen] = useState(false);
+  const [tabHintModalOpen, setTabHintModalOpen] = useState(false);
+  const [decimalChoiceModalOpen, setDecimalChoiceModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenTabHint = () => {
+      setTabHintModalOpen(true);
+    };
+    const handleOpenDecimalChoice = () => {
+      setDecimalChoiceModalOpen(true);
+    };
+    window.addEventListener('OPEN_TAB_HINT', handleOpenTabHint);
+    window.addEventListener('OPEN_DECIMAL_SEPARATOR_CHOICE', handleOpenDecimalChoice);
+    return () => {
+      window.removeEventListener('OPEN_TAB_HINT', handleOpenTabHint);
+      window.removeEventListener('OPEN_DECIMAL_SEPARATOR_CHOICE', handleOpenDecimalChoice);
+    };
+  }, []);
+
+  const handleCloseTabHint = () => {
+    try {
+      localStorage.setItem('openformpdf_tab_hint_seen', 'true');
+    } catch (e) {}
+    setTabHintModalOpen(false);
+  };
+
+  const handleSelectDecimalSeparator = (separator: 'comma' | 'dot') => {
+    try {
+      localStorage.setItem('openformpdf_decimal_separator', separator);
+      window.dispatchEvent(new CustomEvent('DECIMAL_SEPARATOR_CHANGED', { detail: { separator } }));
+    } catch (e) {}
+    setDecimalChoiceModalOpen(false);
+  };
 
   useEffect(() => {
     document.documentElement.style.fontSize = `${uiScale * 100}%`;
@@ -103,6 +137,14 @@ export default function App() {
         open={flattenModalOpen}
         onConfirm={handleFlattenConfirm}
         onCancel={() => setFlattenModalOpen(false)}
+      />
+      <TabHintModal
+        open={tabHintModalOpen}
+        onClose={handleCloseTabHint}
+      />
+      <DecimalSeparatorChoiceModal
+        open={decimalChoiceModalOpen}
+        onSelect={handleSelectDecimalSeparator}
       />
 
       {/* Toast notifications */}

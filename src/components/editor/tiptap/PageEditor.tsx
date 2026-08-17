@@ -13,7 +13,7 @@ import {
   Bold, Italic, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered, Type, Indent, Outdent
 } from 'lucide-react';
-import { IndentExtension } from './IndentExtension';
+import { IndentExtension, RightTabNode, CommaTabNode } from './IndentExtension';
 import { UnderscoreAdjustExtension } from './UnderscoreExtension';
 
 interface PageEditorProps {
@@ -53,7 +53,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
         onFocus={handleSelectFocus}
         onChange={(e) => applySelectChange((chain, val) => chain.setFontFamily(val), e.target.value)}
         value={editor.getAttributes('textStyle').fontFamily || 'Helvetica'}
-        title="Font Family"
+        data-tooltip="Schriftart"
+        data-tooltip-pos="bottom"
       >
         <option className="text-gray-900 bg-white dark:bg-gray-800 dark:text-gray-200" value="Helvetica">Helvetica</option>
         <option className="text-gray-900 bg-white dark:bg-gray-800 dark:text-gray-200" value="Times">Times</option>
@@ -65,7 +66,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
         className="text-[10px] bg-transparent border border-gray-300 dark:border-gray-600 rounded px-1 py-0.5 mx-0.5 focus:outline-none"
         onFocus={handleSelectFocus}
         onChange={(e) => applySelectChange((chain, val) => chain.setFontSize(val), e.target.value)}
-        title="Font Size"
+        data-tooltip="Schriftgröße"
+        data-tooltip-pos="bottom"
         value={editor.getAttributes('textStyle').fontSize || '12px'}
       >
         {[8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 30, 36].map(size => (
@@ -78,7 +80,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
         type="color"
         onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
         className="w-5 h-5 p-0 border-0 rounded cursor-pointer mx-0.5 bg-transparent"
-        title="Text Color"
+        data-tooltip="Textfarbe"
+        data-tooltip-pos="bottom"
         value={editor.getAttributes('textStyle').color || '#000000'}
       />
 
@@ -87,14 +90,16 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('bold') ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
-        title="Bold"
+        data-tooltip="Fett"
+        data-tooltip-pos="bottom"
       >
         <Bold size={14} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('italic') ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
-        title="Italic"
+        data-tooltip="Kursiv"
+        data-tooltip-pos="bottom"
       >
         <Italic size={14} />
       </button>
@@ -104,24 +109,32 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().setTextAlign('left').run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive({ textAlign: 'left' }) ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
+        data-tooltip="Linksbündig"
+        data-tooltip-pos="bottom"
       >
         <AlignLeft size={14} />
       </button>
       <button
         onClick={() => editor.chain().focus().setTextAlign('center').run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive({ textAlign: 'center' }) ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
+        data-tooltip="Zentriert"
+        data-tooltip-pos="bottom"
       >
         <AlignCenter size={14} />
       </button>
       <button
         onClick={() => editor.chain().focus().setTextAlign('right').run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive({ textAlign: 'right' }) ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
+        data-tooltip="Rechtsbündig"
+        data-tooltip-pos="bottom"
       >
         <AlignRight size={14} />
       </button>
       <button
         onClick={() => editor.chain().focus().setTextAlign('justify').run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
+        data-tooltip="Blocksatz"
+        data-tooltip-pos="bottom"
       >
         <AlignJustify size={14} />
       </button>
@@ -129,18 +142,28 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5"></div>
 
       <button
-        onClick={() => editor.chain().focus().removeTab().run()}
+        onClick={() => editor.chain().focus().insertTab().run()}
         className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-        title="Outdent (Shift+Tab)"
+        data-tooltip="Links-Tabulator (3 Kästchen - TAB)"
+        data-tooltip-pos="bottom"
+      >
+        <Indent size={14} />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().insertRightTab().run()}
+        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+        data-tooltip="Rechts-Tabulator (SHIFT+TAB)"
+        data-tooltip-pos="bottom"
       >
         <Outdent size={14} />
       </button>
       <button
-        onClick={() => editor.chain().focus().insertTab().run()}
-        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-        title="Indent (Tab)"
+        onClick={() => editor.chain().focus().insertCommaTab().run()}
+        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center font-bold text-[12px] w-[22px] h-[22px] leading-none"
+        data-tooltip="Komma-Tabulator für Zahlenkolonnen (ALT+T)"
+        data-tooltip-pos="bottom"
       >
-        <Indent size={14} />
+        <span className="font-mono text-[13px] font-extrabold">,</span>
       </button>
 
       <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5"></div>
@@ -150,7 +173,8 @@ const MenuBar = ({ editor }: { editor: any }) => {
         className="text-[10px] uppercase font-semibold bg-transparent border border-gray-300 dark:border-gray-600 rounded px-1 py-0.5 mx-0.5 focus:outline-none"
         onFocus={handleSelectFocus}
         onChange={(e) => applySelectChange((chain, val) => chain.setLineHeight(val), e.target.value)}
-        title="Line Spacing"
+        data-tooltip="Zeilenabstand"
+        data-tooltip-pos="bottom"
         value={editor.getAttributes('paragraph').lineHeight || '1.5'}
       >
         <option className="text-gray-900 bg-white dark:bg-gray-800 dark:text-gray-200" value="1">1.0 Spacing</option>
@@ -163,12 +187,16 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('bulletList') ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
+        data-tooltip="Aufzählungsliste"
+        data-tooltip-pos="bottom"
       >
         <List size={14} />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('orderedList') ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''}`}
+        data-tooltip="Nummerierte Liste"
+        data-tooltip-pos="bottom"
       >
         <ListOrdered size={14} />
       </button>
@@ -192,6 +220,8 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageMeta, isActive, scal
       }),
       LineHeight,
       FontSize,
+      RightTabNode,
+      CommaTabNode,
       IndentExtension,
       UnderscoreAdjustExtension,
     ],
@@ -206,7 +236,7 @@ export const PageEditor: React.FC<PageEditorProps> = ({ pageMeta, isActive, scal
         // perfectly match the raw PDF rendering loop in renderTiptapLayerToPDF.
         // renderTiptapLayer adds 6px after paragraphs/lists, and 12px after headings.
         class: 'text-black max-w-none focus:outline-none h-full [&_p]:m-0 [&_p]:mb-[6px] [&_h1]:m-0 [&_h1]:mb-[12px] [&_h1]:text-[18px] [&_h1]:font-bold [&_h2]:m-0 [&_h2]:mb-[12px] [&_h2]:text-[18px] [&_h2]:font-bold [&_h3]:m-0 [&_h3]:mb-[12px] [&_h3]:text-[18px] [&_h3]:font-bold [&_ul]:m-0 [&_ul]:mb-[6px] [&_li]:m-0',
-        style: `font-size: 12px; color: black; font-family: Helvetica, Arial, sans-serif; line-height: 1.5; padding: 20px; white-space: pre-wrap; tab-size: 10px;`,
+        style: `font-size: 12px; color: black; font-family: Helvetica, Arial, sans-serif; line-height: 1.5; padding: 20px; white-space: pre-wrap; tab-size: 30px;`,
       },
     },
   });

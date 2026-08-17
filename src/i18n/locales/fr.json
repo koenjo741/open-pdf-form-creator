@@ -140,5 +140,23 @@
     "toastSaveSuccess": "JSON enregistré avec succès.",
     "toastDownloadSuccess": "JSON téléchargé.",
     "toastSaveError": "Échec de l'enregistrement."
+  },
+  "tabHint": {
+    "title": "Fonction de tabulation en texte libre",
+    "subtitle": "Mise en page rapide du texte et des nombres",
+    "leftTab": "Tabulateur aligné à gauche",
+    "leftTabDesc": "Définit une tabulation à gauche tous les 3 carreaux (grille de 30 pt).",
+    "rightTab": "Tabulateur aligné à droite",
+    "rightTabDesc": "Définit une tabulation à droite pour aligner les colonnes de chiffres sur le bord droit.",
+    "commaTab": "Tabulateur décimal / virgule",
+    "commaTabDesc": "Aligne les nombres exactement sur la virgule décimale, quel que soit le nombre de chiffres.",
+    "confirm": "Compris"
+  },
+  "decimalChoice": {
+    "title": "Sélectionner le séparateur décimal",
+    "subtitle": "Centrer sur le point ou la virgule ?",
+    "message": "Le nombre contient à la fois un point (.) et une virgule (,) (par ex. 11.000,58). Lequel doit être aligné au taquet de tabulation ?",
+    "dot": "Point (.)",
+    "comma": "Virgule (,)"
   }
 }

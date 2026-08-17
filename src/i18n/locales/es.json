@@ -140,5 +140,23 @@
     "toastSaveSuccess": "JSON guardado con éxito.",
     "toastDownloadSuccess": "JSON descargado.",
     "toastSaveError": "Error al guardar."
+  },
+  "tabHint": {
+    "title": "Función de tabulación en texto libre",
+    "subtitle": "Formato rápido de texto y números",
+    "leftTab": "Tabulador alineado a la izquierda",
+    "leftTabDesc": "Establece un tabulador a la izquierda cada 3 casillas (cuadrícula de 30 pt).",
+    "rightTab": "Tabulador alineado a la derecha",
+    "rightTabDesc": "Establece un tabulador a la derecha para alinear columnas de números.",
+    "commaTab": "Tabulador decimal / coma",
+    "commaTabDesc": "Alinea los números exactamente en la coma decimal, independientemente de los dígitos.",
+    "confirm": "Entendido"
+  },
+  "decimalChoice": {
+    "title": "Seleccionar separador decimal",
+    "subtitle": "¿Centrar en el punto o la coma?",
+    "message": "El número contiene tanto un punto (.) como una coma (,) (p. ej. 11.000,58). ¿Desea alinear en el punto o en la coma en la posición de tabulación?",
+    "dot": "Punto (.)",
+    "comma": "Coma (,)"
   }
 }
